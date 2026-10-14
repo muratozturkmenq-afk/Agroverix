@@ -1,19 +1,22 @@
 # Tarla Nabzı (konsept site)
 
-Çift yönlü tarım verisi platformu için tanıtım sitesi: çiftçiye ücretsiz tarla defteri ve kilo maliyeti, tarım firmalarına sahadan bölgesel içgörü. Sayfadaki tüm rakamlar örnek veridir, fotoğraflar temsilidir, marka adı çalışma adıdır.
+Çift yönlü tarım verisi platformu için konsept site: çiftçiye ücretsiz tarla defteri ve kilo maliyeti, tarım firmalarına bölgesel içgörü. Tüm rakamlar örnek veridir, marka adı çalışma adıdır.
 
-## Bilgisayarda bakmak
+## Çalıştırma
 
-`index.html` dosyasına çift tıkla; tarayıcıda açılır. İnternet bağlantısı gerekir (yazı tipleri ve animasyon kütüphaneleri internetten yüklenir).
+```bash
+cd ~/Vibe-Projects/Tarla-Nabzi && python3 -m http.server 4317 --bind 127.0.0.1
+```
 
-## Yayın
-
-GitHub'daki bu proje Vercel'e bağlıdır. `main` dalına birleştirilen (merge edilen) her değişiklik yaklaşık bir dakika içinde sitede yayına girer.
+Sonra http://localhost:4317 adresini aç. Claude Code bu klasörden başlatılırsa `.claude/launch.json` içindeki `tarla-nabzi` ayarıyla da açılır.
 
 ## Dosyalar
 
 - `index.html`: sayfa
-- `assets/styles.css`: görünüm (renkler, yazı tipleri, hareketler)
-- `assets/main.js`: etkileşimler ve örnek veriler
-- `assets/images/`: fotoğraflar
-- `AGENTS.md`: Codex gibi yapay zekâ asistanlarına projeyi anlatan kurallar (silme)
+- `assets/styles.css`: stil ve ölçülü hareket sistemi
+- `assets/images/`: fotoğraf gerçekliğinde hero, zararlı ve saha iletişimi görselleri
+- `assets/main.js`: etkileşimler (hikâye, sezon simülatörü, harita, veri geçişleri)
+- `assets/field3d.js`: önceki Three.js tarla sahnesi (arşiv; güncel sayfada yüklenmiyor)
+- `v1.html`: ilk sade sürüm (arşiv)
+
+Kaynak: aile toplantısı, Fireflies kaydı 01M4N8436BR9P7MNKD6HBWPXVP (1:11 ile 1:23 arası).
