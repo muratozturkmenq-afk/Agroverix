@@ -33,6 +33,7 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
     authCard.hidden = next !== "login";
     profileCard.hidden = next !== "signup";
     $("#farms-section").hidden = true;
+    $("#profile-overview").hidden = true;
     credentials.disabled = next !== "signup";
     credentials.hidden = next !== "signup";
     document.querySelectorAll("[data-auth-mode]").forEach((button) => {
@@ -63,6 +64,7 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
     $("#profile-account-phone").textContent = "Hesap: " + (session.user.phone || "");
     $("#profile-submit").innerHTML = "Profili güvenli şekilde kaydet <span>→</span>";
     $("#farms-section").hidden = false;
+    $("#profile-overview").hidden = false;
     await adminReady;
     await loadProfile();
     await loadFarms();
@@ -146,12 +148,18 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
     if ($("#farm-id").value) record.id = $("#farm-id").value;
     return record;
   }
+  function syncFarmOverview(farms) {
+    $("#overview-farm-count").textContent = String(farms.length);
+    $("#overview-area").textContent = farms.reduce((total, farm) => total + Number(farm.area_decare || 0), 0).toLocaleString("tr-TR", { maximumFractionDigits: 1 });
+    $("#overview-crop-count").textContent = String(new Set(farms.map((farm) => farm.crop).filter(Boolean)).size);
+  }
   async function loadFarms() {
     const list = $("#farm-list");
     list.replaceChildren();
     const { data, error } = await client.from("farmer_farms").select("*").eq("user_id", currentSession.user.id).order("created_at");
-    if (error) { list.textContent = "Tarla tablosu henüz kurulmamış. Yönetici kurulum adımlarını tamamlamalı."; return; }
-    if (!data.length) { list.textContent = "Henüz tarla eklenmedi."; return; }
+    if (error) { list.textContent = "Tarla tablosu henüz kurulmamış. Yönetici kurulum adımlarını tamamlamalı."; syncFarmOverview([]); return; }
+    syncFarmOverview(data || []);
+    if (!data || !data.length) { list.textContent = "Henüz tarla eklenmedi. İlk tarlanı ekleyerek başlayabilirsin."; return; }
     data.forEach((farm) => {
       const item = document.createElement("article"); item.className = "farm-item";
       const details = document.createElement("div"); details.className = "farm-item-details";
@@ -232,6 +240,7 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
     if (await saveProfile(record)) await loadProfile();
   });
 
+  $("#overview-add-farm").addEventListener("click", () => { $("#farm-new").click(); $("#farm-form").scrollIntoView({ behavior: "smooth", block: "start" }); });
   $("#farm-new").addEventListener("click", () => {
     farmForm.reset(); $("#farm-id").value = ""; resetSelect(farmDistrict, "Önce il seçin"); resetSelect(farmVillage, "Önce ilçe seçin");
     farmForm.hidden = false; setStatus(farmStatus, ""); $("#farm-name").focus();
