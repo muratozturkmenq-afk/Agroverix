@@ -674,20 +674,20 @@
   <div class="wrap">
     <div class="sec-head">
       <p class="eyebrow">KVKK ve güven</p>
-      <h2>Çiftçinin verisi satılmaz, toplu içgörü satılır</h2>
-      <p class="lede">Kayıt açık rıza ile başlar. Firmalar tek bir çiftçinin adını, telefonunu ya da tarlasını görmez. Verinin yolculuğu:</p>
+      <h2>Kimlik bilgileri korunur, tarla verileri toplu içgörüye dönüşür</h2>
+      <p class="lede">Bu konsept sayfadaki form verileri kaydetmez veya göndermez. Canlı kayıt açılmadan önce veri sorumlusunun kimliği, işleme amaçları ve hukuki dayanak, aktarım bilgileri, saklama süresi ve başvuru yolları açıklanmalıdır. Ad-soyad ve kimlik numarası firmalara sunulmaz.</p>
     </div>
     <div class="pipe" id="pipe">
       <div class="pipe-line"></div>
-      <div class="packet" id="packet">Mehmet Y. · 0532 ··· · Parsel 7</div>
+      <div class="packet" id="packet">Kimlik bilgisi · tarla konumu</div>
       <div class="pnode"><div class="pi"><svg viewBox="0 0 44 44"><rect x="5" y="9" width="34" height="26" rx="4"/><circle cx="16" cy="20" r="4.5"/><path d="M9 30 C 11 25, 21 25, 23 30 M27 18 H34 M27 24 H34"/></svg></div><b>Açık rızalı kayıt</b><span>Çiftçi hangi verinin, ne amaçla kullanılacağını kayıtta onaylar.</span></div>
-      <div class="pnode"><div class="pi"><svg viewBox="0 0 44 44"><path d="M22 4 L37 10 V22 C 37 31, 30 37, 22 40 C 14 37, 7 31, 7 22 V10 Z"/><path d="M15 22 L20 27 L29 17"/></svg></div><b>Anonimleştirme</b><span>İsim ve telefon ayrılır, tarla kimliği şifrelenir.</span></div>
+      <div class="pnode"><div class="pi"><svg viewBox="0 0 44 44"><path d="M22 4 L37 10 V22 C 37 31, 30 37, 22 40 C 14 37, 7 31, 7 22 V10 Z"/><path d="M15 22 L20 27 L29 17"/></svg></div><b>Kimlikten ayırma</b><span>Ad-soyad ve kimlik numarası firma analizlerinden ayrılır; tarla verileri uygun şekilde toplulaştırılır.</span></div>
       <div class="pnode"><div class="pi"><svg viewBox="0 0 44 44"><path d="M22 6 L39 14 L22 22 L5 14 Z"/><path d="M5 22 L22 30 L39 22"/><path d="M5 30 L22 38 L39 30"/></svg></div><b>Toplulaştırma</b><span>Veri il, ilçe, ürün ve zararlı düzeyinde birleşir. En az 10 tarla şartı.</span></div>
       <div class="pnode"><div class="pi"><svg viewBox="0 0 44 44"><rect x="8" y="5" width="28" height="34" rx="4"/><path d="M14 30 V24 M20 30 V18 M26 30 V21 M32 30 V14"/></svg></div><b>Rapor ve öneri</b><span>Firma rapor alır, çiftçi bölgesel öneri alır.</span></div>
     </div>
     <div class="rules">
       <div class="rule"><b>10</b><span>tarladan az kayıt olan hiçbir ilçe kırılımı raporlanmaz.</span></div>
-      <div class="rule"><b>0</b><span>isim veya telefon numarası firmalarla paylaşılır.</span></div>
+      <div class="rule"><b>0</b><span>ad-soyad veya kimlik numarası firma raporlarında yer alır.</span></div>
       <div class="rule"><b>1 tık</b><span>ile çiftçi rızasını geri çeker, verisi silinir.</span></div>
       <div class="rule"><b>Ücretsiz</b><span>tarla defteri, kilo maliyeti ve sezon raporu çiftçi için hep ücretsiz.</span></div>
     </div>
@@ -704,10 +704,18 @@
       <div class="cform f">
         <p class="eyebrow">Çiftçiler için · ücretsiz</p>
         <h3>Tarlanı kaydet, ilk kilo maliyetini gör</h3>
-        <form id="form-f" novalidate>
-          <div class="fld"><label for="f-il">İl</label><input id="f-il" type="text" value="Şanlıurfa" autocomplete="off"></div>
+        <form id="form-f">
+          <div class="fld"><label for="f-ad">Adı Soyadı</label><input id="f-ad" name="fullName" type="text" autocomplete="name" required></div>
+          <div class="fld"><label for="f-kimlik">Kimlik No</label><input id="f-kimlik" name="identityNumber" type="text" inputmode="numeric" autocomplete="off" maxlength="11" pattern="[0-9]{11}" title="11 haneli kimlik numarasını girin" required></div>
+          <div class="fld"><label for="f-il">İl</label><input id="f-il" name="province" type="text" autocomplete="address-level1" required></div>
+          <div class="fld"><label for="f-ilce">İlçe</label><input id="f-ilce" name="district" type="text" autocomplete="address-level2" required></div>
+          <div class="fld full"><label for="f-koy">Köy</label><input id="f-koy" name="village" type="text" autocomplete="address-level3" required></div>
+          <div class="fld"><label for="f-enlem">Uydu noktası · enlem</label><input id="f-enlem" name="latitude" type="number" inputmode="decimal" min="-90" max="90" step="any" placeholder="Örn. 37.150000" required></div>
+          <div class="fld"><label for="f-boylam">Uydu noktası · boylam</label><input id="f-boylam" name="longitude" type="number" inputmode="decimal" min="-180" max="180" step="any" placeholder="Örn. 39.050000" required></div>
           <div class="fld"><label for="f-urun">Ürün</label><select id="f-urun"><option>Pamuk</option><option>Buğday</option><option>Mısır</option><option>Ayçiçeği</option><option>Domates</option></select></div>
-          <div class="fld full"><label for="f-alan">Alan (dekar)</label><input id="f-alan" type="number" min="1" value="20"></div>
+          <div class="fld"><label for="f-alan">Alan (dekar)</label><input id="f-alan" type="number" min="1" value="20"></div>
+          <label class="consent full"><input id="f-riza" name="anonymousInsightsConsent" type="checkbox"><span>Tarla faaliyet ve konum verilerimin, kimlik bilgilerimden ayrıştırılarak anonim ve toplu tarımsal analizlerde kullanılmasına açık rıza veriyorum. <a href="#kvkk">Bilgilendirmeyi oku</a>. Bu onay isteğe bağlıdır.</span></label>
+          <p class="form-note full">Konsept form: bilgileriniz kaydedilmez veya bir yere gönderilmez.</p>
           <button class="btn btn-gold full" type="submit">Tarlamı kaydet <span class="arr">→</span></button>
           <p class="ok" id="f-ok" role="status"></p>
         </form>
@@ -732,7 +740,7 @@
 <footer class="foot">
   <div class="wrap foot-in">
     <span class="brand" style="font-size:16px">Agroverix</span>
-    <span>Konsept tasarım · Sayfadaki tüm rakamlar örnek veridir · Marka adı çalışma adıdır</span>
+    <span>Konsept tasarım · Sayfadaki tüm rakamlar örnek veridir</span>
   </div>
 </footer>
 
