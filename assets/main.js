@@ -923,6 +923,10 @@
     });
 
     geoButton.addEventListener("click", function () {
+      if (!window.isSecureContext) {
+        geoStatus.textContent = "Telefon konumu yalnızca güvenli (HTTPS) bağlantıda kullanılabilir.";
+        return;
+      }
       if (!navigator.geolocation) {
         geoStatus.textContent = "Bu tarayıcı telefon konumunu desteklemiyor.";
         return;
@@ -947,7 +951,14 @@
   })();
 
   function demo(fid, oid, msg) { var f = $("#" + fid); f.addEventListener("submit", function (e) { e.preventDefault(); $("#" + oid).textContent = msg(); }); }
-  demo("form-f", "f-ok", function () { return "Konsept sayfa: bilgileriniz kaydedilmedi ve hiçbir yere gönderilmedi. Canlı kayıt sistemi henüz bağlı değil."; });
+  demo("form-f", "f-ok", function () {
+    if (!$("#f-enlem").value || !$("#f-boylam").value) {
+      $("#f-location-status").textContent = "Önce telefonunuzun konumunu alın.";
+      $("#f-get-location").focus();
+      return "Tarlayı kaydetmek için önce telefon konumunu alın.";
+    }
+    return "Konsept sayfa: bilgileriniz kaydedilmedi ve hiçbir yere gönderilmedi. Canlı kayıt sistemi henüz bağlı değil.";
+  });
   demo("form-c", "c-ok", function () { return "Konsept sayfa: talep henüz bir yere gönderilmiyor. Canlıda " + $("#c-bolge").value + " için örnek Nabız raporu e-postayla iletilecek."; });
 
   /* ---------- reveals ---------- */
