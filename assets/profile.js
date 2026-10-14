@@ -46,7 +46,7 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
     $("#profile-account-phone").textContent = currentSession ? "Hesap: " + (currentSession.user.phone || "") : "Kayıt bilgilerini doldur, en son kendi şifreni belirle.";
     $("#profile-submit").innerHTML = next === "signup" ? "Hesabı oluştur ve profilini kaydet <span>→</span>" : "Profili güvenli şekilde kaydet <span>→</span>";
     setStatus(authStatus, "");
-    if (next === "signup") setStatus(profileStatus, "");
+    if (next === "signup") setStatus(profileStatus, !ready ? "Formu doldurabilirsin. Hesabı kaydetmek için yönetici Supabase bağlantısını tamamlamalı." : "");
   }
   async function showAccount(session) {
     currentSession = session;
@@ -210,7 +210,6 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
   if (!ready) {
     $("#auth-setup-note").hidden = false;
     setStatus(authStatus, "Telefonla üyelik servisi henüz yapılandırılmadı.", true);
-    document.querySelectorAll("[data-auth-mode], #auth-submit, #profile-submit").forEach((element) => { element.disabled = true; });
     return;
   }
   client = createClient(cfg.url, cfg.publishableKey, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
