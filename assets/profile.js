@@ -6,7 +6,7 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
   if (!authCard || !profileCard || !authForm) return;
   const cfg = window.AGROVERIX_SUPABASE || {};
   const ready = Boolean(cfg.url && cfg.publishableKey);
-  const status = $("#auth-status"), setupNote = $("#auth-setup-note");
+  const status = $("#auth-status"), setupNote = $("#auth-setup-note"), profileStatus = $("#profile-status");
   const authPhone = $("#auth-phone"), authPassword = $("#auth-password"), authConfirm = $("#auth-confirm");
   const otpForm = $("#auth-otp-form"), resetForm = $("#auth-new-password-form");
   const profileForm = $("#farmer-profile-form");
@@ -53,7 +53,7 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
     authCard.hidden = true;
     profileCard.hidden = false;
     $("#profile-account-phone").textContent = "Hesap: " + (session.user.phone || "");
-    await loadProfile();
+    await adminReady;\n    await loadProfile();
   }
   function resetSelect(el, prompt) {
     el.replaceChildren();
@@ -67,7 +67,7 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
     el.disabled = rows.length === 0;
   }
   const province = $("#p-province"), district = $("#p-district"), village = $("#p-village");
-  fetch("assets/administrative-units.json?v=2").then((response) => {
+  const adminReady = fetch("assets/administrative-units.json?v=2").then((response) => {
     if (!response.ok) throw new Error("Yer listesi yüklenemedi.");
     return response.json();
   }).then((data) => { admin = data; fillSelect(province, "İl seçin", data.provinces); })
@@ -83,8 +83,8 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
   async function loadProfile() {
     const { data, error } = await client.from("farmer_profiles").select("*").eq("user_id", currentSession.user.id).maybeSingle();
-    if (error) { message("Profil tablosu henüz kurulmamış. Yönetici kurulum adımlarını tamamlamalı.", true); return; }
-    if (!data) { profileForm.reset(); return; }
+    if (error) { profileStatus.textContent = "Profil tablosu henüz kurulmamış. Yönetici kurulum adımlarını tamamlamalı."; profileStatus.classList.add("is-error"); return; }
+    if (!data) { profileForm.reset(); profileStatus.textContent = ""; profileStatus.classList.remove("is-error"); return; }
     $("#p-name").value = data.full_name || "";
     $("#p-id").value = data.identity_number || "";
     $("#p-area").value = data.area_decare ?? "";
@@ -167,7 +167,7 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
       crop: $("#p-crop").value || null,
       area_decare: $("#p-area").value ? Number($("#p-area").value) : null,
       anonymous_insights_consent: $("#p-consent").checked,
-      consent_updated_at: new Date().toISOString(),
+      consent_updated_at: $("#p-consent").checked ? new Date().toISOString() : null,
       updated_at: new Date().toISOString()
     };
     const { error } = await client.from("farmer_profiles").upsert(record, { onConflict: "user_id" });
@@ -191,7 +191,7 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
     }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
   });
 
-  if (!ready || !window.supabase) {
+  if (!ready) {
     setupNote.hidden = false;
     message("Telefonla üyelik servisi henüz etkinleştirilmedi.", true);
     document.querySelectorAll("[data-auth-mode], #auth-submit, #auth-forgot").forEach((element) => { element.disabled = true; });
@@ -199,5 +199,10 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
   }
   client = createClient(cfg.url, cfg.publishableKey, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
   client.auth.getSession().then(({ data }) => showAccount(data.session));
-  client.auth.onAuthStateChange((_event, session) => { window.setTimeout(() => showAccount(session), 0); });
+  client.auth.onAuthStateChange((_event, session) => {
+    window.setTimeout(() => {
+      if (pendingAction === "recovery" && session) { currentSession = session; showAuth("new-password"); return; }
+      showAccount(session);
+    }, 0);
+  });
 })();
