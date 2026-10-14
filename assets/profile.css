@@ -26,3 +26,16 @@
 .farm-item-actions{display:flex;gap:6px}
 .profile-farms[hidden],#farm-form[hidden]{display:none!important}
 @media(max-width:760px){.profile-section-head{align-items:flex-start;flex-direction:column}.profile-section-head button{margin:0}.farm-item{align-items:flex-start;flex-direction:column}.farm-item-actions{width:100%}}
+
+.profile-overview{margin:22px 0 8px;padding:20px;background:#e9eddf;border:1px solid #d9dfce;border-radius:8px}
+.overview-welcome{display:flex;justify-content:space-between;align-items:center;gap:16px}
+.overview-welcome h3{font-size:25px;letter-spacing:-.04em;margin:7px 0 3px}
+.overview-welcome p{margin:0;color:#737a6c;font-size:12px}
+.overview-add{width:auto;padding:0 16px;white-space:nowrap}
+.overview-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}
+.overview-stats article{padding:12px;background:#f7f5eb;border-radius:6px}
+.overview-stats article>span{display:block;color:#737a6c;font-size:10px}
+.overview-stats article>b{display:block;margin-top:5px;font:700 22px 'Archivo',sans-serif;color:#31441f}
+.overview-stats small{font-size:11px;color:#737a6c}
+.profile-overview[hidden]{display:none!important}
+@media(max-width:760px){.profile-overview{padding:15px}.overview-welcome{align-items:flex-start;flex-direction:column}.overview-add{width:100%}.overview-stats{gap:6px}.overview-stats article{padding:9px}.overview-stats article>span{font-size:9px}.overview-stats article>b{font-size:18px}}
