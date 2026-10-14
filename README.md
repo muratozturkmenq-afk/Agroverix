@@ -1,14 +1,14 @@
-# Tarla Nabzı (konsept site)
+# Agroverix (konsept site)
 
-Çift yönlü tarım verisi platformu için konsept site: çiftçiye ücretsiz tarla defteri ve kilo maliyeti, tarım firmalarına bölgesel içgörü. Tüm rakamlar örnek veridir, marka adı çalışma adıdır.
+Çift yönlü tarım verisi platformu için konsept site: çiftçiye ücretsiz tarla defteri ve kilo maliyeti, tarım firmalarına bölgesel içgörü. Tüm rakamlar örnek veridir; marka adı Agroverix'tir.
 
 ## Çalıştırma
 
 ```bash
-cd ~/Vibe-Projects/Tarla-Nabzi && python3 -m http.server 4317 --bind 127.0.0.1
+cd ~/Vibe-Projects/Agroverix && python3 -m http.server 4317 --bind 127.0.0.1
 ```
 
-Sonra http://localhost:4317 adresini aç. Claude Code bu klasörden başlatılırsa `.claude/launch.json` içindeki `tarla-nabzi` ayarıyla da açılır.
+Sonra http://localhost:4317 adresini aç. Claude Code bu klasörden başlatılırsa `.claude/launch.json` içindeki `agroverix` ayarıyla da açılır.
 
 ## Dosyalar
 
