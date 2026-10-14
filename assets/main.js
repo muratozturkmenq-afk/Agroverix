@@ -898,7 +898,7 @@
       el.disabled = rows.length === 0;
     }
 
-    fetch("assets/administrative-units.json").then(function (response) {
+    fetch("assets/administrative-units.json?v=2").then(function (response) {
       if (!response.ok) throw new Error("address data unavailable");
       return response.json();
     }).then(function (data) {
