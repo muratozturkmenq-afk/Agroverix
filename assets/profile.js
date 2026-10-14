@@ -2,60 +2,69 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 (function () {
   const $ = (selector) => document.querySelector(selector);
-  const authCard = $("#auth-card"), profileCard = $("#profile-card"), authForm = $("#auth-form");
-  if (!authCard || !profileCard || !authForm) return;
+  const authCard = $("#auth-card"), profileCard = $("#profile-card");
+  const authForm = $("#auth-form"), profileForm = $("#farmer-profile-form");
+  if (!authCard || !profileCard || !authForm || !profileForm) return;
+
   const cfg = window.AGROVERIX_SUPABASE || {};
   const ready = Boolean(cfg.url && cfg.publishableKey);
-  const status = $("#auth-status"), setupNote = $("#auth-setup-note"), profileStatus = $("#profile-status");
-  const authPhone = $("#auth-phone"), authPassword = $("#auth-password"), authConfirm = $("#auth-confirm");
-  const otpForm = $("#auth-otp-form"), resetForm = $("#auth-new-password-form");
-  const profileForm = $("#farmer-profile-form");
-  let client = null, mode = "login", pendingAction = "", pendingPhone = "", currentSession = null, admin = null;
+  const authStatus = $("#auth-status"), profileStatus = $("#profile-status");
+  const authPhone = $("#auth-phone"), authPassword = $("#auth-password");
+  const credentials = $("#signup-credentials");
+  const signupPhone = $("#signup-phone"), signupPassword = $("#signup-password"), signupConfirm = $("#signup-password-confirm");
+  let client = null, currentSession = null, mode = "login", registrationPending = false, admin = null;
 
-  function message(text, isError) {
-    status.textContent = text || "";
-    status.classList.toggle("is-error", Boolean(isError));
+  function setStatus(target, text, isError = false) {
+    target.textContent = text || "";
+    target.classList.toggle("is-error", Boolean(isError));
   }
   function digitsToPhone(raw) {
     let digits = raw.replace(/\D/g, "");
     if (digits.startsWith("00")) digits = digits.slice(2);
     if (digits.startsWith("0")) digits = "90" + digits.slice(1);
     else if (digits.length === 10) digits = "90" + digits;
-    return digits.startsWith("+") ? digits : "+" + digits;
+    return "+" + digits;
   }
-  function validTurkishPhone(phone) { return /^\+905[0-9]{9}$/.test(phone); }
-  function showAuth(step) {
-    authCard.hidden = false;
-    profileCard.hidden = true;
-    $("#auth-form-area").hidden = step !== "credentials";
-    otpForm.hidden = step !== "otp";
-    resetForm.hidden = step !== "new-password";
-    $("#auth-modes").hidden = step !== "credentials";
-  }
+  function validPhone(phone) { return /^\+905[0-9]{9}$/.test(phone); }
   function setMode(next) {
     mode = next;
+    authCard.hidden = next !== "login";
+    profileCard.hidden = next !== "signup";
+    credentials.disabled = next !== "signup";
+    credentials.hidden = next !== "signup";
+    $("#auth-title").textContent = "Hesabına giriş yap";
+    $("#auth-submit").innerHTML = "Giriş yap <span>→</span>";
     document.querySelectorAll("[data-auth-mode]").forEach((button) => {
-      const active = button.dataset.authMode === mode;
+      const active = button.dataset.authMode === next;
       button.classList.toggle("is-active", active);
       button.setAttribute("aria-selected", String(active));
     });
-    $("#auth-title").textContent = mode === "signup" ? "Hesabını oluştur" : "Hesabına giriş yap";
-    $("#auth-submit").innerHTML = (mode === "signup" ? "Üyeliği oluştur" : "Giriş yap") + " <span>→</span>";
-    $("#auth-confirm-wrap").hidden = mode !== "signup";
-    authConfirm.required = mode === "signup";
-    $("#auth-forgot").hidden = mode === "signup";
-    authPassword.autocomplete = mode === "signup" ? "new-password" : "current-password";
-    message("");
+    $("#auth-modes").hidden = currentSession !== null;
+    $("#auth-back").hidden = next !== "signup";
+    $("#auth-signout").hidden = currentSession === null;
+    $("#profile-title").textContent = next === "signup" ? "Çiftçi profilini oluştur" : "Çiftçi profilin";
+    $("#profile-account-phone").textContent = currentSession ? "Hesap: " + (currentSession.user.phone || "") : "Kayıt bilgilerini doldur, en son kendi şifreni belirle.";
+    $("#profile-submit").innerHTML = next === "signup" ? "Hesabı oluştur ve profilini kaydet <span>→</span>" : "Profili güvenli şekilde kaydet <span>→</span>";
+    setStatus(authStatus, "");
+    if (next === "signup") setStatus(profileStatus, "");
   }
   async function showAccount(session) {
     currentSession = session;
-    if (!session) { showAuth("credentials"); return; }
+    if (!session) { setMode("login"); return; }
     authCard.hidden = true;
     profileCard.hidden = false;
+    credentials.hidden = true;
+    credentials.disabled = true;
+    $("#auth-modes").hidden = true;
+    $("#auth-signout").hidden = false;
+    $("#auth-back").hidden = true;
+    $("#profile-title").textContent = "Çiftçi profilin";
     $("#profile-account-phone").textContent = "Hesap: " + (session.user.phone || "");
+    $("#profile-submit").innerHTML = "Profili güvenli şekilde kaydet <span>→</span>";
     await adminReady;
     await loadProfile();
   }
+
   function resetSelect(el, prompt) {
     el.replaceChildren();
     const option = document.createElement("option");
@@ -82,82 +91,9 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
     fillSelect(village, rows.length ? "Köy / mahalle seçin" : "Köy / mahalle bulunamadı", rows);
   });
 
-  async function loadProfile() {
-    const { data, error } = await client.from("farmer_profiles").select("*").eq("user_id", currentSession.user.id).maybeSingle();
-    if (error) { profileStatus.textContent = "Profil tablosu henüz kurulmamış. Yönetici kurulum adımlarını tamamlamalı."; profileStatus.classList.add("is-error"); return; }
-    if (!data) { profileForm.reset(); profileStatus.textContent = ""; profileStatus.classList.remove("is-error"); return; }
-    $("#p-name").value = data.full_name || "";
-    $("#p-id").value = data.identity_number || "";
-    $("#p-area").value = data.area_decare ?? "";
-    $("#p-crop").value = data.crop || "";
-    $("#p-latitude").value = data.latitude ?? "";
-    $("#p-longitude").value = data.longitude ?? "";
-    $("#p-consent").checked = Boolean(data.anonymous_insights_consent);
-    if (data.province && admin) {
-      province.value = data.province;
-      province.dispatchEvent(new Event("change"));
-      district.value = data.district || "";
-      district.dispatchEvent(new Event("change"));
-      village.value = data.village || "";
-    }
-  }
-
-  document.querySelectorAll("[data-auth-mode]").forEach((button) => button.addEventListener("click", () => setMode(button.dataset.authMode)));
-  $("#auth-form").addEventListener("submit", async (event) => {
-    event.preventDefault();
-    if (!ready) { message("Hesap servisi henüz bağlanmadı. Yönetici kurulum adımlarını tamamlamalı.", true); return; }
-    const phone = digitsToPhone(authPhone.value);
-    if (!validTurkishPhone(phone)) { message("Türkiye cep telefonu numarasını 05xx xxx xx xx biçiminde gir.", true); return; }
-    if (authPassword.value.length < 8) { message("Şifren en az 8 karakter olmalı.", true); return; }
-    message("İşleniyor…");
-    const result = mode === "signup"
-      ? (authPassword.value !== authConfirm.value
-        ? { error: new Error("Şifreler birbiriyle eşleşmiyor.") }
-        : await client.auth.signUp({ phone, password: authPassword.value }))
-      : await client.auth.signInWithPassword({ phone, password: authPassword.value });
-    if (result.error) { message(result.error.message === "Şifreler birbiriyle eşleşmiyor." ? result.error.message : "İşlem tamamlanamadı. Telefonunu ve şifreni kontrol edip tekrar dene.", true); return; }
-    if (mode === "signup") {
-      pendingPhone = phone; pendingAction = "signup";
-      $("#auth-otp-intro").textContent = "Telefonuna gelen SMS’teki 6 haneli kodu girerek hesabını doğrula.";
-      showAuth("otp"); message("Doğrulama kodu gönderildi.");
-      if (result.data.session) await showAccount(result.data.session);
-      return;
-    }
-    await showAccount(result.data.session);
-  });
-
-  otpForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const { data, error } = await client.auth.verifyOtp({ phone: pendingPhone, token: $("#auth-otp").value.trim(), type: "sms" });
-    if (error) { message("Kod doğrulanamadı. Kodu kontrol edip yeniden dene.", true); return; }
-    if (pendingAction === "recovery") { resetForm.hidden = false; otpForm.hidden = true; message("Telefon doğrulandı; yeni şifreni belirle."); return; }
-    await showAccount(data.session);
-  });
-
-  $("#auth-forgot").addEventListener("click", async () => {
-    if (!ready) { message("Hesap servisi henüz bağlanmadı.", true); return; }
-    const phone = digitsToPhone(authPhone.value);
-    if (!validTurkishPhone(phone)) { message("Önce kayıtlı Türkiye cep telefonu numaranı gir.", true); return; }
-    const { error } = await client.auth.signInWithOtp({ phone, options: { shouldCreateUser: false } });
-    if (error) { message("Şifre yenileme kodu gönderilemedi. Numaranı kontrol edip tekrar dene.", true); return; }
-    pendingPhone = phone; pendingAction = "recovery";
-    $("#auth-otp-intro").textContent = "Şifre yenilemek için telefonuna gelen 6 haneli kodu gir.";
-    showAuth("otp"); message("Şifre yenileme kodu gönderildi.");
-  });
-  resetForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const password = $("#auth-new-password").value;
-    if (password.length < 8 || password !== $("#auth-new-password-confirm").value) { message("Şifreler eşleşmeli ve en az 8 karakter olmalı.", true); return; }
-    const { error } = await client.auth.updateUser({ password });
-    if (error) { message("Şifre güncellenemedi. Yeniden giriş yapıp tekrar dene.", true); return; }
-    pendingAction = ""; await showAccount(currentSession); message("Şifren güncellendi.");
-  });
-
-  profileForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    if (!currentSession) { showAuth("credentials"); return; }
-    const record = {
-      user_id: currentSession.user.id,
+  function profileRecord(userId) {
+    return {
+      user_id: userId,
       full_name: $("#p-name").value.trim(),
       identity_number: $("#p-id").value.trim(),
       province: province.value,
@@ -171,13 +107,91 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
       consent_updated_at: $("#p-consent").checked ? new Date().toISOString() : null,
       updated_at: new Date().toISOString()
     };
+  }
+  async function saveProfile(record) {
     const { error } = await client.from("farmer_profiles").upsert(record, { onConflict: "user_id" });
-    if (error) { profileStatus.textContent = "Profil kaydedilemedi. Bilgileri kontrol edip tekrar dene."; profileStatus.classList.add("is-error"); return; }
-    profileStatus.textContent = "Profilin hesabına özel olarak kaydedildi.";
-    profileStatus.classList.remove("is-error");
+    if (error) {
+      setStatus(profileStatus, "Profil kaydedilemedi. Kurulumun tamamlandığını ve bilgileri kontrol edip tekrar dene.", true);
+      return false;
+    }
+    setStatus(profileStatus, "Profilin hesabına özel olarak kaydedildi.");
+    return true;
+  }
+  async function loadProfile() {
+    const { data, error } = await client.from("farmer_profiles").select("*").eq("user_id", currentSession.user.id).maybeSingle();
+    if (error) { setStatus(profileStatus, "Profil tablosu henüz kurulmamış. Yönetici kurulum adımlarını tamamlamalı.", true); return; }
+    if (!data) { profileForm.reset(); setStatus(profileStatus, ""); return; }
+    $("#p-name").value = data.full_name || "";
+    $("#p-id").value = data.identity_number || "";
+    $("#p-area").value = data.area_decare ?? "";
+    $("#p-crop").value = data.crop || "";
+    $("#p-latitude").value = data.latitude ?? "";
+    $("#p-longitude").value = data.longitude ?? "";
+    $("#p-consent").checked = Boolean(data.anonymous_insights_consent);
+    if (data.province && admin) {
+      province.value = data.province; province.dispatchEvent(new Event("change"));
+      district.value = data.district || ""; district.dispatchEvent(new Event("change"));
+      village.value = data.village || "";
+    }
+  }
+
+  document.querySelectorAll("[data-auth-mode]").forEach((button) => button.addEventListener("click", () => {
+    if (button.dataset.authMode === "signup") {
+      profileForm.reset();
+      setMode("signup");
+    } else setMode("login");
+  }));
+  $("#auth-back").addEventListener("click", () => setMode("login"));
+
+  authForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (!ready) { setStatus(authStatus, "Hesap servisi henüz bağlanmadı. Yönetici kurulum adımlarını tamamlamalı.", true); return; }
+    const phone = digitsToPhone(authPhone.value);
+    if (!validPhone(phone)) { setStatus(authStatus, "Türkiye cep telefonu numarasını 05xx xxx xx xx biçiminde gir.", true); return; }
+    if (authPassword.value.length < 8) { setStatus(authStatus, "Şifren en az 8 karakter olmalı.", true); return; }
+    setStatus(authStatus, "Giriş yapılıyor…");
+    const { data, error } = await client.auth.signInWithPassword({ phone, password: authPassword.value });
+    if (error || !data.session) { setStatus(authStatus, "Giriş yapılamadı. Telefon numaranı ve şifreni kontrol et.", true); return; }
+    await showAccount(data.session);
   });
+
+  profileForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (!ready) { setStatus(profileStatus, "Hesap servisi henüz bağlanmadı. Yönetici kurulum adımlarını tamamlamalı.", true); return; }
+    if (currentSession) {
+      setStatus(profileStatus, "Profil kaydediliyor…");
+      await saveProfile(profileRecord(currentSession.user.id));
+      return;
+    }
+    if (mode !== "signup") { setMode("login"); return; }
+    const phone = digitsToPhone(signupPhone.value);
+    if (!validPhone(phone)) { setStatus(profileStatus, "Türkiye cep telefonu numarasını 05xx xxx xx xx biçiminde gir.", true); return; }
+    if (signupPassword.value.length < 8) { setStatus(profileStatus, "Şifren en az 8 karakter olmalı.", true); return; }
+    if (signupPassword.value !== signupConfirm.value) { setStatus(profileStatus, "Şifreler birbiriyle eşleşmiyor.", true); return; }
+
+    const record = profileRecord(null);
+    registrationPending = true;
+    setStatus(profileStatus, "Hesap oluşturuluyor…");
+    const { data, error } = await client.auth.signUp({ phone, password: signupPassword.value });
+    registrationPending = false;
+    if (error) { setStatus(profileStatus, "Hesap oluşturulamadı. Telefon numaranı kontrol et veya zaten kayıtlıysa giriş yap.", true); return; }
+    const session = data.session || (await client.auth.getSession()).data.session;
+    if (!session) {
+      setStatus(profileStatus, "Hesap açılmadı: Supabase telefon onayı kapalı olmalı. Yönetici Authentication ayarlarını kontrol et.", true);
+      return;
+    }
+    currentSession = session;
+    record.user_id = session.user.id;
+    await showAccount(session);
+    if (await saveProfile(record)) {
+      profileForm.reset();
+      await loadProfile();
+    }
+  });
+
   $("#auth-signout").addEventListener("click", async () => {
-    await client.auth.signOut(); currentSession = null; profileForm.reset(); showAuth("credentials"); setMode("login");
+    if (client) await client.auth.signOut();
+    currentSession = null; profileForm.reset(); setMode("login");
   });
   $("#p-get-location").addEventListener("click", () => {
     const locationStatus = $("#p-location-status");
@@ -194,17 +208,15 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
   });
 
   if (!ready) {
-    setupNote.hidden = false;
-    message("Telefonla üyelik servisi henüz etkinleştirilmedi.", true);
-    document.querySelectorAll("[data-auth-mode], #auth-submit, #auth-forgot").forEach((element) => { element.disabled = true; });
+    $("#auth-setup-note").hidden = false;
+    setStatus(authStatus, "Telefonla üyelik servisi henüz yapılandırılmadı.", true);
+    document.querySelectorAll("[data-auth-mode], #auth-submit, #profile-submit").forEach((element) => { element.disabled = true; });
     return;
   }
   client = createClient(cfg.url, cfg.publishableKey, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
   client.auth.getSession().then(({ data }) => showAccount(data.session));
   client.auth.onAuthStateChange((_event, session) => {
-    window.setTimeout(() => {
-      if (pendingAction === "recovery" && session) { currentSession = session; showAuth("new-password"); return; }
-      showAccount(session);
-    }, 0);
+    if (registrationPending) return;
+    window.setTimeout(() => showAccount(session), 0);
   });
 })();
