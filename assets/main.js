@@ -949,7 +949,7 @@
     });
   })();
 
-  function demo(fid, oid, msg) { var f = $("#" + fid); f.addEventListener("submit", function (e) { e.preventDefault(); $("#" + oid).textContent = msg(); }); }
+  function demo(fid, oid, msg) { var f = $("#" + fid); if (!f) return; f.addEventListener("submit", function (e) { e.preventDefault(); $("#" + oid).textContent = msg(); }); }
   demo("form-f", "f-ok", function () {
     if (!coordinates) {
       $("#f-location-status").textContent = "Önce telefonunuzun konumunu alın.";
