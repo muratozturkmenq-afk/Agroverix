@@ -31,31 +31,17 @@
       <button class="auth-mode is-active" type="button" data-auth-mode="login" aria-selected="true">Giriş yap</button>
       <button class="auth-mode" type="button" data-auth-mode="signup" aria-selected="false">Yeni hesap oluştur</button>
     </div>
-    <div id="auth-form-area">
-      <form id="auth-form">
-        <div class="profile-field"><label for="auth-phone">Telefon numarası <b>*</b></label><input id="auth-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05xx xxx xx xx" required><small>Telefon numaran kullanıcı adın olacak.</small></div>
-        <div class="profile-field auth-password"><label for="auth-password">Şifre <b>*</b></label><input id="auth-password" type="password" autocomplete="current-password" minlength="8" placeholder="En az 8 karakter" required></div>
-        <div class="profile-field auth-confirm" id="auth-confirm-wrap" hidden><label for="auth-confirm">Şifreyi tekrar yaz <b>*</b></label><input id="auth-confirm" type="password" autocomplete="new-password" minlength="8" placeholder="Şifreni doğrula"></div>
-        <button class="profile-submit" id="auth-submit" type="submit">Giriş yap <span>→</span></button>
-        <button class="auth-forgot" id="auth-forgot" type="button">Şifremi unuttum</button>
-      </form>
-    </div>
-    <form id="auth-otp-form" hidden>
-      <p class="auth-intro" id="auth-otp-intro">Telefonuna gönderilen doğrulama kodunu gir.</p>
-      <div class="profile-field"><label for="auth-otp">SMS doğrulama kodu</label><input id="auth-otp" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" placeholder="6 haneli kod" required></div>
-      <button class="profile-submit" type="submit">Kodu doğrula <span>→</span></button>
+    <form id="auth-form">
+      <div class="profile-field"><label for="auth-phone">Telefon numarası <b>*</b></label><input id="auth-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05xx xxx xx xx" required><small>Telefon numaran kullanıcı adın olacak.</small></div>
+      <div class="profile-field"><label for="auth-password">Şifre <b>*</b></label><input id="auth-password" type="password" autocomplete="current-password" minlength="8" placeholder="En az 8 karakter" required></div>
+      <button class="profile-submit" id="auth-submit" type="submit">Giriş yap <span>→</span></button>
     </form>
-    <form id="auth-new-password-form" hidden>
-      <p class="auth-intro">Telefon doğrulandı. Yeni şifreni belirle.</p>
-      <div class="profile-field"><label for="auth-new-password">Yeni şifre</label><input id="auth-new-password" type="password" autocomplete="new-password" minlength="8" placeholder="En az 8 karakter" required></div>
-      <div class="profile-field"><label for="auth-new-password-confirm">Yeni şifreyi tekrar yaz</label><input id="auth-new-password-confirm" type="password" autocomplete="new-password" minlength="8" required></div>
-      <button class="profile-submit" type="submit">Şifremi güncelle <span>→</span></button>
-    </form>
+    <p class="auth-reset-note">SMS doğrulaması kapalı olduğu için şifre yenileme henüz etkin değil. Şifreni güvenli bir yerde sakla.</p>
     <p class="profile-result auth-status" id="auth-status" role="status" aria-live="polite"></p>
     <p class="auth-setup-note" id="auth-setup-note" hidden>Hesap servisi henüz yapılandırılmadı. Kurulum için <a href="SUPABASE-KURULUM.md">yönetici kurulum adımlarını</a> tamamlayın.</p>
   </section>
   <section class="profile-card" id="profile-card" hidden>
-    <div class="profile-card-head"><div><span class="profile-kicker">KİŞİSEL ALANIN</span><h2>Çiftçi profilin</h2><p class="profile-account-phone" id="profile-account-phone"></p></div><button class="auth-signout" id="auth-signout" type="button">Güvenli çıkış</button></div>
+    <div class="profile-card-head"><div><span class="profile-kicker">KİŞİSEL ALANIN</span><h2 id="profile-title">Çiftçi profilin</h2><p class="profile-account-phone" id="profile-account-phone"></p></div><div class="profile-actions"><button class="auth-back" id="auth-back" type="button" hidden>← Girişe dön</button><button class="auth-signout" id="auth-signout" type="button" hidden>Güvenli çıkış</button></div></div>
     <form id="farmer-profile-form">
       <fieldset class="profile-section">
         <legend><span>01</span> Kişisel bilgiler</legend>
@@ -86,9 +72,18 @@
           <div class="profile-field"><label for="p-area">Tarla alanı (dekar)</label><input id="p-area" name="area" type="number" min="0.1" step="0.1" inputmode="decimal" placeholder="Örn. 20"></div>
         </div>
       </fieldset>
+      <fieldset id="signup-credentials" class="profile-section signup-credentials">
+        <legend><span>04</span> Hesap bilgileri</legend>
+        <p class="profile-help">Girişte kullanıcı adın telefon numaran olacak. SMS doğrulaması istenmez.</p>
+        <div class="profile-grid">
+          <div class="profile-field"><label for="signup-phone">Telefon numarası <b>*</b></label><input id="signup-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05xx xxx xx xx" required></div>
+          <div class="profile-field"><label for="signup-password">Kendi şifren <b>*</b></label><input id="signup-password" type="password" autocomplete="new-password" minlength="8" placeholder="En az 8 karakter" required></div>
+          <div class="profile-field"><label for="signup-password-confirm">Şifreni tekrar yaz <b>*</b></label><input id="signup-password-confirm" type="password" autocomplete="new-password" minlength="8" placeholder="Şifreni doğrula" required></div>
+        </div>
+      </fieldset>
       <div class="profile-consent"><label><input type="checkbox" id="p-consent"><span class="profile-check"></span><span><b>Anonim ve toplu analiz izni</b><small>Tarla kayıtlarımın kimliğimden arındırılarak bölgesel tarım analizlerinde kullanılmasına izin veriyorum. Bu tercih isteğe bağlıdır.</small></span></label></div>
       <div class="profile-notice"><span>i</span><p><b>Bilgilendirme</b> Profil bilgilerin yalnızca kendi hesabında tutulur. Anonim analiz izni isteğe bağlıdır; KVKK aydınlatma metni veri sorumlusu bilgileri ve hizmet koşulları kesinleşmeden gerçek kayıtları başlatmayın.</p></div>
-      <button class="profile-submit" type="submit">Profili güvenli şekilde kaydet <span>→</span></button>
+      <button class="profile-submit" type="submit" id="profile-submit">Profili güvenli şekilde kaydet <span>→</span></button>
       <p class="profile-result" id="profile-status" role="status" aria-live="polite"></p>
     </form>
     <p class="profile-footer">Oturum açtığında kayıtların bu hesaba özel gösterilir.</p>
