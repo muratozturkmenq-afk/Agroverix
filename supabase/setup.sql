@@ -22,7 +22,9 @@ create table if not exists public.farmer_profiles (
   constraint farmer_profile_identity_number_format check (identity_number ~ '^[0-9]{11}$')
 );
 
--- Existing installations: profile contains identity/account and current address information.\nalter table public.farmer_profiles add column if not exists kvkk_notice_acknowledged boolean not null default false;\nalter table public.farmer_profiles add column if not exists kvkk_notice_acknowledged_at timestamptz;
+-- Existing installations: profile contains identity/account and current address information.
+alter table public.farmer_profiles add column if not exists kvkk_notice_acknowledged boolean not null default false;
+alter table public.farmer_profiles add column if not exists kvkk_notice_acknowledged_at timestamptz;
 alter table public.farmer_profiles alter column province drop not null;
 alter table public.farmer_profiles alter column district drop not null;
 alter table public.farmer_profiles alter column village drop not null;
