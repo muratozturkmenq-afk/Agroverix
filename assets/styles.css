@@ -533,6 +533,10 @@ p { margin: 0; }
 .cform .fld label { color: var(--muted-d); }
 .cform .fld input, .cform .fld select { background: rgba(13, 16, 11, .6); color: var(--cotton); border-color: var(--line-d); }
 .cform .ok { grid-column: 1 / -1; font-size: 13.5px; min-height: 1.2em; color: var(--cotton); }
+.consent { display: flex; align-items: flex-start; gap: 10px; color: var(--cotton); font-size: 12px; line-height: 1.55; }
+.consent input { flex: 0 0 16px; width: 16px; height: 16px; margin: 2px 0 0; accent-color: var(--gold); }
+.consent a { color: var(--gold-2); text-decoration: underline; text-underline-offset: 2px; }
+.form-note { grid-column: 1 / -1; margin: 0; color: var(--muted-d); font-size: 12px; line-height: 1.5; }
 @media (max-width: 420px) { .cform form { grid-template-columns: minmax(0, 1fr); } }
 .foot { background: #2B230C; color: rgba(241, 243, 234, .7); font-size: 13px; padding-block: 22px 30px; position: relative; z-index: 1; }
 .foot-in { display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; }
