@@ -13,6 +13,7 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
   const credentials = $("#signup-credentials");
   const signupPhone = $("#signup-phone"), signupPassword = $("#signup-password"), signupConfirm = $("#signup-password-confirm");
   const farmProvince = $("#farm-province"), farmDistrict = $("#farm-district"), farmVillage = $("#farm-village");
+  const profileProvince = $("#p-province"), profileDistrict = $("#p-district"), profileVillage = $("#p-village");
   let client = null, currentSession = null, mode = "login", registrationPending = false, admin = null;
 
   function setStatus(target, text, isError = false) {
@@ -78,27 +79,35 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
     el.disabled = rows.length === 0;
   }
 
+  function bindAddressSelectors(province, district, village) {
+    province.addEventListener("change", () => {
+      fillSelect(district, "İlçe seçin", (admin && admin.districts[province.value]) || []);
+      resetSelect(village, "Önce ilçe seçin");
+    });
+    district.addEventListener("change", () => {
+      const rows = ((admin && admin.settlements[district.value]) || []).map((name) => ({ id: name, name }));
+      fillSelect(village, rows.length ? "Köy / mahalle seçin" : "Köy / mahalle bulunamadı", rows);
+    });
+  }
+  bindAddressSelectors(profileProvince, profileDistrict, profileVillage);
+  bindAddressSelectors(farmProvince, farmDistrict, farmVillage);
+
   const adminReady = fetch("assets/administrative-units.json?v=2").then((response) => {
     if (!response.ok) throw new Error("Yer listesi yüklenemedi.");
     return response.json();
-  }).then((data) => { admin = data; fillSelect(farmProvince, "İl seçin", data.provinces); })
-    .catch(() => { resetSelect(farmProvince, "Yer listesi yüklenemedi"); });
-  farmProvince.addEventListener("change", () => {
-    fillSelect(farmDistrict, "İlçe seçin", (admin && admin.districts[farmProvince.value]) || []);
-    resetSelect(farmVillage, "Önce ilçe seçin");
-  });
-  farmDistrict.addEventListener("change", () => {
-    const rows = ((admin && admin.settlements[farmDistrict.value]) || []).map((name) => ({ id: name, name }));
-    fillSelect(farmVillage, rows.length ? "Köy / mahalle seçin" : "Köy / mahalle bulunamadı", rows);
-  });
+  }).then((data) => { admin = data; fillSelect(profileProvince, "İl seçin", data.provinces); fillSelect(farmProvince, "İl seçin", data.provinces); })
+    .catch(() => { resetSelect(profileProvince, "Yer listesi yüklenemedi"); resetSelect(farmProvince, "Yer listesi yüklenemedi"); });
 
   function profileRecord(userId) {
     return {
       user_id: userId,
       full_name: $("#p-name").value.trim(),
       identity_number: $("#p-id").value.trim(),
-      anonymous_insights_consent: $("#p-consent").checked,
-      consent_updated_at: $("#p-consent").checked ? new Date().toISOString() : null,
+      province: profileProvince.value,
+      district: profileDistrict.value,
+      village: profileVillage.value,
+      kvkk_notice_acknowledged: $("#p-kvkk").checked,
+      kvkk_notice_acknowledged_at: $("#p-kvkk").checked ? new Date().toISOString() : null,
       updated_at: new Date().toISOString()
     };
   }
@@ -111,10 +120,15 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
   async function loadProfile() {
     const { data, error } = await client.from("farmer_profiles").select("*").eq("user_id", currentSession.user.id).maybeSingle();
     if (error) { setStatus(profileStatus, "Profil tablosu henüz kurulmamış. Yönetici kurulum adımlarını tamamlamalı.", true); return; }
-    if (!data) { $("#p-name").value = ""; $("#p-id").value = ""; $("#p-consent").checked = false; setStatus(profileStatus, ""); return; }
+    if (!data) { $("#p-name").value = ""; $("#p-id").value = ""; $("#p-kvkk").checked = false; return; }
     $("#p-name").value = data.full_name || "";
     $("#p-id").value = data.identity_number || "";
-    $("#p-consent").checked = Boolean(data.anonymous_insights_consent);
+    $("#p-kvkk").checked = Boolean(data.kvkk_notice_acknowledged);
+    if (data.province && admin) {
+      profileProvince.value = data.province; profileProvince.dispatchEvent(new Event("change"));
+      profileDistrict.value = data.district || ""; profileDistrict.dispatchEvent(new Event("change"));
+      profileVillage.value = data.village || "";
+    }
   }
   function farmRecord() {
     const record = {
