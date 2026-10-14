@@ -954,9 +954,9 @@
     if (!coordinates) {
       $("#f-location-status").textContent = "Önce telefonunuzun konumunu alın.";
       $("#f-get-location").focus();
-      return "Tarlayı kaydetmek için önce telefon konumunu alın.";
+      return "Üyelik profilini oluşturmak için önce tarlanızın konumunu ekleyin.";
     }
-    return "Konsept sayfa: bilgileriniz kaydedilmedi ve hiçbir yere gönderilmedi. Canlı kayıt sistemi henüz bağlı değil.";
+    return "Konsept üyelik formu: profiliniz oluşturulmadı; bilgileriniz kaydedilmedi veya gönderilmedi. Üyelik ve giriş sistemi henüz bağlı değil.";
   });
   demo("form-c", "c-ok", function () { return "Konsept sayfa: talep henüz bir yere gönderilmiyor. Canlıda " + $("#c-bolge").value + " için örnek Nabız raporu e-postayla iletilecek."; });
 
