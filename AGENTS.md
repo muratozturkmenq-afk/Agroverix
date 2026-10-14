@@ -20,6 +20,7 @@ Site sahibi teknik biri değildir. Değişiklikleri sade Türkçeyle anlat.
   - `assets/styles.css`: tüm stiller; renk ve yazı tipi değişkenleri en üstte `:root` içinde
   - `assets/images/`: fotoğraflar (açılış tarla fotoğrafı, zararlı kartları, "Bayi camından tarlaya" kartları). Yeni fotoğraf eklerken genişliği en fazla ~1700 px, JPG kalitesi ~80 tut; `width`, `height` ve Türkçe `alt` metni yaz.
   - `assets/main.js`: tüm etkileşimler ve örnek veriler
+  - `assets/administrative-units.json`: il, ilçe ve köy/mahalle seçimi için yerel veri listesi (Ekim 2025 kaynak verisi).
   - `assets/field3d.js`: eski Three.js 3D tarla sahnesi; **arşiv, sayfada yüklenmiyor.** Açıkça istenmedikçe geri bağlama.
 - Dış kütüphaneler CDN'den, sabit sürümle yüklenir: GSAP 3.12.5 + ScrollTrigger, Lenis 1.1.13. Sürümleri sabit tut, `latest` kullanma.
 - Yazı tipleri Google Fonts: Archivo (başlık), Instrument Sans (metin), Martian Mono (rakam/etiket).
