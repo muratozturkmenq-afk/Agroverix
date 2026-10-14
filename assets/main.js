@@ -879,7 +879,7 @@
   (function farmerLocationForm() {
     var province = $("#f-il"), district = $("#f-ilce"), village = $("#f-koy");
     var geoButton = $("#f-get-location"), geoStatus = $("#f-location-status");
-    var addressStatus = $("#f-address-status"), lat = $("#f-enlem"), lon = $("#f-boylam");
+    var addressStatus = $("#f-address-status"), coordinates = null;
     var admin = null;
     if (!province || !district || !village) return;
 
@@ -934,9 +934,8 @@
       geoButton.disabled = true;
       geoStatus.textContent = "Konum izni bekleniyor…";
       navigator.geolocation.getCurrentPosition(function (position) {
-        lat.value = position.coords.latitude.toFixed(6);
-        lon.value = position.coords.longitude.toFixed(6);
-        geoStatus.textContent = "Telefon konumu alındı (yaklaşık " + Math.round(position.coords.accuracy) + " m doğruluk).";
+        coordinates = { latitude: position.coords.latitude, longitude: position.coords.longitude };
+        geoStatus.textContent = "Tarla konumu eklendi (yaklaşık " + Math.round(position.coords.accuracy) + " m doğruluk).";
         geoButton.disabled = false;
       }, function (error) {
         var messages = {
@@ -952,7 +951,7 @@
 
   function demo(fid, oid, msg) { var f = $("#" + fid); f.addEventListener("submit", function (e) { e.preventDefault(); $("#" + oid).textContent = msg(); }); }
   demo("form-f", "f-ok", function () {
-    if (!$("#f-enlem").value || !$("#f-boylam").value) {
+    if (!coordinates) {
       $("#f-location-status").textContent = "Önce telefonunuzun konumunu alın.";
       $("#f-get-location").focus();
       return "Tarlayı kaydetmek için önce telefon konumunu alın.";
