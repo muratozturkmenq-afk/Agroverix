@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Çiftçi Profilin · Agroverix</title>
+<meta name="theme-color" content="#0D100B">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Sans:ital,wght@0,400..700;1,400&family=Martian+Mono:wght@400..600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<link rel="stylesheet" href="assets/profile.css">
+</head>
+<body class="profile-page">
+<header class="profile-top">
+  <a class="brand" href="index.html" aria-label="Agroverix ana sayfa"><span class="profile-mark">A</span> Agroverix</a>
+  <span class="profile-step">ÇİFTÇİ ÜYELİĞİ <i>·</i> PROFİL</span>
+  <a class="profile-back" href="index.html">← Ana sayfa</a>
+</header>
+<main class="profile-layout">
+  <section class="profile-intro">
+    <p class="eyebrow">Kendi alanın, kendi kayıtların</p>
+    <h1>Çiftçi<br><em>profilin.</em></h1>
+    <p>Bilgilerini bir kez ekle. Tarlalarını ve sezon kayıtlarını kişisel alanında düzenle.</p>
+    <div class="profile-progress"><span><b>01</b> Kişisel bilgiler</span><i></i><span><b>02</b> Tarla bilgileri</span><i></i><span><b>03</b> Üretim</span></div>
+    <div class="profile-side-note"><span class="profile-lock">⌑</span><div><b>Bilgilerin sana ait</b><small>Profil alanı üyelikle kişiye özel tasarlanmıştır.</small></div></div>
+  </section>
+  <section class="profile-card">
+    <div class="profile-card-head"><div><span class="profile-kicker">YENİ ÇİFTÇİ PROFİLİ</span><h2>Bilgilerini ekle</h2></div><span class="profile-required">* Zorunlu</span></div>
+    <form id="farmer-profile-form">
+      <fieldset class="profile-section">
+        <legend><span>01</span> Kişisel bilgiler</legend>
+        <div class="profile-grid">
+          <div class="profile-field"><label for="p-name">Adı Soyadı <b>*</b></label><input id="p-name" name="fullName" autocomplete="name" placeholder="Adınız ve soyadınız" required></div>
+          <div class="profile-field"><label for="p-id">T.C. Kimlik No <b>*</b></label><input id="p-id" name="identityNumber" inputmode="numeric" autocomplete="off" maxlength="11" pattern="[0-9]{11}" placeholder="11 haneli kimlik numarası" required><small>Kimlik numaranı yalnızca kendi hesabın için kullan.</small></div>
+          <div class="profile-field"><label for="p-phone">Telefon <b>*</b></label><input id="p-phone" name="phone" type="tel" autocomplete="tel" placeholder="05xx xxx xx xx" required></div>
+        </div>
+      </fieldset>
+      <fieldset class="profile-section">
+        <legend><span>02</span> Tarla konumu</legend>
+        <p class="profile-help">Tarlanın bulunduğu yeri seç. Birden fazla tarlan varsa diğerlerini profilinde ayrıca ekleyebilirsin.</p>
+        <div class="profile-grid profile-address">
+          <div class="profile-field"><label for="p-province">İl <b>*</b></label><select id="p-province" name="province" required><option value="">İller yükleniyor…</option></select></div>
+          <div class="profile-field"><label for="p-district">İlçe <b>*</b></label><select id="p-district" name="district" required disabled><option value="">Önce il seçin</option></select></div>
+          <div class="profile-field"><label for="p-village">Köy / Mahalle <b>*</b></label><select id="p-village" name="village" required disabled><option value="">Önce ilçe seçin</option></select></div>
+        </div>
+        <div class="profile-location">
+          <div class="profile-location-icon" aria-hidden="true">⌖</div>
+          <div class="profile-location-copy"><b>Tarlanın haritadaki konumu</b><small id="p-location-status">Telefon konumunu tarladayken ekleyebilirsin.</small></div>
+          <button class="profile-location-btn" id="p-get-location" type="button">Konum ekle <span>＋</span></button>
+          <input type="hidden" id="p-latitude" name="latitude"><input type="hidden" id="p-longitude" name="longitude">
+        </div>
+      </fieldset>
+      <fieldset class="profile-section">
+        <legend><span>03</span> Üretim bilgileri</legend>
+        <div class="profile-grid">
+          <div class="profile-field"><label for="p-crop">Yetiştirdiğin ürün</label><select id="p-crop" name="crop"><option value="">Ürün seç</option><option>Pamuk</option><option>Buğday</option><option>Mısır</option><option>Zeytin</option><option>Üzüm</option><option>Diğer</option></select></div>
+          <div class="profile-field"><label for="p-area">Tarla alanı (dekar)</label><input id="p-area" name="area" type="number" min="0.1" step="0.1" inputmode="decimal" placeholder="Örn. 20"></div>
+        </div>
+      </fieldset>
+      <div class="profile-consent"><label><input type="checkbox" id="p-consent"><span class="profile-check"></span><span><b>Anonim ve toplu analiz izni</b><small>Tarla kayıtlarımın kimliğimden arındırılarak bölgesel tarım analizlerinde kullanılmasına izin veriyorum. Bu tercih isteğe bağlıdır.</small></span></label></div>
+      <div class="profile-notice"><span>i</span><p><b>Bilgilendirme</b> Bu ekran profil taslağıdır. Üyelik, güvenli kayıt ve KVKK aydınlatma süreçleri henüz bağlanmadı; girdiğin bilgiler kaydedilmez veya gönderilmez. Canlı kullanımdan önce aydınlatma metni ve izin akışı tamamlanacaktır.</p></div>
+      <button class="profile-submit" type="submit">Profil taslağını gözden geçir <span>→</span></button>
+      <p class="profile-result" id="p-result" role="status" aria-live="polite"></p>
+    </form>
+    <p class="profile-footer">Zaten üye misin? <a href="index.html#basla">Giriş alanı yakında</a></p>
+  </section>
+</main>
+<script src="assets/profile.js" defer></script>
+</body>
+</html>
