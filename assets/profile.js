@@ -17,13 +17,13 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
     status.classList.toggle("is-error", Boolean(isError));
   }
   function digitsToPhone(raw) {
-    let digits = raw.replace(/\\D/g, "");
+    let digits = raw.replace(/\D/g, "");
     if (digits.startsWith("00")) digits = digits.slice(2);
     if (digits.startsWith("0")) digits = "90" + digits.slice(1);
     else if (digits.length === 10) digits = "90" + digits;
     return digits.startsWith("+") ? digits : "+" + digits;
   }
-  function validTurkishPhone(phone) { return /^\\+905[0-9]{9}$/.test(phone); }
+  function validTurkishPhone(phone) { return /^\+905[0-9]{9}$/.test(phone); }
   function showAuth(step) {
     authCard.hidden = false;
     profileCard.hidden = true;
@@ -53,7 +53,8 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
     authCard.hidden = true;
     profileCard.hidden = false;
     $("#profile-account-phone").textContent = "Hesap: " + (session.user.phone || "");
-    await adminReady;\n    await loadProfile();
+    await adminReady;
+    await loadProfile();
   }
   function resetSelect(el, prompt) {
     el.replaceChildren();
@@ -171,8 +172,9 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
       updated_at: new Date().toISOString()
     };
     const { error } = await client.from("farmer_profiles").upsert(record, { onConflict: "user_id" });
-    if (error) { message("Profil kaydedilemedi. Bilgileri kontrol edip tekrar dene.", true); return; }
-    message("Profilin hesabına özel olarak kaydedildi.");
+    if (error) { profileStatus.textContent = "Profil kaydedilemedi. Bilgileri kontrol edip tekrar dene."; profileStatus.classList.add("is-error"); return; }
+    profileStatus.textContent = "Profilin hesabına özel olarak kaydedildi.";
+    profileStatus.classList.remove("is-error");
   });
   $("#auth-signout").addEventListener("click", async () => {
     await client.auth.signOut(); currentSession = null; profileForm.reset(); showAuth("credentials"); setMode("login");
