@@ -5,7 +5,7 @@ Bu dosya, gerçek kullanıcı kayıtlarını açmadan önce gerekli yönetici ku
 ## 1. Supabase projesi
 
 1. Supabase hesabında yeni bir proje oluştur. Veritabanı bölgesi ve kişisel verilerin yurt dışına aktarımı konusunu veri koruma danışmanınla değerlendirmeden gerçek çiftçi verisi girme.
-2. **SQL Editor** bölümünde `supabase/setup.sql` dosyasının tamamını çalıştır.
+2. **SQL Editor** bölümünde `supabase/setup.sql` dosyasının tamamını çalıştır. Bu şema çiftçi hesabı için profil tablosu ve aynı çiftçiye ait birden fazla tarla kaydı tablosunu kurar. Önceki şemayı kullandıysan güncel dosyanın tamamını yeniden çalıştır.
 3. **Authentication → Providers → Phone** bölümünde telefon girişini aç. Kayıt sırasında SMS istenmemesi için **phone confirmation / SMS confirmation** ayarını kapat.
 4. **Authentication → URL Configuration** içinde Site URL olarak `https://agroverix.com` ekle.
 5. **Authentication → Rate Limits / CAPTCHA** ayarlarını gözden geçir.
@@ -28,4 +28,4 @@ Bu anahtar tarayıcıda görünür; bu normaldir. **Secret/service_role key'i bu
 - Kimlik numarası ve tarla konumunun saklanma amacı, aydınlatma metni, açık rıza, veri saklama/silme süresi ve yurt dışı aktarım şartlarını hukuk danışmanıyla netleştir. Hukuki gereklilikler kesinleşmeden gerçek çiftçi verisi toplama.
 - Telefon numarası doğrulanmadığı için kullanıcı hesabının sahibini doğrulamaz; hesap kurtarma ve numara sahipliği doğrulaması daha sonra ayrıca kurulmalıdır.
 
-Bu rehber hukuki uygunluk onayı değildir.
+Çiftçi kayıt ekranı yalnızca kişisel profil ve telefon/şifre bilgilerini alır. Ürün, dekar alanı ve tarla konumu, hesap açıldıktan sonra “Tarlalarım” bölümünde her tarla için ayrı kaydedilir.\n\nBu rehber hukuki uygunluk onayı değildir.
