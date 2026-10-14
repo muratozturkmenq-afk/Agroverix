@@ -28,4 +28,8 @@ Bu anahtar tarayıcıda görünür; bu normaldir. **Secret/service_role key'i bu
 - Kimlik numarası ve tarla konumunun saklanma amacı, aydınlatma metni, açık rıza, veri saklama/silme süresi ve yurt dışı aktarım şartlarını hukuk danışmanıyla netleştir. Hukuki gereklilikler kesinleşmeden gerçek çiftçi verisi toplama.
 - Telefon numarası doğrulanmadığı için kullanıcı hesabının sahibini doğrulamaz; hesap kurtarma ve numara sahipliği doğrulaması daha sonra ayrıca kurulmalıdır.
 
-Çiftçi kayıt ekranı yalnızca kişisel profil ve telefon/şifre bilgilerini alır. Ürün, dekar alanı ve tarla konumu, hesap açıldıktan sonra “Tarlalarım” bölümünde her tarla için ayrı kaydedilir.\n\nBu rehber hukuki uygunluk onayı değildir.
+Çiftçi kayıt ekranı yalnızca kişisel profil ve telefon/şifre bilgilerini alır. Ürün, dekar alanı ve tarla konumu, hesap açıldıktan sonra “Tarlalarım” bölümünde her tarla için ayrı kaydedilir.
+
+Çiftçi profilindeki il, ilçe ve köy/mahalle alanları açılır listelerdir. Tarla kayıtlarında aynı listeler her tarla için ayrıca doldurulur. KVKK kutusu analiz izni vermez; tam aydınlatma metni ve veri sorumlusu bilgileri tamamlanmadan gerçek veri toplamaya başlanmamalıdır.
+
+Bu rehber hukuki uygunluk onayı değildir.
