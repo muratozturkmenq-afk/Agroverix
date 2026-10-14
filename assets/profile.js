@@ -215,7 +215,7 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
     currentSession = session;
     record.user_id = session.user.id;
     await showAccount(session);
-    await saveProfile(record);
+    if (await saveProfile(record)) await loadProfile();
   });
 
   $("#farm-new").addEventListener("click", () => {
