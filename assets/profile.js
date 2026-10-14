@@ -3,15 +3,16 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 (function () {
   const $ = (selector) => document.querySelector(selector);
   const authCard = $("#auth-card"), profileCard = $("#profile-card");
-  const authForm = $("#auth-form"), profileForm = $("#farmer-profile-form");
-  if (!authCard || !profileCard || !authForm || !profileForm) return;
+  const authForm = $("#auth-form"), profileForm = $("#farmer-profile-form"), farmForm = $("#farm-form");
+  if (!authCard || !profileCard || !authForm || !profileForm || !farmForm) return;
 
   const cfg = window.AGROVERIX_SUPABASE || {};
   const ready = Boolean(cfg.url && cfg.publishableKey);
-  const authStatus = $("#auth-status"), profileStatus = $("#profile-status");
+  const authStatus = $("#auth-status"), profileStatus = $("#profile-status"), farmStatus = $("#farm-status");
   const authPhone = $("#auth-phone"), authPassword = $("#auth-password");
   const credentials = $("#signup-credentials");
   const signupPhone = $("#signup-phone"), signupPassword = $("#signup-password"), signupConfirm = $("#signup-password-confirm");
+  const farmProvince = $("#farm-province"), farmDistrict = $("#farm-district"), farmVillage = $("#farm-village");
   let client = null, currentSession = null, mode = "login", registrationPending = false, admin = null;
 
   function setStatus(target, text, isError = false) {
@@ -30,10 +31,9 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
     mode = next;
     authCard.hidden = next !== "login";
     profileCard.hidden = next !== "signup";
+    $("#farms-section").hidden = true;
     credentials.disabled = next !== "signup";
     credentials.hidden = next !== "signup";
-    $("#auth-title").textContent = "Hesabına giriş yap";
-    $("#auth-submit").innerHTML = "Giriş yap <span>→</span>";
     document.querySelectorAll("[data-auth-mode]").forEach((button) => {
       const active = button.dataset.authMode === next;
       button.classList.toggle("is-active", active);
@@ -43,10 +43,10 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
     $("#auth-back").hidden = next !== "signup";
     $("#auth-signout").hidden = currentSession === null;
     $("#profile-title").textContent = next === "signup" ? "Çiftçi profilini oluştur" : "Çiftçi profilin";
-    $("#profile-account-phone").textContent = currentSession ? "Hesap: " + (currentSession.user.phone || "") : "Kayıt bilgilerini doldur, en son kendi şifreni belirle.";
+    $("#profile-account-phone").textContent = currentSession ? "Hesap: " + (currentSession.user.phone || "") : "Kişisel bilgilerini gir, tarlalarını hesabını açtıktan sonra ekle.";
     $("#profile-submit").innerHTML = next === "signup" ? "Hesabı oluştur ve profilini kaydet <span>→</span>" : "Profili güvenli şekilde kaydet <span>→</span>";
     setStatus(authStatus, "");
-    if (next === "signup") setStatus(profileStatus, !ready ? "Formu doldurabilirsin. Hesabı kaydetmek için yönetici Supabase bağlantısını tamamlamalı." : "");
+    if (next === "signup") setStatus(profileStatus, !ready ? "Formu doldurabilirsin. Kaydetmek için yönetici Supabase bağlantısını tamamlamalı." : "");
   }
   async function showAccount(session) {
     currentSession = session;
@@ -61,10 +61,11 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
     $("#profile-title").textContent = "Çiftçi profilin";
     $("#profile-account-phone").textContent = "Hesap: " + (session.user.phone || "");
     $("#profile-submit").innerHTML = "Profili güvenli şekilde kaydet <span>→</span>";
+    $("#farms-section").hidden = false;
     await adminReady;
     await loadProfile();
+    await loadFarms();
   }
-
   function resetSelect(el, prompt) {
     el.replaceChildren();
     const option = document.createElement("option");
@@ -76,19 +77,19 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
     rows.forEach((row) => { const option = document.createElement("option"); option.value = row.id; option.textContent = row.name; el.appendChild(option); });
     el.disabled = rows.length === 0;
   }
-  const province = $("#p-province"), district = $("#p-district"), village = $("#p-village");
+
   const adminReady = fetch("assets/administrative-units.json?v=2").then((response) => {
     if (!response.ok) throw new Error("Yer listesi yüklenemedi.");
     return response.json();
-  }).then((data) => { admin = data; fillSelect(province, "İl seçin", data.provinces); })
-    .catch(() => { resetSelect(province, "Yer listesi yüklenemedi"); });
-  province.addEventListener("change", () => {
-    fillSelect(district, "İlçe seçin", (admin && admin.districts[province.value]) || []);
-    resetSelect(village, "Önce ilçe seçin");
+  }).then((data) => { admin = data; fillSelect(farmProvince, "İl seçin", data.provinces); })
+    .catch(() => { resetSelect(farmProvince, "Yer listesi yüklenemedi"); });
+  farmProvince.addEventListener("change", () => {
+    fillSelect(farmDistrict, "İlçe seçin", (admin && admin.districts[farmProvince.value]) || []);
+    resetSelect(farmVillage, "Önce ilçe seçin");
   });
-  district.addEventListener("change", () => {
-    const rows = ((admin && admin.settlements[district.value]) || []).map((name) => ({ id: name, name }));
-    fillSelect(village, rows.length ? "Köy / mahalle seçin" : "Köy / mahalle bulunamadı", rows);
+  farmDistrict.addEventListener("change", () => {
+    const rows = ((admin && admin.settlements[farmDistrict.value]) || []).map((name) => ({ id: name, name }));
+    fillSelect(farmVillage, rows.length ? "Köy / mahalle seçin" : "Köy / mahalle bulunamadı", rows);
   });
 
   function profileRecord(userId) {
@@ -96,13 +97,6 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
       user_id: userId,
       full_name: $("#p-name").value.trim(),
       identity_number: $("#p-id").value.trim(),
-      province: province.value,
-      district: district.value,
-      village: village.value,
-      latitude: $("#p-latitude").value ? Number($("#p-latitude").value) : null,
-      longitude: $("#p-longitude").value ? Number($("#p-longitude").value) : null,
-      crop: $("#p-crop").value || null,
-      area_decare: $("#p-area").value ? Number($("#p-area").value) : null,
       anonymous_insights_consent: $("#p-consent").checked,
       consent_updated_at: $("#p-consent").checked ? new Date().toISOString() : null,
       updated_at: new Date().toISOString()
@@ -110,29 +104,72 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
   }
   async function saveProfile(record) {
     const { error } = await client.from("farmer_profiles").upsert(record, { onConflict: "user_id" });
-    if (error) {
-      setStatus(profileStatus, "Profil kaydedilemedi. Kurulumun tamamlandığını ve bilgileri kontrol edip tekrar dene.", true);
-      return false;
-    }
+    if (error) { setStatus(profileStatus, "Profil kaydedilemedi. Kurulumun tamamlandığını kontrol edip tekrar dene.", true); return false; }
     setStatus(profileStatus, "Profilin hesabına özel olarak kaydedildi.");
     return true;
   }
   async function loadProfile() {
     const { data, error } = await client.from("farmer_profiles").select("*").eq("user_id", currentSession.user.id).maybeSingle();
     if (error) { setStatus(profileStatus, "Profil tablosu henüz kurulmamış. Yönetici kurulum adımlarını tamamlamalı.", true); return; }
-    if (!data) { profileForm.reset(); setStatus(profileStatus, ""); return; }
+    if (!data) { $("#p-name").value = ""; $("#p-id").value = ""; $("#p-consent").checked = false; setStatus(profileStatus, ""); return; }
     $("#p-name").value = data.full_name || "";
     $("#p-id").value = data.identity_number || "";
-    $("#p-area").value = data.area_decare ?? "";
-    $("#p-crop").value = data.crop || "";
-    $("#p-latitude").value = data.latitude ?? "";
-    $("#p-longitude").value = data.longitude ?? "";
     $("#p-consent").checked = Boolean(data.anonymous_insights_consent);
-    if (data.province && admin) {
-      province.value = data.province; province.dispatchEvent(new Event("change"));
-      district.value = data.district || ""; district.dispatchEvent(new Event("change"));
-      village.value = data.village || "";
-    }
+  }
+  function farmRecord() {
+    const record = {
+      user_id: currentSession.user.id,
+      name: $("#farm-name").value.trim(),
+      crop: $("#farm-crop").value,
+      area_decare: Number($("#farm-area").value),
+      province: farmProvince.value,
+      district: farmDistrict.value,
+      village: farmVillage.value,
+      latitude: $("#farm-latitude").value ? Number($("#farm-latitude").value) : null,
+      longitude: $("#farm-longitude").value ? Number($("#farm-longitude").value) : null,
+      updated_at: new Date().toISOString()
+    };
+    if ($("#farm-id").value) record.id = $("#farm-id").value;
+    return record;
+  }
+  async function loadFarms() {
+    const list = $("#farm-list");
+    list.replaceChildren();
+    const { data, error } = await client.from("farmer_farms").select("*").eq("user_id", currentSession.user.id).order("created_at");
+    if (error) { list.textContent = "Tarla tablosu henüz kurulmamış. Yönetici kurulum adımlarını tamamlamalı."; return; }
+    if (!data.length) { list.textContent = "Henüz tarla eklenmedi."; return; }
+    data.forEach((farm) => {
+      const item = document.createElement("article"); item.className = "farm-item";
+      const details = document.createElement("div"); details.className = "farm-item-details";
+      const title = document.createElement("b"); title.textContent = farm.name;
+      const summary = document.createElement("small"); summary.textContent = [farm.crop, farm.area_decare + " da", farm.village, farm.district, farm.province].join(" · ");
+      details.append(title, summary);
+      const actions = document.createElement("div"); actions.className = "farm-item-actions";
+      const edit = document.createElement("button"); edit.type = "button"; edit.className = "auth-back"; edit.textContent = "Düzenle";
+      edit.addEventListener("click", () => editFarm(farm));
+      const remove = document.createElement("button"); remove.type = "button"; remove.className = "auth-back"; remove.textContent = "Sil";
+      remove.addEventListener("click", async () => {
+        if (!window.confirm("Bu tarla kaydını silmek istiyor musun?")) return;
+        const { error: deleteError } = await client.from("farmer_farms").delete().eq("id", farm.id).eq("user_id", currentSession.user.id);
+        if (deleteError) setStatus(farmStatus, "Tarla silinemedi. Tekrar dene.", true);
+        else { setStatus(farmStatus, "Tarla silindi."); await loadFarms(); }
+      });
+      actions.append(edit, remove); item.append(details, actions); list.appendChild(item);
+    });
+  }
+  async function editFarm(farm) {
+    farmForm.hidden = false;
+    $("#farm-id").value = farm.id;
+    $("#farm-name").value = farm.name || "";
+    $("#farm-crop").value = farm.crop || "";
+    $("#farm-area").value = farm.area_decare ?? "";
+    $("#farm-latitude").value = farm.latitude ?? "";
+    $("#farm-longitude").value = farm.longitude ?? "";
+    farmProvince.value = farm.province || ""; farmProvince.dispatchEvent(new Event("change"));
+    farmDistrict.value = farm.district || ""; farmDistrict.dispatchEvent(new Event("change"));
+    farmVillage.value = farm.village || "";
+    setStatus(farmStatus, "");
+    farmForm.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   document.querySelectorAll("[data-auth-mode]").forEach((button) => button.addEventListener("click", () => {
@@ -142,7 +179,6 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
     } else setMode("login");
   }));
   $("#auth-back").addEventListener("click", () => setMode("login"));
-
   authForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (!ready) { setStatus(authStatus, "Hesap servisi henüz bağlanmadı. Yönetici kurulum adımlarını tamamlamalı.", true); return; }
@@ -168,7 +204,6 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
     if (!validPhone(phone)) { setStatus(profileStatus, "Türkiye cep telefonu numarasını 05xx xxx xx xx biçiminde gir.", true); return; }
     if (signupPassword.value.length < 8) { setStatus(profileStatus, "Şifren en az 8 karakter olmalı.", true); return; }
     if (signupPassword.value !== signupConfirm.value) { setStatus(profileStatus, "Şifreler birbiriyle eşleşmiyor.", true); return; }
-
     const record = profileRecord(null);
     registrationPending = true;
     setStatus(profileStatus, "Hesap oluşturuluyor…");
@@ -176,30 +211,40 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
     registrationPending = false;
     if (error) { setStatus(profileStatus, "Hesap oluşturulamadı. Telefon numaranı kontrol et veya zaten kayıtlıysa giriş yap.", true); return; }
     const session = data.session || (await client.auth.getSession()).data.session;
-    if (!session) {
-      setStatus(profileStatus, "Hesap açılmadı: Supabase telefon onayı kapalı olmalı. Yönetici Authentication ayarlarını kontrol et.", true);
-      return;
-    }
+    if (!session) { setStatus(profileStatus, "Hesap açılmadı: Supabase telefon onayı kapalı olmalı. Yönetici Authentication ayarlarını kontrol et.", true); return; }
     currentSession = session;
     record.user_id = session.user.id;
     await showAccount(session);
-    if (await saveProfile(record)) {
-      profileForm.reset();
-      await loadProfile();
-    }
+    await saveProfile(record);
+  });
+
+  $("#farm-new").addEventListener("click", () => {
+    farmForm.reset(); $("#farm-id").value = ""; resetSelect(farmDistrict, "Önce il seçin"); resetSelect(farmVillage, "Önce ilçe seçin");
+    farmForm.hidden = false; setStatus(farmStatus, ""); $("#farm-name").focus();
+  });
+  $("#farm-cancel").addEventListener("click", () => { farmForm.reset(); farmForm.hidden = true; });
+  farmForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (!currentSession) return;
+    setStatus(farmStatus, "Tarla kaydediliyor…");
+    const { error } = await client.from("farmer_farms").upsert(farmRecord(), { onConflict: "id" });
+    if (error) { setStatus(farmStatus, "Tarla kaydedilemedi. Yönetici kurulum adımlarını tamamlamalı.", true); return; }
+    setStatus(farmStatus, "Tarla kaydedildi.");
+    farmForm.reset(); farmForm.hidden = true; $("#farm-id").value = "";
+    await loadFarms();
   });
 
   $("#auth-signout").addEventListener("click", async () => {
     if (client) await client.auth.signOut();
-    currentSession = null; profileForm.reset(); setMode("login");
+    currentSession = null; profileForm.reset(); farmForm.reset(); setMode("login");
   });
-  $("#p-get-location").addEventListener("click", () => {
-    const locationStatus = $("#p-location-status");
+  $("#farm-get-location").addEventListener("click", () => {
+    const locationStatus = $("#farm-location-status");
     if (!window.isSecureContext) { locationStatus.textContent = "Konum izni için HTTPS bağlantısı gerekli."; return; }
     if (!navigator.geolocation) { locationStatus.textContent = "Bu tarayıcı konum almayı desteklemiyor."; return; }
-    const button = $("#p-get-location"); button.disabled = true; locationStatus.textContent = "Konum izni bekleniyor…";
+    const button = $("#farm-get-location"); button.disabled = true; locationStatus.textContent = "Konum izni bekleniyor…";
     navigator.geolocation.getCurrentPosition((position) => {
-      $("#p-latitude").value = position.coords.latitude; $("#p-longitude").value = position.coords.longitude;
+      $("#farm-latitude").value = position.coords.latitude; $("#farm-longitude").value = position.coords.longitude;
       locationStatus.textContent = "Tarla konumu eklendi. Koordinatlar ekranda gösterilmez."; button.disabled = false;
     }, (error) => {
       locationStatus.textContent = error.code === 1 ? "Konum izni verilmedi. Tarayıcı ayarlarından izin verip tekrar dene." : "Konum alınamadı. GPS'i açıp tekrar dene.";
