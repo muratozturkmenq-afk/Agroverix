@@ -876,6 +876,76 @@
   })();
 
   /* ---------- forms ---------- */
+  (function farmerLocationForm() {
+    var province = $("#f-il"), district = $("#f-ilce"), village = $("#f-koy");
+    var geoButton = $("#f-get-location"), geoStatus = $("#f-location-status");
+    var addressStatus = $("#f-address-status"), lat = $("#f-enlem"), lon = $("#f-boylam");
+    var admin = null;
+    if (!province || !district || !village) return;
+
+    function resetSelect(el, prompt) {
+      el.replaceChildren();
+      var option = document.createElement("option");
+      option.value = ""; option.textContent = prompt; option.disabled = true; option.selected = true;
+      el.appendChild(option); el.disabled = true;
+    }
+    function fillSelect(el, prompt, rows) {
+      resetSelect(el, prompt);
+      rows.forEach(function (row) {
+        var option = document.createElement("option");
+        option.value = row.id; option.textContent = row.name; el.appendChild(option);
+      });
+      el.disabled = rows.length === 0;
+    }
+
+    fetch("assets/administrative-units.json").then(function (response) {
+      if (!response.ok) throw new Error("address data unavailable");
+      return response.json();
+    }).then(function (data) {
+      admin = data;
+      fillSelect(province, "İl seçin", admin.provinces);
+      addressStatus.textContent = "";
+    }).catch(function () {
+      addressStatus.textContent = "Yer listesi yüklenemedi. Sayfayı yenileyip tekrar deneyin.";
+    });
+
+    province.addEventListener("change", function () {
+      var rows = (admin && admin.districts[province.value]) || [];
+      fillSelect(district, "İlçe seçin", rows);
+      resetSelect(village, "Önce ilçe seçin");
+    });
+    district.addEventListener("change", function () {
+      var rows = (admin && admin.settlements[district.value] || []).map(function (name) {
+        return { id: name, name: name };
+      });
+      fillSelect(village, "Köy / mahalle seçin", rows);
+      if (!rows.length) village.options[0].textContent = "Bu ilçede kayıt bulunamadı";
+    });
+
+    geoButton.addEventListener("click", function () {
+      if (!navigator.geolocation) {
+        geoStatus.textContent = "Bu tarayıcı telefon konumunu desteklemiyor.";
+        return;
+      }
+      geoButton.disabled = true;
+      geoStatus.textContent = "Konum izni bekleniyor…";
+      navigator.geolocation.getCurrentPosition(function (position) {
+        lat.value = position.coords.latitude.toFixed(6);
+        lon.value = position.coords.longitude.toFixed(6);
+        geoStatus.textContent = "Telefon konumu alındı (yaklaşık " + Math.round(position.coords.accuracy) + " m doğruluk).";
+        geoButton.disabled = false;
+      }, function (error) {
+        var messages = {
+          1: "Konum izni verilmedi. Tarayıcı ayarlarından izin verip yeniden deneyin.",
+          2: "Telefon konumu alınamadı. GPS'i açıp açık alanda yeniden deneyin.",
+          3: "Konum isteği zaman aşımına uğradı. Yeniden deneyin."
+        };
+        geoStatus.textContent = messages[error.code] || "Telefon konumu alınamadı.";
+        geoButton.disabled = false;
+      }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
+    });
+  })();
+
   function demo(fid, oid, msg) { var f = $("#" + fid); f.addEventListener("submit", function (e) { e.preventDefault(); $("#" + oid).textContent = msg(); }); }
   demo("form-f", "f-ok", function () { return "Konsept sayfa: bilgileriniz kaydedilmedi ve hiçbir yere gönderilmedi. Canlı kayıt sistemi henüz bağlı değil."; });
   demo("form-c", "c-ok", function () { return "Konsept sayfa: talep henüz bir yere gönderilmiyor. Canlıda " + $("#c-bolge").value + " için örnek Nabız raporu e-postayla iletilecek."; });
