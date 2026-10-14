@@ -11,3 +11,18 @@
 .signup-credentials[hidden]{display:none!important}
 .signup-credentials:disabled{opacity:1}
 @media(max-width:760px){.profile-actions{gap:5px}.auth-back,.auth-signout{padding:8px;font-size:10px}}
+
+.profile-farms{margin-top:28px;padding-top:24px;border-top:1px solid #d8d8cb}
+.profile-section-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding-bottom:12px}
+.profile-section-head h3{font-size:23px;margin:7px 0 4px;letter-spacing:-.03em}
+.profile-section-head .profile-help{margin:0}
+.profile-section-head button{margin-top:10px}
+.profile-form-actions{display:grid;gap:10px;margin-top:14px}
+.farm-list{display:grid;gap:10px;margin-top:16px}
+.farm-item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px;background:#ecefe4;border:1px solid #dde2d1;border-radius:6px}
+.farm-item-details b,.farm-item-details small{display:block}
+.farm-item-details b{font-size:13px}
+.farm-item-details small{margin-top:5px;color:#737a6c;font-size:10px;line-height:1.5}
+.farm-item-actions{display:flex;gap:6px}
+.profile-farms[hidden],#farm-form[hidden]{display:none!important}
+@media(max-width:760px){.profile-section-head{align-items:flex-start;flex-direction:column}.profile-section-head button{margin:0}.farm-item{align-items:flex-start;flex-direction:column}.farm-item-actions{width:100%}}
