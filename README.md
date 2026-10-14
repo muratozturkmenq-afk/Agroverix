@@ -16,6 +16,7 @@ Sonra http://localhost:4317 adresini aç. Claude Code bu klasörden başlatılı
 - `assets/styles.css`: stil ve ölçülü hareket sistemi
 - `assets/images/`: fotoğraf gerçekliğinde hero, zararlı ve saha iletişimi görselleri
 - `assets/main.js`: etkileşimler (hikâye, sezon simülatörü, harita, veri geçişleri)
+- `assets/administrative-units.json`: il, ilçe ve köy/mahalle açılır listeleri (İçişleri Bakanlığı envanterinden derlenmiş Ekim 2025 veri kümesi).
 - `assets/field3d.js`: önceki Three.js tarla sahnesi (arşiv; güncel sayfada yüklenmiyor)
 - `v1.html`: ilk sade sürüm (arşiv)
 
