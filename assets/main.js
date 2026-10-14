@@ -877,7 +877,7 @@
 
   /* ---------- forms ---------- */
   function demo(fid, oid, msg) { var f = $("#" + fid); f.addEventListener("submit", function (e) { e.preventDefault(); $("#" + oid).textContent = msg(); }); }
-  demo("form-f", "f-ok", function () { return "Konsept sayfa: kayıt henüz bir yere gönderilmiyor. Canlıda " + fmt(+$("#f-alan").value || 0) + " dekarlık " + $("#f-urun").value.toLocaleLowerCase("tr-TR") + " tarlanız için tarla defteri burada açılacak."; });
+  demo("form-f", "f-ok", function () { return "Konsept sayfa: bilgileriniz kaydedilmedi ve hiçbir yere gönderilmedi. Canlı kayıt sistemi henüz bağlı değil."; });
   demo("form-c", "c-ok", function () { return "Konsept sayfa: talep henüz bir yere gönderilmiyor. Canlıda " + $("#c-bolge").value + " için örnek Nabız raporu e-postayla iletilecek."; });
 
   /* ---------- reveals ---------- */
