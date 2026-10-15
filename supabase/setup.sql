@@ -103,3 +103,58 @@ create policy "Farmers can delete only their own farms"
   using ((select auth.uid()) = user_id);
 
 create index if not exists farmer_farms_user_idx on public.farmer_farms (user_id, created_at);
+
+
+-- Stage 03: seasonal production operation records. Safe to re-run.
+create table if not exists public.farmer_operations (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  farm_id uuid not null references public.farmer_farms(id) on delete cascade,
+  operation_type text not null check (operation_type in ('tillage','planting','fertilizing','irrigation','spraying','weeding','harvest','other')),
+  operation_date date not null default current_date,
+  product text,
+  quantity numeric(12,2),
+  quantity_unit text,
+  total_cost numeric(12,2) not null default 0,
+  notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint farmer_operation_quantity_positive check (quantity is null or quantity > 0),
+  constraint farmer_operation_cost_nonnegative check (total_cost >= 0)
+);
+
+alter table public.farmer_operations enable row level security;
+alter table public.farmer_operations force row level security;
+revoke all on table public.farmer_operations from anon;
+grant select, insert, update, delete on public.farmer_operations to authenticated;
+
+drop policy if exists "Farmers can read only their own operations" on public.farmer_operations;
+create policy "Farmers can read only their own operations"
+  on public.farmer_operations for select to authenticated
+  using ((select auth.uid()) = user_id and exists (
+    select 1 from public.farmer_farms f where f.id = farm_id and f.user_id = (select auth.uid())
+  ));
+drop policy if exists "Farmers can create only their own operations" on public.farmer_operations;
+create policy "Farmers can create only their own operations"
+  on public.farmer_operations for insert to authenticated
+  with check ((select auth.uid()) = user_id and exists (
+    select 1 from public.farmer_farms f where f.id = farm_id and f.user_id = (select auth.uid())
+  ));
+drop policy if exists "Farmers can update only their own operations" on public.farmer_operations;
+create policy "Farmers can update only their own operations"
+  on public.farmer_operations for update to authenticated
+  using ((select auth.uid()) = user_id and exists (
+    select 1 from public.farmer_farms f where f.id = farm_id and f.user_id = (select auth.uid())
+  ))
+  with check ((select auth.uid()) = user_id and exists (
+    select 1 from public.farmer_farms f where f.id = farm_id and f.user_id = (select auth.uid())
+  ));
+drop policy if exists "Farmers can delete only their own operations" on public.farmer_operations;
+create policy "Farmers can delete only their own operations"
+  on public.farmer_operations for delete to authenticated
+  using ((select auth.uid()) = user_id and exists (
+    select 1 from public.farmer_farms f where f.id = farm_id and f.user_id = (select auth.uid())
+  ));
+
+create index if not exists farmer_operations_user_date_idx on public.farmer_operations (user_id, operation_date desc);
+create index if not exists farmer_operations_farm_date_idx on public.farmer_operations (farm_id, operation_date desc);
