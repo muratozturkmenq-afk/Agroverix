@@ -54,25 +54,25 @@
       <summary class="profile-edit-summary"><span><b>01 · Profil bilgileri</b><small>Kişisel bilgilerini görüntüle veya düzenle</small></span><i aria-hidden="true">⌄</i></summary>
     <form id="farmer-profile-form">
       <fieldset class="profile-section">
-        <legend><span>01</span> Kişisel bilgiler</legend>
+        <legend><span>01</span> Profil bilgileri <small>(daha sonra tamamlanabilir)</small></legend>
         <div class="profile-grid">
-          <div class="profile-field"><label for="p-name">Adı Soyadı <b>*</b></label><input id="p-name" name="fullName" autocomplete="name" placeholder="Adınız ve soyadınız" required></div>
-          <div class="profile-field"><label for="p-id">T.C. Kimlik No <b>*</b></label><input id="p-id" name="identityNumber" inputmode="numeric" autocomplete="off" maxlength="11" pattern="[0-9]{11}" placeholder="11 haneli kimlik numarası" required><small>Kimlik numaranı yalnızca kendi hesabın için kullan.</small></div>
-          <div class="profile-field"><label for="p-province">İl <b>*</b></label><select id="p-province" name="province" required><option value="">İller yükleniyor…</option></select></div>
-          <div class="profile-field"><label for="p-district">İlçe <b>*</b></label><select id="p-district" name="district" required disabled><option value="">Önce il seçin</option></select></div>
-          <div class="profile-field"><label for="p-village">Köy / Mahalle <b>*</b></label><select id="p-village" name="village" required disabled><option value="">Önce ilçe seçin</option></select></div>
+          <div class="profile-field"><label for="p-name">Adı Soyadı</label><input id="p-name" name="fullName" autocomplete="name" placeholder="Adınız ve soyadınız"></div>
+          <div class="profile-field"><label for="p-id">T.C. Kimlik No</label><input id="p-id" name="identityNumber" inputmode="numeric" autocomplete="off" maxlength="11" pattern="[0-9]{11}" placeholder="11 haneli kimlik numarası"><small>Kimlik numaranı yalnızca kendi hesabın için kullan.</small></div>
+          <div class="profile-field"><label for="p-province">İl</label><select id="p-province" name="province"><option value="">İller yükleniyor…</option></select></div>
+          <div class="profile-field"><label for="p-district">İlçe</label><select id="p-district" name="district" disabled><option value="">Önce il seçin</option></select></div>
+          <div class="profile-field"><label for="p-village">Köy / Mahalle</label><select id="p-village" name="village" disabled><option value="">Önce ilçe seçin</option></select></div>
         </div>
       </fieldset>
       <fieldset id="signup-credentials" class="profile-section signup-credentials">
         <legend><span>02</span> Hesap bilgileri</legend>
-        <p class="profile-help">Girişte kullanıcı adın telefon numaran olacak. SMS doğrulaması istenmez.</p>
+        <p class="profile-help">Hesap oluşturmak için telefon numaran ve kendi belirlediğin şifre yeterli. Profil bilgilerini daha sonra tamamlayabilirsin.</p>
         <div class="profile-grid">
           <div class="profile-field"><label for="signup-phone">Telefon numarası <b>*</b></label><input id="signup-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05xx xxx xx xx" required></div>
           <div class="profile-field"><label for="signup-password">Kendi şifren <b>*</b></label><input id="signup-password" type="password" autocomplete="new-password" minlength="8" placeholder="En az 8 karakter" required></div>
           <div class="profile-field"><label for="signup-password-confirm">Şifreni tekrar yaz <b>*</b></label><input id="signup-password-confirm" type="password" autocomplete="new-password" minlength="8" placeholder="Şifreni doğrula" required></div>
         </div>
       </fieldset>
-      <div class="profile-consent"><label><input type="checkbox" id="p-kvkk" required><span class="profile-check"></span><span><b>KVKK bilgilendirmesi</b><small><a href="index.html#kvkk" target="_blank" rel="noopener">KVKK bilgilendirme bölümünü</a> okudum ve profil bilgilerimin hesap hizmeti için işlenmesi hakkında bilgilendirildim.</small></span></label></div>
+      <div class="profile-consent"><label><input type="checkbox" id="p-kvkk"><span class="profile-check"></span><span><b>KVKK bilgilendirmesi</b><small><a href="index.html#kvkk" target="_blank" rel="noopener">KVKK bilgilendirme bölümünü</a> okudum ve profil bilgilerimin hesap hizmeti için işlenmesi hakkında bilgilendirildim.</small></span></label></div>
       <div class="profile-notice"><span>i</span><p><b>Bilgilendirme</b> Bu kutu anonim analiz izni değildir. Veri sorumlusu, tam aydınlatma metni ve saklama koşulları kesinleştirilmeden gerçek kişisel veri girişi başlatmayın.</p></div>
       <button class="profile-submit" type="submit" id="profile-submit">Profili güvenli şekilde kaydet <span>→</span></button>
       <p class="profile-result" id="profile-status" role="status" aria-live="polite"></p>
