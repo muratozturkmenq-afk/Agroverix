@@ -61,9 +61,6 @@ function renderFarms(rows) {
     sub.textContent = [farm.crop, Number(farm.area_decare).toLocaleString("tr-TR") + " da", locationLabels(farm, admin)].filter(Boolean).join(" · ");
     details.append(title, sub);
     const actions = document.createElement("div");
-    const edit = document.createElement("button");
-    edit.type = "button"; edit.textContent = "Düzenle";
-    edit.addEventListener("click", () => editFarm(farm));
     const remove = document.createElement("button");
     remove.type = "button"; remove.textContent = "Sil";
     remove.addEventListener("click", async () => {
@@ -73,7 +70,7 @@ function renderFarms(rows) {
       message("Tarla kaydı silindi.");
       await loadFarms();
     });
-    actions.append(edit, remove);
+    actions.append(remove);
     card.append(details, actions);
     list.append(card);
   });

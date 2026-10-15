@@ -33,6 +33,8 @@ function farmOptionLabel(farm) {
 function renderFarmOptions() {
   const input = $("#operation-farm");
   const filter = $("#records-filter");
+  const selectedFarm = input.value;
+  const selectedFilter = filter.value;
   input.replaceChildren(new Option(farms.length ? "Tarla seç" : "Önce tarla eklemelisin", ""));
   filter.replaceChildren(new Option("Tüm tarlalar", ""));
   farms.forEach((farm) => {
@@ -42,7 +44,9 @@ function renderFarmOptions() {
   if (!farms.length) input.add(new Option("Tarla ekleme sayfasına git →", "__add_farm__"));
   input.disabled = farms.length === 0;
   filter.disabled = farms.length === 0;
-  if (farms.length === 1) input.value = farms[0].id;
+  if (farms.some((farm) => farm.id === selectedFarm)) input.value = selectedFarm;
+  else if (farms.length === 1) input.value = farms[0].id;
+  if (farms.some((farm) => farm.id === selectedFilter)) filter.value = selectedFilter;
   if ($("#operation-date") && !$("#operation-date").value) $("#operation-date").value = localToday();
   updateCostPreview();
 }
@@ -106,9 +110,6 @@ function renderRecords(rows) {
     cost.append(costValue, costUnit);
     const actions = document.createElement("div");
     actions.className = "production-record-actions";
-    const edit = document.createElement("button");
-    edit.type = "button"; edit.textContent = "Düzenle";
-    edit.addEventListener("click", () => editRecord(record));
     const remove = document.createElement("button");
     remove.type = "button"; remove.textContent = "Sil";
     remove.addEventListener("click", async () => {
@@ -118,7 +119,7 @@ function renderRecords(rows) {
       message("Üretim kaydı silindi.");
       await loadRecords();
     });
-    actions.append(edit, remove);
+    actions.append(remove);
     card.append(icon, content, cost, actions);
     content.append(title, detail);
     list.append(card);
@@ -222,11 +223,9 @@ form.addEventListener("submit", async (event) => {
   $("#operation-submit").disabled = true;
   message("Üretim kaydı kaydediliyor…");
   const { error } = await client.from("farmer_operations").upsert(record, { onConflict: "id" });
-  $("#operation-submit").disabled = false;
-  if (error) { message("Kayıt kaydedilemedi. Supabase kurulumunu kontrol edip tekrar dene.", true); return; }
-  message("Üretim kaydı hesabına özel kaydedildi.");
-  clearForm();
-  await loadRecords();
+  if (error) { $("#operation-submit").disabled = false; message("Kayıt kaydedilemedi. Supabase kurulumunu kontrol edip tekrar dene.", true); return; }
+  message("İşlem kaydedildi. Ana sayfadaki maliyet özetine yönlendiriliyorsun…");
+  window.location.assign("index.html");
 });
 ["operation-quantity", "operation-unit", "operation-total-cost"].forEach((id) => {
   $("#" + id).addEventListener("input", updateCostPreview);

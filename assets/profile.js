@@ -185,8 +185,6 @@ import { locationLabels } from "./location-labels.js";
       const summary = document.createElement("small"); summary.textContent = [farm.crop, farm.area_decare + " da", locationLabels(farm, admin)].filter(Boolean).join(" · ");
       details.append(title, summary);
       const actions = document.createElement("div"); actions.className = "farm-item-actions";
-      const edit = document.createElement("button"); edit.type = "button"; edit.className = "auth-back"; edit.textContent = "Düzenle";
-      edit.addEventListener("click", () => editFarm(farm));
       const remove = document.createElement("button"); remove.type = "button"; remove.className = "auth-back"; remove.textContent = "Sil";
       remove.addEventListener("click", async () => {
         if (!window.confirm("Bu tarla kaydını silmek istiyor musun?")) return;
@@ -194,7 +192,7 @@ import { locationLabels } from "./location-labels.js";
         if (deleteError) setStatus(farmStatus, "Tarla silinemedi. Tekrar dene.", true);
         else { setStatus(farmStatus, "Tarla silindi."); await loadFarms(); }
       });
-      actions.append(edit, remove); item.append(details, actions); list.appendChild(item);
+      actions.append(remove); item.append(details, actions); list.appendChild(item);
     });
   }
   async function editFarm(farm) {
