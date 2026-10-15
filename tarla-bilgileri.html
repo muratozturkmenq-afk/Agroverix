@@ -63,8 +63,7 @@
         <legend><span>01</span> Ürün ve alan</legend>
         <div class="farm-entry-grid">
           <div class="profile-field"><label for="farm-entry-name">Tarla adı / parsel <b>*</b></label><input id="farm-entry-name" required maxlength="80" placeholder="Örn. Kuzey tarla veya Parsel 1"></div>
-          <div class="profile-field"><label for="farm-entry-crop">Yetiştirdiğin ürün <b>*</b></label><select id="farm-entry-crop" required><option value="">Ürün seç</option><option>Pamuk</option><option>Buğday</option><option>Mısır</option><option>Zeytin</option><option>Üzüm</option><option>Ayçiçeği</option><option>Arpa</option><option>Diğer</option></select></div>
-            <div class="profile-field" hidden><label for="farm-entry-crop-other">Yetiştirdiğin Ürünün Adı <b>*</b></label><input id="farm-entry-crop-other" type="text" maxlength="100" placeholder="Ürün adını yaz" disabled></div>
+          <div class="profile-field"><label for="farm-entry-crop">Yetiştirdiğin ürün <b>*</b></label><input id="farm-entry-crop" type="text" list="farm-entry-crop-suggestions" maxlength="100" placeholder="Ürün seç veya adını yaz" pattern=".*\S.*" required><datalist id="farm-entry-crop-suggestions"><option value="Pamuk"><option value="Buğday"><option value="Mısır"><option value="Zeytin"><option value="Üzüm"><option value="Ayçiçeği"><option value="Arpa"></datalist></div>
           <div class="profile-field"><label for="farm-entry-area">Tarla alanı (dekar) <b>*</b></label><input id="farm-entry-area" type="text" inputmode="decimal" pattern="[0-9]+([.,][0-9]+)?" placeholder="Örn. 20" required></div>
         </div>
       </fieldset>
@@ -91,6 +90,6 @@
   </section>
 </main>
 <script src="assets/supabase-config.js"></script>
-<script type="module" src="assets/farm-entry-page.js?v=crop-area-20261015"></script>
+<script type="module" src="assets/farm-entry-page.js?v=crop-input-20261015"></script>
 </body>
 </html>

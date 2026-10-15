@@ -1,12 +1,10 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm";
-import { bindCropSelect } from "./crop-select.js";
 
 (function () {
   const $ = (selector) => document.querySelector(selector);
   const authCard = $("#auth-card"), profileCard = $("#profile-card");
   const authForm = $("#auth-form"), profileForm = $("#farmer-profile-form"), farmForm = $("#farm-form");
   if (!authCard || !profileCard || !authForm || !profileForm || !farmForm) return;
-  const cropChoice = bindCropSelect($("#farm-crop"), $("#farm-crop-other"));
 
   const cfg = window.AGROVERIX_SUPABASE || {};
   const ready = Boolean(cfg.url && cfg.publishableKey);
@@ -146,7 +144,7 @@ import { bindCropSelect } from "./crop-select.js";
     const record = {
       user_id: currentSession.user.id,
       name: $("#farm-name").value.trim(),
-      crop: cropChoice.value(),
+      crop: $("#farm-crop").value.trim(),
       area_decare: Number($("#farm-area").value.trim().replace(',', '.')),
       province: farmProvince.value,
       district: farmDistrict.value,
@@ -201,7 +199,7 @@ import { bindCropSelect } from "./crop-select.js";
     farmForm.hidden = false;
     $("#farm-id").value = farm.id;
     $("#farm-name").value = farm.name || "";
-    cropChoice.setValue(farm.crop || "");
+    $("#farm-crop").value = farm.crop || "";
     $("#farm-area").value = farm.area_decare ?? "";
     $("#farm-latitude").value = farm.latitude ?? "";
     $("#farm-longitude").value = farm.longitude ?? "";
