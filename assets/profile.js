@@ -9,9 +9,9 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
   const cfg = window.AGROVERIX_SUPABASE || {};
   const ready = Boolean(cfg.url && cfg.publishableKey);
   const authStatus = $("#auth-status"), profileStatus = $("#profile-status"), farmStatus = $("#farm-status");
-  const authPhone = $("#auth-phone"), authPassword = $("#auth-password");
+  const authEmail = $("#auth-email"), authPassword = $("#auth-password");
   const credentials = $("#signup-credentials");
-  const signupPhone = $("#signup-phone"), signupPassword = $("#signup-password"), signupConfirm = $("#signup-password-confirm");
+  const signupEmail = $("#signup-email"), signupPassword = $("#signup-password"), signupConfirm = $("#signup-password-confirm");
   const farmProvince = $("#farm-province"), farmDistrict = $("#farm-district"), farmVillage = $("#farm-village");
   const profileProvince = $("#p-province"), profileDistrict = $("#p-district"), profileVillage = $("#p-village");
   let client = null, currentSession = null, mode = "login", registrationPending = false, admin = null;
@@ -20,14 +20,6 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
     target.textContent = text || "";
     target.classList.toggle("is-error", Boolean(isError));
   }
-  function digitsToPhone(raw) {
-    let digits = raw.replace(/\D/g, "");
-    if (digits.startsWith("00")) digits = digits.slice(2);
-    if (digits.startsWith("0")) digits = "90" + digits.slice(1);
-    else if (digits.length === 10) digits = "90" + digits;
-    return "+" + digits;
-  }
-  function validPhone(phone) { return /^\+905[0-9]{9}$/.test(phone); }
   const requestedStep = new URLSearchParams(window.location.search).get("next");
   const returnPath = ["tarla-bilgileri.html", "uretim-kayitlari.html"].includes(requestedStep) ? requestedStep : "";
   function redirectToStep() {
@@ -53,7 +45,7 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
     $("#auth-back").hidden = next !== "signup";
     $("#auth-signout").hidden = currentSession === null;
     $("#profile-title").textContent = next === "signup" ? "Çiftçi profilini oluştur" : "Çiftçi profilin";
-    $("#profile-account-phone").textContent = currentSession ? "Hesap: " + (currentSession.user.phone || "") : "Kişisel bilgilerini gir, tarlalarını hesabını açtıktan sonra ekle.";
+    $("#profile-account-phone").textContent = currentSession ? "Hesap: " + (currentSession.user.email || "") : "Kişisel bilgilerini gir, tarlalarını hesabını açtıktan sonra ekle.";
     $("#profile-submit").innerHTML = next === "signup" ? "Hesabı oluştur ve profilini kaydet <span>→</span>" : "Profili güvenli şekilde kaydet <span>→</span>";
     setStatus(authStatus, "");
     if (next === "signup") setStatus(profileStatus, !ready ? "Formu doldurabilirsin. Kaydetmek için yönetici Supabase bağlantısını tamamlamalı." : "");
@@ -70,7 +62,7 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
     $("#auth-signout").hidden = false;
     $("#auth-back").hidden = true;
     $("#profile-title").textContent = "Çiftçi profilin";
-    $("#profile-account-phone").textContent = "Hesap: " + (session.user.phone || "");
+    $("#profile-account-phone").textContent = "Hesap: " + (session.user.email || "");
     $("#profile-submit").innerHTML = "Profili güvenli şekilde kaydet <span>→</span>";
     $("#farms-section").hidden = false;
     $("#profile-overview").hidden = false;
@@ -221,12 +213,12 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
   authForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (!ready) { setStatus(authStatus, "Hesap servisi henüz bağlanmadı. Yönetici kurulum adımlarını tamamlamalı.", true); return; }
-    const phone = digitsToPhone(authPhone.value);
-    if (!validPhone(phone)) { setStatus(authStatus, "Türkiye cep telefonu numarasını 05xx xxx xx xx biçiminde gir.", true); return; }
+    const email = authEmail.value.trim().toLowerCase();
+    if (!email || !email.includes("@")) { setStatus(authStatus, "Geçerli bir e-posta adresi gir.", true); return; }
     if (authPassword.value.length < 8) { setStatus(authStatus, "Şifren en az 8 karakter olmalı.", true); return; }
     setStatus(authStatus, "Giriş yapılıyor…");
-    const { data, error } = await client.auth.signInWithPassword({ phone, password: authPassword.value });
-    if (error || !data.session) { setStatus(authStatus, "Giriş yapılamadı. Telefon numaranı ve şifreni kontrol et.", true); return; }
+    const { data, error } = await client.auth.signInWithPassword({ email, password: authPassword.value });
+    if (error || !data.session) { setStatus(authStatus, "Giriş yapılamadı. E-posta adresini ve şifreni kontrol et; hesabını e-postadan onayladığından emin ol.", true); return; }
     if (redirectToStep()) return;
     await showAccount(data.session);
   });
@@ -245,18 +237,27 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
       return;
     }
     if (mode !== "signup") { setMode("login"); return; }
-    const phone = digitsToPhone(signupPhone.value);
-    if (!validPhone(phone)) { setStatus(profileStatus, "Türkiye cep telefonu numarasını 05xx xxx xx xx biçiminde gir.", true); return; }
+    const email = signupEmail.value.trim().toLowerCase();
+    if (!email || !email.includes("@")) { setStatus(profileStatus, "Geçerli bir e-posta adresi gir.", true); return; }
     if (signupPassword.value.length < 8) { setStatus(profileStatus, "Şifren en az 8 karakter olmalı.", true); return; }
     if (signupPassword.value !== signupConfirm.value) { setStatus(profileStatus, "Şifreler birbiriyle eşleşmiyor.", true); return; }
     const record = profileRecord(null);
     registrationPending = true;
     setStatus(profileStatus, "Hesap oluşturuluyor…");
-    const { data, error } = await client.auth.signUp({ phone, password: signupPassword.value });
+    const emailRedirect = new URL("ciftci-bilgi.html", window.location.href);
+    if (returnPath) emailRedirect.searchParams.set("next", returnPath);
+    const { data, error } = await client.auth.signUp({
+      email,
+      password: signupPassword.value,
+      options: { emailRedirectTo: emailRedirect.href }
+    });
     registrationPending = false;
-    if (error) { setStatus(profileStatus, "Hesap oluşturulamadı. Telefon numaranı kontrol et veya zaten kayıtlıysa giriş yap.", true); return; }
+    if (error) { setStatus(profileStatus, error.message || "Hesap oluşturulamadı. E-posta adresini kontrol et veya zaten kayıtlıysa giriş yap.", true); return; }
     const session = data.session || (await client.auth.getSession()).data.session;
-    if (!session) { setStatus(profileStatus, "Hesap açılmadı: Supabase telefon onayı kapalı olmalı. Yönetici Authentication ayarlarını kontrol et.", true); return; }
+    if (!session) {
+      setStatus(profileStatus, "Kayıt isteğin alındı. E-posta adresine gönderilen onay bağlantısına tıkla; sonra bu sayfaya dönüp giriş yap. E-posta görünmüyorsa gereksiz klasörünü kontrol et.");
+      return;
+    }
     currentSession = session;
     record.user_id = session.user.id;
     const hasCompleteProfile = Boolean(record.full_name && /^[0-9]{11}$/.test(record.identity_number) && record.province && record.district && record.village && record.kvkk_notice_acknowledged);
@@ -306,7 +307,7 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
   if (!ready) {
     $("#auth-setup-note").hidden = false;
-    setStatus(authStatus, "Telefonla üyelik servisi henüz yapılandırılmadı.", true);
+    setStatus(authStatus, "E-posta hesabı servisi henüz yapılandırılmadı.", true);
     return;
   }
   client = createClient(cfg.url, cfg.publishableKey, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });

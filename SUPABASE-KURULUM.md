@@ -1,4 +1,4 @@
-# Agroverix telefonla üyelik kurulumu
+# Agroverix deneme e-posta üyeliği kurulumu
 
 Bu dosya, gerçek kullanıcı kayıtlarını açmadan önce gerekli yönetici kurulumunu anlatır. Supabase proje bağlantısı ve tablo kurulumu tamamlanmadan sayfa hesap oluşturmaz veya profil kaydetmez.
 
@@ -6,11 +6,11 @@ Bu dosya, gerçek kullanıcı kayıtlarını açmadan önce gerekli yönetici ku
 
 1. Supabase hesabında yeni bir proje oluştur. Veritabanı bölgesi ve kişisel verilerin yurt dışına aktarımı konusunu veri koruma danışmanınla değerlendirmeden gerçek çiftçi verisi girme.
 2. **SQL Editor** bölümünde `supabase/setup.sql` dosyasının tamamını çalıştır. Bu şema çiftçi hesabı için profil tablosu ve aynı çiftçiye ait birden fazla tarla kaydı tablosunu kurar. Önceki şemayı kullandıysan güncel dosyanın tamamını yeniden çalıştır.
-3. **Authentication → Providers → Phone** bölümünde telefon girişini aç. Kayıt sırasında SMS istenmemesi için **phone confirmation / SMS confirmation** ayarını kapat.
-4. **Authentication → URL Configuration** içinde Site URL olarak `https://agroverix.com` ekle.
+3. **Authentication → Providers → Email** bölümünde e-posta ve şifreyle girişi açık tut; **Confirm email** ayarı açık kalsın. Deneme boyunca Phone sağlayıcısını kullanmıyoruz.
+4. **Authentication → URL Configuration** içinde Site URL olarak `https://agroverix.com` ayarla ve Redirect URLs listesine `https://agroverix.com/ciftci-bilgi.html` ekle. E-posta onay bağlantısı çiftçi giriş sayfasına döner.
 5. **Authentication → Rate Limits / CAPTCHA** ayarlarını gözden geçir.
 
-Bu ayarla çiftçi önce profil bilgilerini, ardından telefon numarası ve kendi şifresini girer. Telefon numarası kullanıcı adı olarak kullanılır. SMS sağlayıcısı kayıt için gerekli değildir. Telefon numarası SMS ile doğrulanmadığından yazım hatası veya başkasının numarasını kullanma riski bulunur.
+Denemede çiftçi e-posta adresi ve kendi şifresiyle hesap açar. Supabase onay bağlantısını bu e-postaya yollar. Bağlantıya tıklayınca çiftçi giriş sayfasına döner ve e-posta/şifreyle oturum açabilir. Bu geçici deneme akışında telefon girişi ve SMS kullanılmaz.
 
 ## 2. Tarayıcı bağlantı bilgileri
 
@@ -24,11 +24,11 @@ Bu anahtar tarayıcıda görünür; bu normaldir. **Secret/service_role key'i bu
 ## 3. Açmadan önce
 
 - Bir hesap oluşturup giriş yapmayı ve iki ayrı hesapla birbirinin verilerine erişilemediğini kontrol et.
-- SMS onayı kapalı olduğunda şifre sıfırlama SMS'i gönderilemez; kullanıcı şifresini unutursa kendi başına sıfırlayamaz. Şifreni güvenli sakla uyarısı bu nedenle kayıt ve giriş ekranlarında gösterilir.
+- Supabase'in varsayılan e-posta gönderimi yalnızca proje organizasyonundaki ekip üyelerinin e-posta adreslerine ulaşır ve şu anda saatte 2 iletiyle sınırlıdır. Başka bir adrese test yapmak için e-posta adresini Supabase organizasyonuna ekip üyesi olarak ekle veya özel SMTP kur. [Supabase SMTP rehberi](https://supabase.com/docs/guides/auth/auth-smtp).
 - Kimlik numarası ve tarla konumunun saklanma amacı, aydınlatma metni, açık rıza, veri saklama/silme süresi ve yurt dışı aktarım şartlarını hukuk danışmanıyla netleştir. Hukuki gereklilikler kesinleşmeden gerçek çiftçi verisi toplama.
-- Telefon numarası doğrulanmadığı için kullanıcı hesabının sahibini doğrulamaz; hesap kurtarma ve numara sahipliği doğrulaması daha sonra ayrıca kurulmalıdır.
+- Bu e-posta akışı yalnızca test içindir. Üretimde tercih edilen telefon/şifre ve SMS doğrulama akışına dönmeden önce Supabase Phone ayarları ve SMS sağlayıcısı ayrıca yapılandırılmalıdır.
 
-Çiftçi kayıt ekranı yalnızca kişisel profil ve telefon/şifre bilgilerini alır. Ürün, dekar alanı ve tarla konumu, hesap açıldıktan sonra “Tarlalarım” bölümünde her tarla için ayrı kaydedilir.
+Çiftçi kayıt ekranı yalnızca kişisel profil ve e-posta/şifre bilgilerini alır. Ürün, dekar alanı ve tarla konumu, hesap açıldıktan sonra “Tarlalarım” bölümünde her tarla için ayrı kaydedilir.
 
 Çiftçi profilindeki il, ilçe ve köy/mahalle alanları açılır listelerdir. Tarla kayıtlarında aynı listeler her tarla için ayrıca doldurulur. KVKK kutusu analiz izni vermez; tam aydınlatma metni ve veri sorumlusu bilgileri tamamlanmadan gerçek veri toplamaya başlanmamalıdır.
 

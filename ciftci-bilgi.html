@@ -32,11 +32,11 @@
       <button class="auth-mode" type="button" data-auth-mode="signup" aria-selected="false">Yeni hesap oluştur</button>
     </div>
     <form id="auth-form">
-      <div class="profile-field"><label for="auth-phone">Telefon numarası <b>*</b></label><input id="auth-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05xx xxx xx xx" required><small>Telefon numaran kullanıcı adın olacak.</small></div>
+      <div class="profile-field"><label for="auth-email">E-posta adresi <b>*</b></label><input id="auth-email" type="email" inputmode="email" autocomplete="email" placeholder="ornek@posta.com" required></div>
       <div class="profile-field"><label for="auth-password">Şifre <b>*</b></label><input id="auth-password" type="password" autocomplete="current-password" minlength="8" placeholder="En az 8 karakter" required></div>
       <button class="profile-submit" id="auth-submit" type="submit">Giriş yap <span>→</span></button>
     </form>
-    <p class="auth-reset-note">SMS doğrulaması kapalı olduğu için şifre yenileme henüz etkin değil. Şifreni güvenli bir yerde sakla.</p>
+    <p class="auth-reset-note">Deneme hesabını e-posta ile aç. Girişten önce e-posta adresine gönderilen onay bağlantısına tıkla.</p>
     <p class="profile-result auth-status" id="auth-status" role="status" aria-live="polite"></p>
     <p class="auth-setup-note" id="auth-setup-note" hidden>Hesap servisi henüz yapılandırılmadı. Kurulum için <a href="SUPABASE-KURULUM.md">yönetici kurulum adımlarını</a> tamamlayın.</p>
   </section>
@@ -65,9 +65,9 @@
       </fieldset>
       <fieldset id="signup-credentials" class="profile-section signup-credentials">
         <legend><span>02</span> Hesap bilgileri</legend>
-        <p class="profile-help">Hesap oluşturmak için telefon numaran ve kendi belirlediğin şifre yeterli. Profil bilgilerini daha sonra tamamlayabilirsin.</p>
+        <p class="profile-help">Deneme hesabını e-posta adresin ve kendi belirlediğin şifreyle oluştur. E-postanı onayladıktan sonra giriş yapabilirsin.</p>
         <div class="profile-grid">
-          <div class="profile-field"><label for="signup-phone">Telefon numarası <b>*</b></label><input id="signup-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="05xx xxx xx xx" required></div>
+          <div class="profile-field"><label for="signup-email">E-posta adresi <b>*</b></label><input id="signup-email" type="email" inputmode="email" autocomplete="email" placeholder="ornek@posta.com" required></div>
           <div class="profile-field"><label for="signup-password">Kendi şifren <b>*</b></label><input id="signup-password" type="password" autocomplete="new-password" minlength="8" placeholder="En az 8 karakter" required></div>
           <div class="profile-field"><label for="signup-password-confirm">Şifreni tekrar yaz <b>*</b></label><input id="signup-password-confirm" type="password" autocomplete="new-password" minlength="8" placeholder="Şifreni doğrula" required></div>
         </div>
@@ -119,6 +119,6 @@
   </section>
 </main>
 <script src="assets/supabase-config.js"></script>
-<script type="module" src="assets/profile.js"></script>
+<script type="module" src="assets/profile.js?v=email-20261015"></script>
 </body>
 </html>
