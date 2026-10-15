@@ -1,3 +1,4 @@
+import { bindReportButtons } from './reports.js?v=mobile-report-v1';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
 const $=s=>document.querySelector(s),cfg=window.AGROVERIX_SUPABASE||{};
 const auth=$('#auth-card'),profile=$('#profile-card'),credentials=$('#signup-credentials');
@@ -11,7 +12,7 @@ district.addEventListener('change',()=>fill(village,'Köy / mahalle seçin',(adm
 const locations=fetch('assets/administrative-units.json?v=2').then(r=>r.json()).then(data=>{admin=data;fill(province,'İl seçin',data.provinces);}).catch(()=>reset(province,'Yer listesi yüklenemedi'));
 function destination(){
  const next=new URLSearchParams(location.search).get('next');
- if(next){const url=new URL(next,location.href);if(url.origin===location.origin&&['/tarla-bilgileri.html','/uretim-kayitlari.html','/tarla-detay.html','/index.html'].includes(url.pathname))return url.pathname+url.search+url.hash;}
+ if(next){const url=new URL(next,location.href);if(url.origin===location.origin&&['/tarla-bilgileri.html','/uretim-kayitlari.html','/tarla-detay.html','/index.html','/yonetici.html'].includes(url.pathname))return url.pathname+url.search+url.hash;}
  return 'index.html';
 }
 function setMode(next){
@@ -22,13 +23,14 @@ function setMode(next){
  document.querySelectorAll('[data-auth-mode]').forEach(b=>{const active=b.dataset.authMode===next;b.classList.toggle('is-active',active);b.setAttribute('aria-selected',String(active));});
  status('#auth-status','');status('#profile-status','');
 }
-function record(){return {user_id:session?.user.id,full_name:$('#p-name').value.trim(),identity_number:$('#p-id').value.trim(),province:province.value,district:district.value,village:village.value,kvkk_notice_acknowledged:$('#p-kvkk').checked,kvkk_notice_acknowledged_at:$('#p-kvkk').checked?new Date().toISOString():null,updated_at:new Date().toISOString()};}
+function normalizedPhone(){const raw=$('#p-phone').value.trim();if(!raw)return null;let value=raw.replace(/[\s()\-]/g,'');if(/^0[0-9]{10}$/.test(value))value='+90'+value.slice(1);else if(/^[0-9]{10}$/.test(value))value='+90'+value;else if(/^90[0-9]{10}$/.test(value))value='+'+value;return value;}
+function record(){return {user_id:session?.user.id,full_name:$('#p-name').value.trim()||null,identity_number:$('#p-id').value.trim()||null,phone:normalizedPhone(),sms_consent:$('#p-sms').checked,province:province.value||null,district:district.value||null,village:village.value||null,kvkk_notice_acknowledged:$('#p-kvkk').checked,kvkk_notice_acknowledged_at:$('#p-kvkk').checked?new Date().toISOString():null,updated_at:new Date().toISOString()};}
 async function show(s){
  session=s;if(!s){setMode('login');return;}
  if(new URLSearchParams(location.search).get('profile')!=='edit'){location.replace(destination());return;}
  auth.hidden=true;profile.hidden=false;credentials.hidden=true;credentials.disabled=true;$('#auth-modes').hidden=true;$('#auth-back').hidden=true;$('#auth-signout').hidden=false;$('#profile-edit-details').open=true;$('#profile-title').textContent='Profil Bilgileri';$('#profile-account-phone').textContent=s.user.email||'';$('#profile-submit').innerHTML='Profil Bilgilerini Kaydet <span>→</span>';
- await locations;const {data,error}=await client.from('farmer_profiles').select('*').eq('user_id',s.user.id).maybeSingle();if(error){status('#profile-status','Profil yüklenemedi.',true);return;}if(!data)return;
- $('#p-name').value=data.full_name||'';$('#p-id').value=data.identity_number||'';$('#p-kvkk').checked=!!data.kvkk_notice_acknowledged;province.value=data.province||'';province.dispatchEvent(new Event('change'));district.value=data.district||'';district.dispatchEvent(new Event('change'));village.value=data.village||'';
+ bindReportButtons(client,s);await locations;status('#profile-status','Profil bilgilerin yükleniyor…');const {data,error}=await client.from('farmer_profiles').select('*').eq('user_id',s.user.id).maybeSingle();if(error){status('#profile-status','Profil yüklenemedi.',true);return;}if(!data){status('#profile-status','Bu hesapta henüz kaydedilmiş profil bilgisi yok. Bilgilerini bir kez girip Profil Bilgilerini Kaydet düğmesine bas.');return;}status('#profile-status','Kayıtlı profil bilgilerin yüklendi.');
+ $('#p-phone').value=data.phone||s.user.phone||'';$('#p-sms').checked=!!data.sms_consent;$('#p-name').value=data.full_name||'';$('#p-id').value=data.identity_number||'';$('#p-kvkk').checked=!!data.kvkk_notice_acknowledged;province.value=data.province||'';province.dispatchEvent(new Event('change'));district.value=data.district||'';district.dispatchEvent(new Event('change'));village.value=data.village||'';
 }
 document.querySelectorAll('[data-auth-mode]').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.authMode)));$('#auth-back').addEventListener('click',()=>setMode('login'));
 $('#auth-form').addEventListener('submit',async e=>{
@@ -38,16 +40,21 @@ $('#auth-form').addEventListener('submit',async e=>{
 });
 $('#farmer-profile-form').addEventListener('submit',async e=>{
  e.preventDefault();if(!client){status('#profile-status','Hesap servisi bağlanamadı.',true);return;}
- const r=record();if(session){
-  if(!r.full_name||!/^\d{11}$/.test(r.identity_number)||!r.province||!r.district||!r.village||!r.kvkk_notice_acknowledged){status('#profile-status','Adı soyadı, 11 haneli kimlik numarası, adres ve KVKK kutusunu tamamla.',true);return;}
+ const r=record();
+ if(r.identity_number&&!/^\d{11}$/.test(r.identity_number)){status('#profile-status','Kimlik numarasını 11 hane gir veya alanı boş bırak.',true);return;}
+ if(r.phone&&!/^\+[1-9][0-9]{7,14}$/.test(r.phone)){status('#profile-status','Telefon numaranı kontrol et. Örnek: 05xx xxx xx xx',true);return;}
+ if(r.sms_consent&&(!r.phone||!r.full_name)){status('#profile-status','SMS izni için ad soyad ve telefon numarası gerekli.',true);return;}
+ if((r.full_name||r.phone||r.identity_number||r.province||r.district||r.village)&&!r.kvkk_notice_acknowledged){status('#profile-status','Kişisel bilgilerini kaydetmek için KVKK bilgilendirme kutusunu tamamla.',true);return;}
+ if(session){
+  
   $('#profile-submit').disabled=true;const {error}=await client.from('farmer_profiles').upsert(r,{onConflict:'user_id'});$('#profile-submit').disabled=false;if(error){status('#profile-status','Profil kaydedilemedi; bilgilerini kontrol et.',true);return;}location.assign('index.html');return;
  }
  if(mode!=='signup')return;if($('#signup-password').value!==$('#signup-password-confirm').value){status('#profile-status','Şifreler eşleşmiyor.',true);return;}
  registering=true;$('#profile-submit').disabled=true;status('#profile-status','Hesap oluşturuluyor…');const redirect=new URL('ciftci-bilgi.html',location.href);redirect.searchParams.set('next',destination());
- const {data,error}=await client.auth.signUp({email:$('#signup-email').value.trim().toLowerCase(),password:$('#signup-password').value,options:{emailRedirectTo:redirect.href}});
+ const {data,error}=await client.auth.signUp({email:$('#signup-email').value.trim().toLowerCase(),password:$('#signup-password').value,options:{emailRedirectTo:redirect.href,data:{agroverix_profile:r}}});
  registering=false;$('#profile-submit').disabled=false;if(error){status('#profile-status',error.message||'Hesap oluşturulamadı.',true);return;}
- if(!data.session){status('#profile-status','Onay bağlantısı e-posta adresine gönderildi. E-postanı onayladıktan sonra giriş yap. Kişisel profil bilgilerini girişten sonra Profil Bilgileri bölümünden tamamlayabilirsin.');return;}
- session=data.session;r.user_id=session.user.id;if(r.full_name&&/^\d{11}$/.test(r.identity_number)&&r.province&&r.district&&r.village&&r.kvkk_notice_acknowledged)await client.from('farmer_profiles').upsert(r,{onConflict:'user_id'});location.assign(destination());
+ if(!data.session){status('#profile-status','Onay bağlantısı e-posta adresine gönderildi. E-postanı onayladıktan sonra giriş yap. Girdiğin profil bilgileri hesabına kaydedildi; girişten sonra Profil Bilgileri bölümünde görebilirsin.');return;}
+ session=data.session;location.assign(destination());
 });
 $('#auth-signout').addEventListener('click',async()=>{await client.auth.signOut();session=null;setMode('login');});
 if(cfg.url&&cfg.publishableKey){client=createClient(cfg.url,cfg.publishableKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});const {data}=await client.auth.getSession();await show(data.session);client.auth.onAuthStateChange((event,s)=>{if(registering)return;if(event==='SIGNED_IN'||event==='SIGNED_OUT')setTimeout(()=>show(s),0);});}

@@ -41,3 +41,13 @@ Her tarla/sezon için ürün, alan, mülkiyet, toplam kira, tahmini verim/fiyat 
 
 Hesaplar: toplam maliyet = masraflar + kira; dekara maliyet = toplam maliyet / alan; kg maliyeti = toplam maliyet / (verim kg/da × alan); gelir = verim × alan × kg satış fiyatı; kâr/zarar = gelir − toplam maliyet; kâr/zarar yüzdesi = kâr/zarar / toplam maliyet × 100. Eksik eski masraf veya sıfır bölen olduğunda yanıltıcı sıfır gösterilmez. Tahminler ve gerçek hasat sonuçları ayrı gösterilir.
 
+
+## Kişisel Excel ve yönetici raporları (15 Ekim 2026)
+
+Sezon geçişinden sonra `supabase/20261015-reports-and-profiles.sql` çalıştırılır. Bu geçiş yeni üyelikte profil formunu e-posta onayı beklenirken de saklar. Daha önce hiç kaydedilmemiş profil bilgilerini geri getirmez; ilgili kullanıcı bir kez yeniden girer.
+
+Çiftçinin Excel raporu yalnızca kendi kullanıcı numarasıyla ve mevcut RLS kurallarıyla alınır. Yönetici raporları, sunucuda özel şemadaki aktif yönetici kaydı ve doğrulanmış e-posta denetiminden geçer. İstemci e-postaya bakarak yetki vermez. Yönetici ataması SQL Editor üzerinden, hesap sahibi onayıyla doğrulanmış hesap UUID'sine yapılır; kişisel e-posta ve UUID bu depoda tutulmaz. Yetki `agroverix_private.admins.active=false` ile kaldırılabilir. Yönetici rapor erişimleri özel şemada kaydedilir.
+
+`yonetici.html` üzerinde çiftçi, sezon ve bitki filtreleri ile analiz ve gerçek `.xlsx` indirme bulunur. Profil, tarla, sezon, masraf ve hesaplama tabloları ayrı sayfalardadır. Kimlik ve telefon metin olarak kalır; formül olarak çalıştırılmaz. Dosya tarayıcıda hazırlanır.
+
+**İzin metni değişikliği:** Telefon ve ayrı, varsayılan olarak kapalı SMS iletişim izni eklendi. Kullanıcı profilinden iznini değiştirebilir. İzin zamanı sunucuda tutulur. İletişim listesi yalnızca izin kayıtlı numaraları çıkarır; SMS göndermez. Sağlayıcı, güncel izin/IYS süreçleri ve hukuki metinler ayrıca tamamlanmalıdır. KVKK bilgilendirme kutusu SMS izni yerine geçmez.

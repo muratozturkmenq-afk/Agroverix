@@ -1,0 +1,28 @@
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
+import { reportData,saveReport,seasonResults } from './reports.js?v=mobile-report-v1';
+import { fmt,appendMetric } from './farm-finance.js?v=seasons-v1';
+const $=id=>document.getElementById(id),cfg=window.AGROVERIX_SUPABASE||{};let client,session,scopeData=null;
+const money=n=>n===null?'—':fmt(n)+' TL';
+function status(text){$('admin-report-status').textContent=text;}
+function filtered(data){const year=$('admin-year').value,crop=$('admin-crop').value,seasons=data.seasons.filter(s=>(!year||String(s.season_year)===year)&&(!crop||s.crop===crop)),ids=new Set(seasons.map(s=>s.farm_id)),owners=new Set(seasons.map(s=>s.user_id));return {...data,seasons,farms:data.farms.filter(f=>ids.has(f.id)),operations:data.operations.filter(o=>seasons.some(s=>s.farm_id===o.farm_id&&Number(s.season_year)===Number(o.season_year))),accounts:year||crop?data.accounts.filter(a=>owners.has(a.user_id)):data.accounts,profiles:year||crop?data.profiles.filter(p=>owners.has(p.user_id)):data.profiles};}
+function render(){if(!scopeData)return;const data=filtered(scopeData),rows=seasonResults(data),summary=$('admin-summary');summary.replaceChildren();appendMetric(summary,'Çiftçi',data.accounts.length);appendMetric(summary,'Tarla / Sezon Kaydı',rows.length);const valid=rows.filter(r=>r.cost.total!==null);appendMetric(summary,'Hesaplanabilen Toplam Maliyet',valid.reduce((n,r)=>n+r.cost.total,0),'TL');appendMetric(summary,'Hesaplama Bilgisi Eksik Sezon',rows.length-valid.length);
+ const body=$('admin-season-rows');body.replaceChildren();rows.forEach(({farm,owner,year,cost:c})=>{const tr=document.createElement('tr');[owner.full_name||owner.email||owner.user_id,farm.name+' / '+c.season.crop,year,fmt(c.area),money(c.total),c.perDecare===null?'—':fmt(c.perDecare),c.expected.costKg===null?'—':fmt(c.expected.costKg),money(c.expected.profit),money(c.actual.profit)].forEach(value=>{const td=document.createElement('td');td.textContent=value;tr.append(td);});body.append(tr);});
+ if(!rows.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=9;td.textContent='Bu seçimde tarla / sezon kaydı yok.';tr.append(td);body.append(tr);}}
+function fillFilters(data){const year=$('admin-year').value,crop=$('admin-crop').value;$('admin-year').replaceChildren(new Option('Tüm Sezonlar',''));[...new Set(data.seasons.map(s=>s.season_year))].sort((a,b)=>b-a).forEach(y=>$('admin-year').add(new Option(String(y),String(y))));$('admin-year').value=year;$('admin-crop').replaceChildren(new Option('Tüm Bitkiler',''));[...new Set(data.seasons.map(s=>s.crop))].sort((a,b)=>a.localeCompare(b,'tr')).forEach(c=>$('admin-crop').add(new Option(c,c)));$('admin-crop').value=crop;}
+async function load(){status('Yetkili rapor verileri yükleniyor…');scopeData=await reportData(client,session.user,{administrator:true,userId:$('admin-farmer').value||null});fillFilters(scopeData);render();status('Güncel veriler yüklendi.');return filtered(scopeData);}
+async function action(button,run){button.disabled=true;try{await run();}catch(error){status(error.message||'İşlem tamamlanamadı.');}finally{button.disabled=false;}}
+$('admin-load').onclick=()=>action($('admin-load'),load);
+$('admin-export').onclick=()=>action($('admin-export'),async()=>{const data=await load();saveReport(data,{year:$('admin-year').value});status('Seçtiğin kapsamdaki bilgiler Excel olarak indirildi.');});
+$('admin-sms-export').onclick=()=>action($('admin-sms-export'),async()=>{const data=await load();saveReport(data,{smsOnly:true});status('SMS iletişim izni kayıtlı telefon listesi indirildi. SMS gönderilmedi.');});
+['admin-year','admin-crop'].forEach(id=>$(id).addEventListener('change',render));$('admin-farmer').addEventListener('change',()=>{scopeData=null;$('admin-summary').replaceChildren();$('admin-season-rows').replaceChildren();status('Yeni kapsamı görmek için Analizi Yükle düğmesine bas.');});
+if(!cfg.url||!cfg.publishableKey){$('admin-access-status').textContent='Kayıt servisi bağlanamadı.';}
+else{
+ client=createClient(cfg.url,cfg.publishableKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});const {data}=await client.auth.getSession();session=data.session;
+ if(!session){const a=document.createElement('a');a.href='ciftci-bilgi.html?next=yonetici.html';a.textContent='Yönetici hesabınla giriş yap';$('admin-access-status').replaceChildren(a);}
+ else{const check=await client.rpc('is_agroverix_admin');if(check.error||!check.data){$('admin-access-status').textContent='Bu hesabın yönetici yetkisi bulunmuyor.';}
+ else{try{let accounts=[];for(let offset=0;;offset+=500){const {data,error}=await client.rpc('agroverix_admin_report_rows',{p_dataset:'accounts',p_offset:offset,p_limit:500,p_user_id:null});if(error)throw error;accounts.push(...data);if(data.length<500)break;}
+  $('admin-account').textContent=session.user.email;$('admin-access-status').hidden=true;$('admin-content').hidden=false;
+  accounts.forEach(a=>{const label=a.full_name? a.full_name+' · '+a.email:a.email||a.user_id;$('admin-farmer').add(new Option(label,a.user_id));const tr=document.createElement('tr');[a.full_name||'Profil bilgisi yok',a.email||'—',a.phone||'—',a.sms_consent?'İzinli':'İzin yok',a.phone_confirmed?'Doğrulanmış':'Doğrulanmamış'].forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.append(td);});$('admin-farmer-rows').append(tr);});
+ }catch(error){$('admin-access-status').textContent='Yönetici listesi yüklenemedi. Yeniden giriş yapıp dene.';}}
+ }
+}

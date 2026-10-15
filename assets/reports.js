@@ -1,0 +1,55 @@
+import { locationLabels } from './location-labels.js';
+import { downloadWorkbook } from './xlsx-report.js?v=mobile-report-v1';
+import { farmFinance, operationLabels } from './farm-finance.js?v=seasons-v1';
+import { costPerDecare } from './operation-cost.js';
+const tables={profiles:'farmer_profiles',farms:'farmer_farms',seasons:'farmer_seasons',operations:'farmer_operations'};
+export async function reportData(client,user,{administrator=false,userId=null}={}){
+ const data={};
+ if(administrator){const {data:allowed,error}=await client.rpc('is_agroverix_admin');if(error||!allowed)throw new Error('Yönetici erişimin bulunmuyor.');}
+ for(const dataset of [...(administrator?['accounts']:[]),...Object.keys(tables)]){
+  const rows=[];
+  for(let offset=0;;offset+=500){
+   let result;
+   if(administrator)result=await client.rpc('agroverix_admin_report_rows',{p_dataset:dataset,p_offset:offset,p_limit:500,p_user_id:userId});
+   else{let query=client.from(tables[dataset]).select('*').eq('user_id',user.id);query=dataset==='seasons'?query.order('farm_id').order('season_year'):query.order(dataset==='profiles'?'user_id':'id');result=await query.range(offset,offset+499);}
+   if(result.error)throw new Error('Rapor verileri alınamadı. Yeniden giriş yapıp tekrar dene.');const page=result.data||[];rows.push(...page);if(page.length<500)break;
+  }data[dataset]=rows;
+ }
+ if(!administrator){const p=data.profiles[0]||{};data.accounts=[{user_id:user.id,email:user.email,full_name:p.full_name,phone:p.phone||user.phone||null,created_at:user.created_at,email_confirmed:!!user.email_confirmed_at,phone_confirmed:!!user.phone_confirmed_at&&p.phone===user.phone,sms_consent:!!p.sms_consent,sms_consent_at:p.sms_consent_at}];}
+ data.locations=await fetch('assets/administrative-units.json?v=2').then(r=>r.ok?r.json():null).catch(()=>null);
+ return data;
+}
+export function seasonResults(data,year=''){
+ const owners=new Map(data.accounts.map(a=>[a.user_id,a])),farmMap=new Map(data.farms.map(f=>[f.id,{...f,farmer_seasons:data.seasons.filter(s=>s.farm_id===f.id)}]));
+ return data.seasons.filter(s=>!year||Number(s.season_year)===Number(year)).map(s=>{const farm=farmMap.get(s.farm_id);if(!farm)return null;return {farm,owner:owners.get(s.user_id)||{user_id:s.user_id},year:s.season_year,cost:farmFinance(farm,data.operations,s.season_year)};}).filter(Boolean);
+}
+export function cropResults(data,year=''){
+ const groups=new Map();seasonResults(data,year).forEach(row=>{const key=row.owner.user_id+'|'+row.year+'|'+row.cost.season.crop.toLocaleLowerCase('tr-TR');if(!groups.has(key))groups.set(key,{...row,farms:[]});groups.get(key).farms.push(row);});
+ return [...groups.values()].map(g=>{const costs=g.farms.map(r=>r.cost),area=costs.reduce((n,c)=>n+c.area,0),total=costs.every(c=>c.total!==null)?costs.reduce((n,c)=>n+c.total,0):null;
+  const result=kind=>{const list=costs.map(c=>c[kind]),kg=list.every(r=>r.kg!==null)?list.reduce((n,r)=>n+r.kg,0):null,revenue=list.every(r=>r.revenue!==null)?list.reduce((n,r)=>n+r.revenue,0):null,profit=revenue!==null&&total!==null?revenue-total:null;return {kg,revenue,profit,costKg:total!==null&&kg>0?total/kg:null,percent:profit!==null&&total>0?profit/total*100:null};};
+  return {owner:g.owner,year:g.year,crop:g.cost.season.crop,count:costs.length,area,total,perDecare:total!==null&&area>0?total/area:null,expected:result('expected'),actual:result('actual')};
+ });
+}
+const names={user_id:'Çiftçi Hesap No',id:'Kayıt No',farm_id:'Tarla Kayıt No',full_name:'Adı Soyadı',email:'E-posta',phone:'Telefon',phone_confirmed:'Telefon Doğrulandı',email_confirmed:'E-posta Doğrulandı',name:'Tarla Adı',identity_number:'T.C. Kimlik No',province:'İl',district:'İlçe',village:'Köy / Mahalle',latitude:'Enlem',longitude:'Boylam',crop:'Bitki',area_decare:'Alan (da)',season_year:'Sezon',tenure:'Tarla Durumu',rent_total:'Sezonluk Toplam Kira (TL)',expected_yield:'Tahmini Verim (kg/da)',expected_price:'Tahmini Satış (TL/kg)',actual_yield:'Gerçek Verim (kg/da)',actual_price:'Gerçek Satış (TL/kg)',operation_type:'Yapılan İşlem',operation_date:'İşlem Tarihi',product:'Kullanılan Ürün',brand_name:'Marka (Eski Kayıt)',package_size:'Ambalaj (Eski Kayıt)',quantity:'Kullanılan Miktar',quantity_unit:'Birim',package_price:'Ambalaj Fiyatı (Eski Kayıt)',total_cost:'Kaydedilen Tutar (TL)',cost_basis:'Maliyet Hesaplama Yöntemi',notes:'Not',created_at:'Oluşturulma Zamanı',updated_at:'Güncelleme Zamanı',sms_consent:'SMS İletişim İzni',sms_consent_at:'SMS İzin Zamanı',sms_consent_updated_at:'SMS İzni Son Güncelleme',kvkk_notice_acknowledged:'KVKK Bilgilendirmesi',kvkk_notice_acknowledged_at:'KVKK Bilgilendirme Zamanı',anonymous_insights_consent:'Eski Anonim Analiz İzni',consent_updated_at:'Eski İzin Güncellemesi'};
+const numeric=new Set(['latitude','longitude','area_decare','rent_total','expected_yield','expected_price','actual_yield','actual_price','quantity','package_price','total_cost']);
+function rawSheet(name,rows,extras={}){
+ const fields=[...new Set([...Object.keys(extras),...rows.flatMap(Object.keys)])];
+ if(!fields.length)return {name,headers:['Bilgi'],rows:[['Bu kapsamda kayıt yok.']]};
+ return {name,headers:fields.map(k=>names[k]||extras[k]||k),rows:rows.map(row=>fields.map(k=>{const v=row[k];if(v===null||v===undefined)return null;if(k==='operation_type')return operationLabels[v]||v;if(k==='tenure')return v==='rented'?'Kiralık':'Mülk';if(k==='cost_basis')return v==='field_total'?'Tarla Toplamı':'Ambalaj / Dekar (Eski)';if(typeof v==='boolean')return v?'Evet':'Hayır';return numeric.has(k)&&v!==''&&Number.isFinite(Number(v))?Number(v):typeof v==='object'?JSON.stringify(v):v;}))};
+}
+export function reportSheets(data,{year='',smsOnly=false}={}){
+ const generated=new Date().toLocaleString('tr-TR',{timeZone:'Europe/Istanbul'});
+ if(smsOnly){const rows=data.accounts.filter(a=>a.sms_consent&&a.sms_consent_at&&a.full_name&&/^\+[1-9][0-9]{7,14}$/.test(a.phone||''));return [{name:'Rapor Bilgisi',headers:['Alan','Bilgi'],rows:[['Hazırlanma Zamanı',generated],['Kapsam','SMS iletişim izni kayıtlı telefonlar. Bu dosyanın indirilmesi SMS göndermez.'],['Gönderim Öncesi','Numara doğrulaması, güncel izin ve sağlayıcı işlemleri ayrıca tamamlanmalıdır.']]},rawSheet('SMS İzinli İletişim',rows.map(a=>({user_id:a.user_id,full_name:a.full_name,phone:a.phone,email:a.email,sms_consent:a.sms_consent,sms_consent_at:a.sms_consent_at,phone_confirmed:a.phone_confirmed})))];}
+ const seasons=data.seasons.filter(s=>!year||Number(s.season_year)===Number(year)),ids=new Set(seasons.map(s=>s.farm_id)),farms=year?data.farms.filter(f=>ids.has(f.id)):data.farms,operations=data.operations.filter(o=>!year||Number(o.season_year)===Number(year));
+ const profileRows=data.profiles.map(p=>({...p,administrative_location:locationLabels(p,data.locations)})),farmRows=farms.map(f=>({...f,administrative_location:locationLabels(f,data.locations)}));
+ const seasonsCalculated=seasonResults(data,year),byCrop=cropResults(data,year),ownerName=a=>a.full_name||a.email||a.user_id;
+ const detailed={name:'Tarla Sezon Hesabı',headers:['Çiftçi','Hesap No','Tarla','Bitki','Sezon','Alan (da)','Kira (TL)','Toplam Maliyet (TL)','Dekara Maliyet (TL/da)','Tahmini Kg Maliyeti (TL/kg)','Tahmini Satış Geliri (TL)','Tahmini Kâr Zarar (TL)','Tahmini Kâr Zarar (%)','Gerçek Kg Maliyeti (TL/kg)','Gerçek Satış Geliri (TL)','Gerçek Kâr Zarar (TL)','Gerçek Kâr Zarar (%)','Hesaplama Durumu'],rows:seasonsCalculated.map(({farm,owner,year,cost:c})=>[ownerName(owner),owner.user_id,farm.name,c.season.crop,Number(year),c.area,c.rent,c.total,c.perDecare,c.expected.costKg,c.expected.revenue,c.expected.profit,c.expected.percent,c.actual.costKg,c.actual.revenue,c.actual.profit,c.actual.percent,c.missing?c.missing+' eski masrafta hesaplama bilgisi eksik':'Kira dahil kayıtlı masraflar'])};
+ const summary={name:'Bitki Özeti',headers:['Çiftçi','Bitki','Sezon','Tarla Sayısı','Alan (da)','Toplam Maliyet (TL)','Dekara Maliyet (TL/da)','Tahmini Kg Maliyeti (TL/kg)','Tahmini Gelir (TL)','Tahmini Kâr Zarar (TL)','Tahmini Kâr Zarar (%)','Gerçek Kg Maliyeti (TL/kg)','Gerçek Gelir (TL)','Gerçek Kâr Zarar (TL)','Gerçek Kâr Zarar (%)'],rows:byCrop.map(g=>[ownerName(g.owner),g.crop,Number(g.year),g.count,g.area,g.total,g.perDecare,g.expected.costKg,g.expected.revenue,g.expected.profit,g.expected.percent,g.actual.costKg,g.actual.revenue,g.actual.profit,g.actual.percent])};
+ const opRows=operations.map(o=>{const s=data.seasons.find(s=>s.farm_id===o.farm_id&&Number(s.season_year)===Number(o.season_year)),f=data.farms.find(f=>f.id===o.farm_id),a=data.accounts.find(a=>a.user_id===o.user_id),per=costPerDecare(o,s?.area_decare);return {...o,farmer:ownerName(a||{user_id:o.user_id}),farm_name:f?.name||'',computed_per_decare:per,computed_total:per!==null&&s?per*Number(s.area_decare):null};});
+ return [{name:'Rapor Bilgisi',headers:['Alan','Bilgi'],rows:[['Uygulama','AgroVerix'],['Hazırlanma Zamanı',generated],['Sezon',year||'Tüm sezonlar'],['Hesaplama','Toplam = kayıtlı masraflar + kira. Dekara maliyet = toplam / alan. Kg maliyeti = toplam / (verim × alan).'],['Kâr Zarar','Gelir − toplam maliyet. Yüzde = kâr/zarar / toplam maliyet × 100. Sıfır maliyette yüzde hesaplanmaz.'],['Boş Hücre','Veri yok, verim sıfır veya eski masraf hesaplanamıyor. Tahminler gelecekteki masrafları içermez.'],['Kaynak','Hesabın erişebildiği AgroVerix kayıtları; anlık rapor görünümü.']]},summary,detailed,rawSheet('Hesaplar',data.accounts),rawSheet('Profil Bilgileri',profileRows,{administrative_location:'Konum Adları'}),rawSheet('Tarla Bilgileri',farmRows,{administrative_location:'Konum Adları'}),rawSheet('Sezon Girdileri',seasons),rawSheet('Masraf Kayıtları',opRows,{farmer:'Çiftçi',farm_name:'Tarla Adı',computed_per_decare:'Hesaplanan Maliyet (TL/da)',computed_total:'Hesaplanan Tarla Maliyeti (TL)'})];
+}
+export function saveReport(data,options={}){const date=new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Istanbul'}).format(new Date());downloadWorkbook(reportSheets(data,options),'AgroVerix-'+(options.smsOnly?'SMS-Izinleri':'Rapor')+'-'+date+'.xlsx');}
+export function bindReportButtons(client,session){
+ document.querySelectorAll('[data-excel-export]').forEach(button=>{button.disabled=!session;button.onclick=async()=>{const status=document.querySelector('#excel-status');const say=t=>{if(status)status.textContent=t;};button.disabled=true;say('Kendi kayıtların hazırlanıyor…');try{const {data}=await client.auth.getSession();if(!data.session)throw new Error('Önce giriş yap.');const rows=await reportData(client,data.session.user);saveReport(rows,{year:document.querySelector('#excel-year')?.value||''});say('Excel raporun indirildi.');}catch(e){say(e.message);}finally{button.disabled=false;}};});
+ const link=document.querySelector('#admin-link');if(link){link.hidden=true;if(session)client.rpc('is_agroverix_admin').then(({data,error})=>{link.hidden=!!error||!data;});}
+}

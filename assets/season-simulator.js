@@ -1,13 +1,14 @@
+import { cropTimeline } from './crop-timeline.js?v=mobile-report-v1';
 import { parseNumberInput as decimal, bindNumberInput, setNumberInputValue } from './number-input.js?v=groups-v2';
 import { farmFinance, seasonFor, fmt, appendMetric } from './farm-finance.js?v=seasons-v1';
-import { cropVisual } from './crop-visual.js?v=seasons-v1';
+import { cropVisual } from './crop-visual.js?v=mobile-report-v1';
 const node=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text)n.textContent=text;return n;};
 export function renderSimulators(farms,records,client,user,onSaved){
- const container=document.querySelector('#farm-simulators');container.replaceChildren();
- document.querySelector('#sim-message').textContent=farms.length?'Her tarla için tahminini gir. Değişiklikler hesaplamaya anında yansır; Tahminleri Kaydet ile hesabında saklanır.':'Sezon simülatörü için önce bir tarla ekle.';
+ const container=document.querySelector('#farm-simulators');container.querySelectorAll('.crop-timeline-visual').forEach(v=>v.dispose?.());container.replaceChildren();
+ document.querySelector('#sim-message').textContent=farms.length?'':'Sezon simülatörü için önce bir tarla ekle.';
  farms.forEach(farm=>{
   const season=seasonFor(farm),year=farm.season_year;if(!season)return;
-  const card=node('article','farm-simulator'),art=cropVisual(season.crop),body=node('div','farm-simulator-body'),header=node('div','sim-farm-head');
+  const card=node('article','farm-simulator'),art=cropTimeline(cropVisual(season.crop),{crop:season.crop,year,records:records.filter(r=>r.farm_id===farm.id&&Number(r.season_year)===Number(year))}),body=node('div','farm-simulator-body'),header=node('div','sim-farm-head');
   header.append(node('h3','',farm.name),node('p','',season.crop+' · '+fmt(season.area_decare)+' da · '+year+' sezonu'));
   const fields=node('form','sim-forecast-form');
   function input(label,value,id){const wrap=node('div','sim-input'),l=node('label','',label),i=node('input');i.id=id;l.htmlFor=id;i.type='text';i.inputMode='decimal';i.pattern='[0-9]+([.,][0-9]+)?';i.required=true;bindNumberInput(i);setNumberInputValue(i,value);i.placeholder='Elle gir';wrap.append(l,i);fields.append(wrap);return i;}

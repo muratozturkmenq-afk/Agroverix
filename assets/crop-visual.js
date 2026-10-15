@@ -6,7 +6,7 @@ export function cropVisual(crop) {
  const add=(tag,attrs,parent=svg)=>{const n=document.createElementNS(ns,tag);Object.entries(attrs).forEach(([k,v])=>n.setAttribute(k,v));parent.append(n);return n;};
  add('rect',{width:420,height:360,fill:'#e5eddf'});add('circle',{cx:334,cy:65,r:28,fill:'#edb43e'});add('path',{d:'M0 240 Q100 195 220 231 T420 215 V360 H0Z',fill:'#aab98a'});add('path',{d:'M0 267 Q140 240 420 263 V360 H0Z',fill:'#674731'});
  [36,94,152,210,268,326,384].forEach(x=>add('path',{d:`M${x} 360 L${210+(x-210)*.4} 267`,stroke:'#8b6543','stroke-width':3,fill:'none'}));
- const plant=add('g',{class:'crop-live-plant'}),stem=(d,w=5)=>add('path',{d,stroke:'#56733d','stroke-width':w,fill:'none','stroke-linecap':'round'},plant),leaf=(x,y,flip=1,s=1)=>add('path',{d:'M0 0 Q35 -40 65 -23 Q34 4 0 0Z',fill:'#668a47',transform:`translate(${x} ${y}) scale(${flip*s} ${s})`},plant);
+ const growth=add('g',{class:'crop-growth'}),plant=add('g',{class:'crop-live-plant'},growth),stem=(d,w=5)=>add('path',{d,stroke:'#56733d','stroke-width':w,fill:'none','stroke-linecap':'round'},plant),leaf=(x,y,flip=1,s=1)=>add('path',{d:'M0 0 Q35 -40 65 -23 Q34 4 0 0Z',fill:'#668a47',transform:`translate(${x} ${y}) scale(${flip*s} ${s})`},plant);
  if(/zeytin|meyve|elma|badem|fıstık|ceviz|portakal|limon|kiraz|kayısı/.test(name)){
   stem('M210 273 Q200 195 210 136',15);stem('M207 200 L160 140 M208 180 L260 127',7);[[155,129],[211,96],[264,125],[174,175],[244,170]].forEach(([x,y])=>add('ellipse',{cx:x,cy:y,rx:48,ry:44,fill:'#69854a'},plant));[[143,125],[181,154],[212,105],[243,142],[271,116],[230,174]].forEach(([x,y])=>add('circle',{cx:x,cy:y,r:6,fill:name.includes('zeytin')?'#393a27':'#c38938'},plant));
  }else if(/buğday|arpa|çavdar|yulaf|pirinç/.test(name)){
@@ -22,5 +22,5 @@ export function cropVisual(crop) {
   if(/pamuk/.test(name))[[165,156],[251,187],[174,222],[221,102]].forEach(([x,y])=>{stem(`M210 ${y+20} L${x} ${y}`,2);[[-8,1],[6,2],[0,-7]].forEach(([dx,dy])=>add('circle',{cx:x+dx,cy:y+dy,r:12,fill:'#fffdf6'},plant));});
   else [[176,162],[247,194],[213,87]].forEach(([x,y])=>add('circle',{cx:x,cy:y,r:10,fill:'#d5b86b'},plant));
  }
- const wrap=document.createElement('div');wrap.className='crop-art';const caption=document.createElement('small');caption.textContent=(crop||'Bitki')+' · Temsili bitki animasyonu';wrap.append(svg,caption);return wrap;
+ const wrap=document.createElement('div');wrap.className='crop-art';const caption=document.createElement('small');caption.textContent=(crop||'Bitki')+' · Temsili bitki animasyonu';wrap.append(svg,caption);wrap.setProgress=p=>{const scale=Math.max(0,Math.min(1,p*1.15));growth.setAttribute('transform','translate(210 275) scale('+scale+') translate(-210 -275)');plant.querySelectorAll('circle').forEach(n=>n.style.opacity=String(Math.max(0,Math.min(1,(p-.55)/.3))));};return wrap;
 }

@@ -1,3 +1,4 @@
+import { bindReportButtons } from './reports.js?v=mobile-report-v1';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
 import { farmFinance,seasonFor,fmt,appendMetric,operationLabels,serviceTypes } from './farm-finance.js?v=seasons-v1';
 import { costPerDecare } from './operation-cost.js';
@@ -34,6 +35,7 @@ else{
  const client=createClient(cfg.url,cfg.publishableKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}),{data}=await client.auth.getSession();
  if(!data.session){location.replace('ciftci-bilgi.html?next='+encodeURIComponent('tarla-detay.html?farm='+farmId));}
  else{
+  bindReportButtons(client,data.session);
   const [f,r,a]=await Promise.all([client.from('farmer_farms').select('*,farmer_seasons(*)').eq('id',farmId).eq('user_id',data.session.user.id).maybeSingle(),client.from('farmer_operations').select('*').eq('farm_id',farmId).eq('user_id',data.session.user.id).order('operation_date',{ascending:false}),fetch('assets/administrative-units.json?v=2').then(r=>r.ok?r.json():null).catch(()=>null)]);
   if(f.error||r.error||!f.data){$('farm-title').textContent='Tarla bulunamadı veya hesabına ait değil.';}
   else{farm=f.data;records=r.data||[];admin=a;const select=$('farm-season-select');select.replaceChildren();farm.farmer_seasons.slice().sort((a,b)=>b.season_year-a.season_year).forEach(s=>select.add(new Option(s.season_year+' · '+s.crop,s.season_year)));select.value=String(Number(params.get('year'))||farm.season_year);if(!select.value)select.value=String(farm.season_year);render();}

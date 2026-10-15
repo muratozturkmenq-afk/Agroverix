@@ -13,10 +13,11 @@
 <link rel="stylesheet" href="assets/production.css">
 <link rel="stylesheet" href="assets/farm-detail.css?v=record-editor-20261015">
 <link rel="stylesheet" href="assets/farm-finance.css?v=seasons-v1">
+<link rel="stylesheet" href="assets/mobile-reports.css?v=mobile-report-v1">
 </head>
 <body class="profile-page production-page farm-detail-page">
 <header class="profile-top">
-  <a class="brand" href="index.html" aria-label="Agroverix ana sayfa"><span class="profile-mark">A</span> Agroverix</a>
+  <a class="brand" href="index.html" aria-label="Agroverix ana sayfa"><svg class="home-logo" width="240" height="75" viewBox="120 110 960 300" role="img" aria-label="AgroVerix — Cebimdeki Tarlam"><image href="assets/images/agroverix-logo-transparent.svg" width="1360" height="520"/></svg></a>
   <span class="profile-step">TARLA VE SEZON DETAYI</span>
   <a class="profile-back" href="index.html">← Ana Sayfaya Dön</a>
 </header>
@@ -37,15 +38,16 @@
     <p class="farm-detail-note" id="farm-cost-note" role="status" aria-live="polite"></p>
   </section>
   <section class="farm-detail-card">
-    <div class="farm-detail-list-head"><div><p class="profile-kicker">SEZON TAKİBİ</p><h2>Bu tarlanın üretim kayıtları</h2></div><a class="auth-back" href="uretim-kayitlari.html">Tüm kayıtlar</a></div>
+    <div class="farm-detail-list-head"><div><p class="profile-kicker">SEZON TAKİBİ</p><h2>Tarla Üretim Kayıtları</h2></div><a class="auth-back" href="uretim-kayitlari.html">Tüm kayıtlar</a></div>
     <div id="farm-records" class="farm-detail-records"></div>
     <p id="farm-empty" class="farm-detail-empty" hidden>Bu tarlada henüz kayıt yok. İlk işlemi ekleyerek maliyet takibini başlat.</p>
   </section>
   <section class="farm-detail-card season-end-report"><p class="profile-kicker">TAHMİNLERE GÖRE</p><h2>Sezon İçi Tahmini Sonuç</h2><p id="expected-report-note"></p><div class="finance-grid" id="expected-report"></div></section>
   <section class="farm-detail-card season-end-report"><p class="profile-kicker">HASAT SONRASI GERÇEK SONUÇ</p><h2>Sezon Sonu</h2><p id="actual-report-note"></p><div class="finance-grid" id="actual-report"></div><p>Toplam maliyet = masraflar + kira. Kâr/zarar yüzdesi = kâr/zarar ÷ toplam maliyet × 100. Sıfır maliyette yüzde hesaplanmaz.</p></section>
+<section class="report-toolbar" aria-label="Kişisel Excel raporu"><button class="auth-back" type="button" data-excel-export disabled>Excel Raporumu İndir</button><a class="auth-back" id="admin-link" href="yonetici.html" hidden>Yönetici Alanı</a><p id="excel-status" role="status" aria-live="polite"></p></section>
   <p class="farm-detail-status" id="farm-status" role="status" aria-live="polite"></p>
 </main>
 <script src="assets/supabase-config.js"></script>
-<script type="module" src="assets/farm-detail-finance.js?v=seasons-v1"></script>
+<script type="module" src="assets/farm-detail-finance.js?v=mobile-report-v1"></script>
 </body>
 </html>
