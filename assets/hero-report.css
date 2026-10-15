@@ -1,0 +1,10 @@
+/* Fields always come before the separate export action in the opening screen. */
+.hero-farm-summary{display:flex;flex-direction:column;gap:12px;overflow:visible;bottom:calc(clamp(70px,10vh,120px) + 60px)}
+.hero-farm-cards{flex:1;min-height:0;align-content:start;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--gold-ink) transparent;padding:3px}
+.hero-report-footer{flex:none;display:grid;gap:7px;padding:0 3px;min-width:0}
+.hero-report-footer .btn{width:100%;min-height:50px;justify-content:center;padding:14px 12px;font-size:15px;font-weight:800;white-space:normal;text-align:center}
+.hero-report-footer .btn:disabled{opacity:.55;cursor:not-allowed}
+.hero-report-footer p{font-size:11px;line-height:1.4;color:var(--cotton-2);margin:0;text-align:center}
+.hero-report-footer p:empty{display:none}
+@media(max-width:1100px){.hero-farm-summary{bottom:auto;max-height:none}.hero-farm-cards{flex:none;max-height:330px}.hero-report-footer{width:min(100%,350px);align-self:flex-end}}
+@media(max-width:600px){.hero-farm-summary{gap:12px}.hero-farm-cards{max-height:330px}.hero-report-footer{width:100%;align-self:stretch}}

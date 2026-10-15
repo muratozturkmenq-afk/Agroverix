@@ -65,3 +65,7 @@ Verim ve fiyat birbirinden bağımsız, boş bırakılabilir alanlardır. Veriml
 Çiftçi Excel düğmesi tarla kartlarından ve Tarlalarım bölümünden kaldırıldı. Ana sayfanın en altında, kartlardan bağımsız tek bir Excel Raporumu İndir düğmesi bulunur; çiftçinin kendi bütün kayıtlarını indirir. Yönetici rapor alanı korunur.
 
 Tarlalarım kartları artık her tarla için ayrı gösterilir ve Tarla Adı - Bitki adıyla etiketlenir. Maliyetler bu tarlanın seçili sezonuna aittir. Açılıştaki tarla bilgi kutuları küçültüldü. Alt sayfalardaki Ana Sayfaya Dön bağlantıları daha büyük, sarı ve vurgulu düğmeler olarak gösterilir.
+
+## Açılış ekranındaki rapor düğmesi (16 Ekim 2026)
+
+Düğmenin adı Excel Raporu İndir oldu. Sayfanın altından açılış ekranının sağ sütununa, tarla kutularının dışına taşındı. Masaüstünde açıklama yazısının biraz üst hizasında durur. Tarla listesi bu düğmenin üstündedir; yeni tarlalar bu listeye eklenir. Liste uzadığında kendi alanında kayar, düğme ayrı kalır. Mobilde düğme tarla listesinin hemen altında gösterilir. Mevcut hesap sahipliği ve Excel rapor kapsamı değişmedi.
