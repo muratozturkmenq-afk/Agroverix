@@ -1,4 +1,4 @@
-import { parseNumberInput, bindNumberInput, setNumberInputValue } from './number-input.js?v=groups-v1';
+import { parseNumberInput, bindNumberInput, setNumberInputValue } from './number-input.js?v=groups-v2';
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm";
 import { farmFinance, seasonFor, serviceTypes, operationLabels } from "./farm-finance.js?v=seasons-v1";
 import { costPerDecare } from "./operation-cost.js";
@@ -14,7 +14,7 @@ let farms = [];
 let records = [];
 let editingRecords = false;
 let requestedEditOpened = false;
-bindNumberInput($('#operation-quantity'),{maximumFractionDigits:3});bindNumberInput($('#operation-total-cost'),{maximumFractionDigits:2});
+bindNumberInput($('#operation-quantity'));bindNumberInput($('#operation-total-cost'),{maximumFractionDigits:2});
 function selectCategory(type=''){
  const service=$('#expense-category').value==='service';
  const select=$('#operation-type'); select.replaceChildren(new Option('İşlem seç',''));

@@ -53,8 +53,10 @@ export function bindNumberInput(input,{maximumFractionDigits=20}={}) {
     }
   });
   input.addEventListener('blur',()=>{
-    if(input.value.endsWith(','))input.value=input.value.slice(0,-1);
-    format();
+    if(input.value.endsWith(',')){
+      input.value=input.value.slice(0,-1);
+      input.dispatchEvent(new Event('input',{bubbles:true}));
+    }else format();
   });
   if(input.value)setNumberInputValue(input,input.value);
 }

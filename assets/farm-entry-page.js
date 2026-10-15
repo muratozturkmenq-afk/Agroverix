@@ -1,4 +1,4 @@
-import { parseNumberInput as decimal, bindNumberInput, setNumberInputValue } from './number-input.js?v=groups-v1';
+import { parseNumberInput as decimal, bindNumberInput, setNumberInputValue } from './number-input.js?v=groups-v2';
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm";
 import { farmFinance, seasonFor, appendMetric } from "./farm-finance.js?v=seasons-v1";
 import { locationLabels } from "./location-labels.js";
@@ -14,7 +14,7 @@ let session = null;
 let admin = null;
 let requestedEditOpened = false;
 let editingFarm = null, operationRows = [];
-['farm-entry-area','farm-rent','farm-actual-yield','farm-actual-price'].forEach(id=>bindNumberInput($('#'+id),{maximumFractionDigits:id==='farm-actual-yield'?3:2}));
+['farm-entry-area','farm-rent','farm-actual-yield','farm-actual-price'].forEach(id=>bindNumberInput($('#'+id),{maximumFractionDigits:['farm-rent','farm-actual-price'].includes(id)?2:20}));
 $("#farm-season-year").value = new Date().getFullYear();
 function tenureChanged(){ const rented=$("#farm-tenure").value==='rented'; $("#farm-rent-field").hidden=!rented; $("#farm-rent").required=rented; $("#farm-rent").disabled=!rented; updateSeasonPreview(); }
 function updateSeasonPreview(){
