@@ -48,14 +48,43 @@ function renderFarmOptions() {
 function formatMoney(value) {
   return Number(value || 0).toLocaleString("tr-TR", { maximumFractionDigits: 2 });
 }
+function unitInfo(unit) {
+  const key = String(unit || "").toLocaleLowerCase("tr-TR").replace(/\s/g, "");
+  const map = {kg:{dimension:"mass",factor:1},g:{dimension:"mass",factor:0.001},ton:{dimension:"mass",factor:1000},l:{dimension:"volume",factor:1},lt:{dimension:"volume",factor:1},litre:{dimension:"volume",factor:1},ml:{dimension:"volume",factor:0.001},"m³":{dimension:"volume",factor:1000},m3:{dimension:"volume",factor:1000},m:{dimension:"length",factor:1},adet:{dimension:"count",factor:1},saat:{dimension:"time",factor:1}};
+  return map[key] || null;
+}
+function calculateCostPerDecare(record) {
+  const quantity = Number(record.quantity);
+  const price = record.package_price === null || record.package_price === undefined || record.package_price === "" ? NaN : Number(record.package_price);
+  const pack = String(record.package_size || "").trim().match(/^(\d+(?:[.,]\d+)?)\s*([\p{L}³0-9]+)$/u);
+  const usedUnit = String(record.quantity_unit || "").replace(/\s*\/\s*da$/i, "").trim();
+  if (!Number.isFinite(quantity) || quantity <= 0 || !Number.isFinite(price) || price < 0 || !pack) return null;
+  const packAmount = Number(pack[1].replace(",", "."));
+  const used = unitInfo(usedUnit), packaged = unitInfo(pack[2]);
+  if (!Number.isFinite(packAmount) || packAmount <= 0 || !used || !packaged || used.dimension !== packaged.dimension) return null;
+  return quantity * used.factor / (packAmount * packaged.factor) * price;
+}
 function updateSummary() {
   const farmId = selectedFilterFarm();
   const filtered = farmId ? records.filter((row) => row.farm_id === farmId) : records;
-  const packagePrice = filtered.reduce((sum, row) => sum + Number(row.package_price || 0), 0);
+  const farmIds = [...new Set(filtered.map((row) => row.farm_id))];
+  let knownTotal = 0, knownArea = 0;
+  farmIds.forEach((id) => {
+    const farm = farms.find((item) => item.id === id);
+    const farmRows = filtered.filter((row) => row.farm_id === id);
+    const costs = farmRows.map(calculateCostPerDecare).filter((value) => value !== null);
+    if (farm && costs.length) {
+      knownTotal += costs.reduce((sum, value) => sum + value, 0) * Number(farm.area_decare || 0);
+      knownArea += Number(farm.area_decare || 0);
+    }
+  });
   $("#summary-count").textContent = String(filtered.length);
-  $("#summary-total").textContent = formatMoney(packagePrice);
-  $("#summary-area-label").textContent = "Dekara maliyet";
-  $("#summary-per-decare").textContent = "—";
+  $("#summary-total").textContent = knownArea ? formatMoney(knownTotal / knownArea) : "—";
+  $("#summary-per-decare").textContent = knownArea ? formatMoney(knownTotal) : "—";
+  const note = $("#summary-cost-note");
+  if (note) note.textContent = filtered.length ? `${filtered.filter((row) => calculateCostPerDecare(row) !== null).length}/${filtered.length} kayıt hesaplanabildi` : "Ambalaj ve fiyat bilgileriyle hesaplanır";
+  const totalNote = $("#summary-total-note");
+  if (totalNote) totalNote.textContent = knownArea ? "Hesaplanabilen kayıtların toplamı" : "Tarla alanı ve maliyet bilgisi gerekli";
   $("#production-empty").hidden = filtered.length > 0;
   renderRecords(filtered);
 }
@@ -81,9 +110,10 @@ function renderRecords(rows) {
     const cost = document.createElement("div");
     cost.className = "production-record-cost";
     const costValue = document.createElement("b");
-    costValue.textContent = record.package_price !== null && record.package_price !== undefined ? formatMoney(record.package_price) + " TL / paket" : record.total_cost ? "Eski maliyet: " + formatMoney(record.total_cost) + " TL" : "Fiyat girilmedi";
+    const perDecare = calculateCostPerDecare(record);
+    costValue.textContent = perDecare !== null ? formatMoney(perDecare) + " TL/da" : "Maliyet bilgisi eksik";
     const costUnit = document.createElement("small");
-    costUnit.textContent = record.package_size ? "Ambalaj: " + record.package_size : "Paket bilgisi";
+    costUnit.textContent = record.package_size ? `Ambalaj: ${record.package_size}${record.package_price !== null && record.package_price !== undefined ? " · " + formatMoney(record.package_price) + " TL/paket" : ""}` : "Ambalaj miktarı ve fiyatı gerekli";
     cost.append(costValue, costUnit);
     const actions = document.createElement("div");
     actions.className = "production-record-actions";
@@ -151,7 +181,14 @@ function clearForm() {
   message("");
 }
 function updateCostPreview() {
-  $("#operation-cost-preview").textContent = "Dekara maliyet, kullanılan miktar ve ambalaj fiyatına göre sonraki aşamada hesaplanacak.";
+  const preview = $("#operation-cost-preview");
+  if (!preview) return;
+  const record = {quantity:$("#operation-quantity").value,quantity_unit:$("#operation-unit").value,package_size:$("#operation-package-size").value,package_price:$("#operation-package-price").value};
+  const cost = calculateCostPerDecare(record);
+  const farm = activeFarm();
+  if (cost === null) { preview.textContent = "Önizleme için ambalaj miktarını (ör. 50 kg), paket fiyatını ve uyumlu kullanım birimlerini gir."; return; }
+  const total = farm ? cost * Number(farm.area_decare || 0) : null;
+  preview.textContent = `Tahmini ürün maliyeti: ${formatMoney(cost)} TL/da${total === null ? "" : ` · ${farm.name} (${formatMoney(farm.area_decare)} da) için ${formatMoney(total)} TL`}`;
 }$("#operation-farm").addEventListener("change", () => { updateCostPreview(); updateSummary(); });
 $("#operation-farm").addEventListener("change", () => { if ($("#operation-farm").value === "__add_farm__") location.href = "tarla-bilgileri.html"; });
 $("#records-filter").addEventListener("change", updateSummary);
@@ -186,6 +223,10 @@ form.addEventListener("submit", async (event) => {
   message("Üretim kaydı hesabına özel kaydedildi.");
   clearForm();
   await loadRecords();
+});
+["operation-quantity", "operation-unit", "operation-package-size", "operation-package-price"].forEach((id) => {
+  $("#" + id).addEventListener("input", updateCostPreview);
+  $("#" + id).addEventListener("change", updateCostPreview);
 });
 $("#operation-farm").addEventListener("change", updateCostPreview);
 if (!cfg.url || !cfg.publishableKey) {
