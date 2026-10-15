@@ -17,3 +17,5 @@
 /* Per-decare application amount with its measurement in one compact control */
 .production-quantity-control{display:grid;grid-template-columns:minmax(0,1fr) 112px;gap:8px;min-width:0}.production-quantity-control input,.production-quantity-control select{min-width:0}
 @media(max-width:760px){.production-quantity-control{grid-template-columns:minmax(0,1fr) 112px;gap:8px}}
+
+.production-home-link{margin-top:24px;text-decoration:none;height:auto;min-height:52px;padding:14px 16px;box-sizing:border-box;text-align:center;line-height:1.5}.production-home-link:focus-visible{outline:3px solid #344b25;outline-offset:3px}
