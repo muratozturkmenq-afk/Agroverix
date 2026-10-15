@@ -1,8 +1,11 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm";
 const cfg = window.AGROVERIX_SUPABASE || {};
-const label = document.querySelector("#fc-label"), icon = document.querySelector("#fc-ico");
-const operation = document.querySelector("#fc-op"), cost = document.querySelector("#fc-cost"), delta = document.querySelector("#fc-delta");
+const area = document.querySelector("#ciftci-ozet");
+const message = document.querySelector("#home-dashboard-message");
+const login = document.querySelector("#home-dashboard-login");
+const grid = document.querySelector("#home-crop-grid");
 const money = (value) => Number(value || 0).toLocaleString("tr-TR", { maximumFractionDigits: 2 });
+const text = (tag, className, value) => { const node = document.createElement(tag); if (className) node.className = className; node.textContent = value; return node; };
 function unitInfo(unit) {
   const key = String(unit || "").toLocaleLowerCase("tr-TR").replace(/\s/g, "");
   const map = {kg:{dimension:"mass",factor:1},g:{dimension:"mass",factor:0.001},ton:{dimension:"mass",factor:1000},l:{dimension:"volume",factor:1},lt:{dimension:"volume",factor:1},litre:{dimension:"volume",factor:1},ml:{dimension:"volume",factor:0.001},"m³":{dimension:"volume",factor:1000},m3:{dimension:"volume",factor:1000},m:{dimension:"length",factor:1},adet:{dimension:"count",factor:1},saat:{dimension:"time",factor:1}};
@@ -19,41 +22,78 @@ function costPerDecare(record) {
   if (!Number.isFinite(amount) || amount <= 0 || !used || !packaged || used.dimension !== packaged.dimension) return null;
   return quantity * used.factor / (amount * packaged.factor) * price;
 }
-function showGuest() {
-  label.textContent = "Agroverix çiftçi alanı"; icon.textContent = "A";
-  operation.firstChild.textContent = "Kendi verilerini görüntüle";
-  operation.querySelector("small").textContent = "Giriş yaptığında tarla ve üretim kayıtların burada görünür.";
-  cost.textContent = "—"; delta.textContent = "Kişisel maliyet özeti";
+function farmCost(farm, records) {
+  const rows = records.filter((row) => row.farm_id === farm.id);
+  const values = rows.map(costPerDecare).filter((value) => value !== null);
+  return { rows, values, perDecare: values.length ? values.reduce((sum, value) => sum + value, 0) : null,
+    total: values.length ? values.reduce((sum, value) => sum + value, 0) * Number(farm.area_decare || 0) : null };
 }
-async function showPersonalDashboard(client, user) {
+function cardCrop(crop, farms, records) {
+  const known = farms.map((farm) => ({ farm, cost: farmCost(farm, records) }));
+  const priced = known.filter((item) => item.cost.perDecare !== null);
+  const knownArea = priced.reduce((sum, item) => sum + Number(item.farm.area_decare || 0), 0);
+  const total = priced.reduce((sum, item) => sum + item.cost.total, 0);
+  const average = knownArea ? total / knownArea : null;
+  const button = text("button", "farmer-crop-card", "");
+  button.type = "button"; button.setAttribute("aria-expanded", "false");
+  const top = text("span", "farmer-crop-top", "");
+  top.append(text("b", "farmer-crop-name", crop), text("span", "farmer-crop-arrow", "＋"));
+  const metrics = text("span", "farmer-crop-metrics", "");
+  const metricA = text("span", "farmer-crop-metric", "");
+  metricA.append(text("small", "", "Hesaplanabilen maliyet"), text("b", "", average === null ? "—" : money(average) + " TL/da"));
+  const metricB = text("span", "farmer-crop-metric", "");
+  metricB.append(text("small", "", "Hesaplanabilen toplam"), text("b", "", total === null || !priced.length ? "—" : money(total) + " TL"));
+  const metricC = text("span", "farmer-crop-metric", "");
+  const areaTotal = farms.reduce((sum, farm) => sum + Number(farm.area_decare || 0), 0);
+  metricC.append(text("small", "", "Toplam alan"), text("b", "", money(areaTotal) + " da"));
+  metrics.append(metricA, metricB, metricC);
+  const note = text("small", "farmer-crop-note", `${priced.length}/${farms.length} tarlada maliyet hesaplanabildi`);
+  button.append(top, metrics, note);
+  const list = document.createElement("div"); list.className = "farmer-crop-farms"; list.hidden = true;
+  known.forEach(({ farm, cost }) => {
+    const link = document.createElement("a"); link.className = "farmer-farm-card";
+    link.href = "tarla-detay.html?farm=" + encodeURIComponent(farm.id);
+    const info = text("span", "farmer-farm-info", "");
+    info.append(text("b", "", farm.name), text("small", "", `${farm.crop || crop} · ${money(farm.area_decare)} da · ${cost.values.length}/${cost.rows.length} işlem hesaplandı`));
+    const figures = text("span", "farmer-farm-cost", "");
+    figures.append(text("b", "", cost.perDecare === null ? "—" : money(cost.perDecare) + " TL/da"), text("small", "", cost.total === null ? "Toplam maliyet —" : money(cost.total) + " TL toplam"));
+    link.append(info, figures, text("span", "farmer-farm-arrow", "→"));
+    list.append(link);
+  });
+  button.addEventListener("click", () => {
+    const opening = list.hidden; list.hidden = !opening;
+    button.setAttribute("aria-expanded", String(opening));
+    button.querySelector(".farmer-crop-arrow").textContent = opening ? "−" : "＋";
+  });
+  const wrap = document.createElement("div"); wrap.className = "farmer-crop-wrap"; wrap.append(button, list);
+  return wrap;
+}
+function showGuest() {
+  area.hidden = false; login.hidden = false; grid.replaceChildren();
+  message.textContent = "Bu özet yalnızca kendi hesabına giriş yaptığında görünür.";
+}
+async function showDashboard(client, user) {
+  area.hidden = false; login.hidden = true; grid.replaceChildren();
+  message.textContent = "Tarlaların ve hesaplanabilen maliyetlerin yükleniyor…";
   const [farmResult, recordResult] = await Promise.all([
-    client.from("farmer_farms").select("id,name,crop,area_decare").eq("user_id", user.id),
+    client.from("farmer_farms").select("id,name,crop,area_decare").eq("user_id", user.id).order("created_at", {ascending:true}),
     client.from("farmer_operations").select("farm_id,operation_type,operation_date,product,package_size,quantity,quantity_unit,package_price,created_at").eq("user_id", user.id).order("operation_date", {ascending:false}).order("created_at", {ascending:false})
   ]);
-  const farms = farmResult.data, records = recordResult.data;
-  if (farmResult.error || recordResult.error) { showGuest(); return; }
-  if (!records?.length) {
-    label.textContent = "Kişisel tarla alanın";
-    operation.firstChild.textContent = "İlk üretim kaydını ekle";
-    operation.querySelector("small").textContent = farms?.length ? `${farms.length} tarlan hazır · ilk işlemini kaydet` : "Önce tarlanı ekle, ardından işlemlerini kaydet.";
-    cost.textContent = "—"; delta.textContent = "Hesaplama kayıtlarla başlayacak"; return;
+  if (farmResult.error || recordResult.error) { message.textContent = "Kişisel özet yüklenemedi. Üretim kayıtları sayfasından tekrar deneyebilirsin."; return; }
+  const farms = farmResult.data || [], records = recordResult.data || [];
+  if (!farms.length) {
+    message.textContent = "Önce bir tarla ekle; ürün kartların ve maliyet özetlerin burada oluşacak.";
+    const add = text("a", "farmer-dashboard-login", "Tarla ekle →"); add.href = "tarla-bilgileri.html"; grid.append(add); return;
   }
-  const latest = records[0], farm = farms?.find((item) => item.id === latest.farm_id);
-  const farmRecords = records.filter((item) => item.farm_id === latest.farm_id);
-  const values = farmRecords.map(costPerDecare).filter((value) => value !== null);
-  const latestCost = costPerDecare(latest);
-  const types = {tillage:"Toprak hazırlığı",planting:"Ekim",fertilizing:"Gübreleme",irrigation:"Sulama",spraying:"İlaçlama",weeding:"Ot mücadelesi",harvest:"Hasat",other:"Diğer işlem"};
-  label.textContent = (farm?.name || "Tarlan") + " · kişisel kayıt";
-  icon.textContent = ({tillage:"S",planting:"E",fertilizing:"G",irrigation:"S",spraying:"İ",weeding:"O",harvest:"H"})[latest.operation_type] || "•";
-  operation.firstChild.textContent = (types[latest.operation_type] || "Üretim işlemi") + " kaydedildi";
-  operation.querySelector("small").textContent = `${latest.product || "Ürün belirtilmedi"} · ${new Date(latest.operation_date + "T12:00:00").toLocaleDateString("tr-TR")} · ${values.length}/${farmRecords.length} kayıt hesaplandı`;
-  cost.textContent = values.length ? money(values.reduce((sum, value) => sum + value, 0)) : "—";
-  delta.textContent = latestCost === null ? "Son işlem için ambalaj ve fiyat bilgisi gerekli" : `+${money(latestCost)} TL/da bu işlemle`;
+  const groups = new Map();
+  farms.forEach((farm) => { const crop = String(farm.crop || "Ürün belirtilmedi").trim(); const key = crop.toLocaleLowerCase("tr-TR"); if (!groups.has(key)) groups.set(key, {name:crop,farms:[]}); groups.get(key).farms.push(farm); });
+  [...groups.values()].sort((a,b)=>a.name.localeCompare(b.name,"tr")).forEach((group)=>grid.append(cardCrop(group.name,group.farms,records)));
+  message.textContent = records.length ? "Ürün kartına dokunarak tarlalarını aç. Tarla adına dokununca tüm ayrıntıları gör." : "Tarlaların hazır. İlk üretim kaydını eklediğinde maliyetler burada hesaplanacak.";
 }
 if (!cfg.url || !cfg.publishableKey) showGuest();
 else {
   const client = createClient(cfg.url,cfg.publishableKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
   const {data} = await client.auth.getSession();
-  if (data.session) await showPersonalDashboard(client,data.session.user); else showGuest();
-  client.auth.onAuthStateChange((_event,session) => { if (session) showPersonalDashboard(client,session.user); else showGuest(); });
+  if (data.session) await showDashboard(client,data.session.user); else showGuest();
+  client.auth.onAuthStateChange((_event,session)=>{if(session) showDashboard(client,session.user); else showGuest();});
 }
