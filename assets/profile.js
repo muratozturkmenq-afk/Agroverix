@@ -22,6 +22,10 @@ import { bindCropSelect } from "./crop-select.js";
     target.textContent = text || "";
     target.classList.toggle("is-error", Boolean(isError));
   }
+  function updateGreeting(fullName) {
+    const name = (fullName || '').trim();
+    $("#overview-greeting").textContent = name ? "Merhaba, " + name : "Merhaba";
+  }
   const requestedStep = new URLSearchParams(window.location.search).get("next");
   const returnPath = ["tarla-bilgileri.html", "uretim-kayitlari.html"].includes(requestedStep) ? requestedStep : "";
   function redirectToStep() {
@@ -120,13 +124,16 @@ import { bindCropSelect } from "./crop-select.js";
     const { error } = await client.from("farmer_profiles").upsert(record, { onConflict: "user_id" });
     if (error) { setStatus(profileStatus, "Profil kaydedilemedi. Kurulumun tamamlandığını kontrol edip tekrar dene.", true); return false; }
     setStatus(profileStatus, "Profilin hesabına özel olarak kaydedildi.");
+    updateGreeting(record.full_name);
     return true;
   }
   async function loadProfile() {
+    updateGreeting('');
     const { data, error } = await client.from("farmer_profiles").select("*").eq("user_id", currentSession.user.id).maybeSingle();
     if (error) { setStatus(profileStatus, "Profil tablosu henüz kurulmamış. Yönetici kurulum adımlarını tamamlamalı.", true); return; }
     if (!data) { $("#p-name").value = ""; $("#p-id").value = ""; $("#p-kvkk").checked = false; return; }
     $("#p-name").value = data.full_name || "";
+    updateGreeting(data.full_name);
     $("#p-id").value = data.identity_number || "";
     $("#p-kvkk").checked = Boolean(data.kvkk_notice_acknowledged);
     if (data.province && admin) {
