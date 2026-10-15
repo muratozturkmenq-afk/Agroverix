@@ -235,8 +235,13 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
     event.preventDefault();
     if (!ready) { setStatus(profileStatus, "Hesap servisi henüz bağlanmadı. Yönetici kurulum adımlarını tamamlamalı.", true); return; }
     if (currentSession) {
+      const record = profileRecord(currentSession.user.id);
+      if (!record.full_name || !/^[0-9]{11}$/.test(record.identity_number) || !record.province || !record.district || !record.village || !record.kvkk_notice_acknowledged) {
+        setStatus(profileStatus, "Profilini kaydetmek için ad-soyad, 11 haneli kimlik no, il/ilçe/köy ve KVKK bilgilendirme kutusunu tamamla. Bunlar üyelik oluşturmak için gerekli değil.", true);
+        return;
+      }
       setStatus(profileStatus, "Profil kaydediliyor…");
-      await saveProfile(profileRecord(currentSession.user.id));
+      await saveProfile(record);
       return;
     }
     if (mode !== "signup") { setMode("login"); return; }
@@ -254,8 +259,14 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
     if (!session) { setStatus(profileStatus, "Hesap açılmadı: Supabase telefon onayı kapalı olmalı. Yönetici Authentication ayarlarını kontrol et.", true); return; }
     currentSession = session;
     record.user_id = session.user.id;
+    const hasCompleteProfile = Boolean(record.full_name && /^[0-9]{11}$/.test(record.identity_number) && record.province && record.district && record.village && record.kvkk_notice_acknowledged);
     await showAccount(session);
-    if (await saveProfile(record)) { await loadProfile(); if (redirectToStep()) return; }
+    if (hasCompleteProfile) {
+      if (await saveProfile(record)) await loadProfile();
+    } else {
+      setStatus(profileStatus, "Hesabın oluşturuldu. Ad-soyad, kimlik ve adres bilgilerini profilinden daha sonra tamamlayabilirsin.");
+    }
+    if (redirectToStep()) return;
   });
 
   $("#overview-add-farm").addEventListener("click", () => { $("#farm-new").click(); $("#farm-form").scrollIntoView({ behavior: "smooth", block: "start" }); });
