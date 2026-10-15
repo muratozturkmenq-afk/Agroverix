@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tarla Bilgileri · Agroverix</title>
+<meta name="theme-color" content="#0D100B">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Sans:ital,wght@0,400..700;1,400&family=Martian+Mono:wght@400..600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<link rel="stylesheet" href="assets/profile.css">
+<style>
+.farm-page-layout{max-width:1120px;margin:42px auto 0;display:grid;grid-template-columns:minmax(220px,.65fr) minmax(0,1.35fr);gap:clamp(24px,5vw,72px);align-items:start}
+.farm-page-intro{padding-top:28px}.farm-page-intro h1{font-size:clamp(44px,5.6vw,70px)}
+.farm-page-intro .profile-progress span:nth-of-type(2){color:#f1f3ea}.farm-page-intro .profile-progress span:nth-of-type(2) b{color:#edb43e}
+.farm-page-card{min-width:0}.farm-page-kicker{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.farm-entry-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.farm-entry-grid .wide{grid-column:1/-1}
+.farm-auth-banner{display:flex;gap:12px;align-items:flex-start;margin:18px 0 4px;padding:13px 15px;background:#f0ecdd;border:1px solid #e3ddc8;border-radius:7px}
+.farm-auth-banner>span{display:grid;place-items:center;flex:0 0 25px;height:25px;border-radius:50%;background:#e1e7d6;color:#506c35;font-size:15px}
+.farm-auth-banner p{margin:0;color:#646a59;font-size:11px;line-height:1.55}.farm-auth-banner a{color:#425a2f;font-weight:700}
+.farm-page-intro .profile-side-note{margin-top:48px}
+.farm-page-note{padding:11px 12px;margin-top:14px;background:#f0ecdd;border-radius:6px;color:#686a5d;font-size:10px;line-height:1.55}
+.farm-page-note b{display:block;color:#444638;margin-bottom:3px}
+.farm-page-list{display:grid;gap:10px;margin-top:18px}
+.farm-page-list:empty{display:none}
+.farm-entry-card{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:15px;background:#ecefe4;border:1px solid #dde2d1;border-radius:7px}
+.farm-entry-card b,.farm-entry-card small{display:block}.farm-entry-card b{font-size:13px;color:#34412a}.farm-entry-card small{margin-top:5px;color:#737a6c;font-size:10px;line-height:1.5}
+.farm-entry-card button{border:1px solid #c7caba;background:transparent;color:#465339;border-radius:5px;padding:8px 10px;font-size:10px;font-weight:700}
+.farm-page-actions{display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:16px}
+.farm-page-actions .auth-back{min-width:92px}
+.farm-page-alert{margin:12px 0;text-align:left;min-height:18px}
+.farm-entry-heading{padding:22px 0 0}.farm-entry-heading h3{font-size:18px;margin:0 0 5px}.farm-entry-heading p{margin:0;color:#737a6c;font-size:11px;line-height:1.5}
+@media(max-width:760px){.farm-page-layout{display:block;margin:24px auto 0}.farm-page-intro{padding:0 5px 18px}.farm-page-intro h1{font-size:46px}.farm-page-intro .profile-side-note{display:none}.farm-page-card{padding:20px 17px}.farm-page-kicker .profile-required{display:none}.farm-entry-grid{grid-template-columns:1fr;gap:13px}.farm-entry-grid .wide{grid-column:auto}.farm-entry-card{align-items:flex-start;flex-direction:column}.farm-entry-card button{width:100%}.farm-page-actions{grid-template-columns:1fr}.farm-page-actions .auth-back{height:44px}}
+</style>
+</head>
+<body class="profile-page">
+<header class="profile-top">
+  <a class="brand" href="index.html" aria-label="Agroverix ana sayfa"><span class="profile-mark">A</span> Agroverix</a>
+  <span class="profile-step">AŞAMA <i>·</i> 02 TARLA BİLGİLERİ</span>
+  <a class="profile-back" href="ciftci-bilgi.html">Hesabıma dön →</a>
+</header>
+<main class="farm-page-layout">
+  <section class="profile-intro farm-page-intro">
+    <p class="eyebrow">Her tarla ayrı bir kayıt</p>
+    <h1>Tarla<br><em>bilgilerin.</em></h1>
+    <p>Ürününü, alanını ve konumunu ekle. Birden fazla tarlan varsa her birini ayrı ayrı kaydedebilirsin.</p>
+    <div class="profile-progress" aria-label="Kayıt aşamaları">
+      <span><b>01</b> Profil</span><i></i><span><b>02</b> Tarla</span><i></i><span><b>03</b> Üretim</span>
+    </div>
+    <div class="profile-side-note"><span class="profile-lock">⌖</span><div><b>Tarlanın konumunu ekle</b><small>Telefonundan konum alabilir veya köy ve mahalle seçebilirsin.</small></div></div>
+  </section>
+  <section class="profile-card farm-page-card" aria-labelledby="farm-page-title">
+    <div class="profile-card-head farm-page-kicker"><div><span class="profile-kicker">AŞAMA 02 · TARLA BİLGİLERİ</span><h2 id="farm-page-title">Yeni tarla kaydı</h2></div><span class="profile-required">* Zorunlu alanlar</span></div>
+    <div class="farm-auth-banner" id="farm-auth-banner" role="status">
+      <span aria-hidden="true">⌑</span><p><b>Görüntüleme açık, kayıt hesabına özel.</b> Tarlayı kaydetmek ve kayıtlarını görmek için <a id="farm-login-link" href="ciftci-bilgi.html?next=tarla-bilgileri.html">telefon numaranla giriş yap</a>.</p>
+    </div>
+    <div class="farm-entry-heading"><h3>Tarla bilgileri</h3><p>Bu bilgileri her parsel için ayrı gir. Alanı dekar cinsinden yaz.</p></div>
+    <form id="farm-entry-form">
+      <input type="hidden" id="farm-entry-id">
+      <fieldset class="profile-section">
+        <legend><span>01</span> Ürün ve alan</legend>
+        <div class="farm-entry-grid">
+          <div class="profile-field"><label for="farm-entry-name">Tarla adı / parsel <b>*</b></label><input id="farm-entry-name" required maxlength="80" placeholder="Örn. Kuzey tarla veya Parsel 1"></div>
+          <div class="profile-field"><label for="farm-entry-crop">Yetiştirdiğin ürün <b>*</b></label><select id="farm-entry-crop" required><option value="">Ürün seç</option><option>Pamuk</option><option>Buğday</option><option>Mısır</option><option>Zeytin</option><option>Üzüm</option><option>Ayçiçeği</option><option>Arpa</option><option>Diğer</option></select></div>
+          <div class="profile-field"><label for="farm-entry-area">Tarla alanı (dekar) <b>*</b></label><input id="farm-entry-area" type="number" min="0.1" max="1000000" step="0.1" inputmode="decimal" placeholder="Örn. 20" required></div>
+        </div>
+      </fieldset>
+      <fieldset class="profile-section">
+        <legend><span>02</span> Tarla konumu</legend>
+        <div class="farm-entry-grid">
+          <div class="profile-field"><label for="farm-entry-province">İl <b>*</b></label><select id="farm-entry-province" required><option value="">İller yükleniyor…</option></select></div>
+          <div class="profile-field"><label for="farm-entry-district">İlçe <b>*</b></label><select id="farm-entry-district" required disabled><option value="">Önce il seçin</option></select></div>
+          <div class="profile-field wide"><label for="farm-entry-village">Köy / Mahalle <b>*</b></label><select id="farm-entry-village" required disabled><option value="">Önce ilçe seçin</option></select></div>
+        </div>
+        <div class="profile-location">
+          <div class="profile-location-icon" aria-hidden="true">⌖</div>
+          <div class="profile-location-copy"><b>Tarlanızın konumunu ekleyin</b><small id="farm-entry-location-status">Konum, yalnızca bu tarla kaydına eklenir.</small></div>
+          <button class="profile-location-btn" id="farm-entry-get-location" type="button">Konum ekle <span>＋</span></button>
+          <input type="hidden" id="farm-entry-latitude"><input type="hidden" id="farm-entry-longitude">
+        </div>
+      </fieldset>
+      <div class="farm-page-note"><b>Hesabına özel kayıt</b>Kaydedilen tarla bilgileri yalnızca giriş yapan hesabınla ilişkilendirilir. KVKK aydınlatma metnini incelemeden gerçek kişisel bilgi ekleme.</div>
+      <div class="farm-page-actions"><button class="profile-submit" type="submit" id="farm-entry-submit">Tarlayı kaydet <span>→</span></button><button class="auth-back" type="button" id="farm-entry-cancel" hidden>Vazgeç</button></div>
+      <p class="profile-result farm-page-alert" id="farm-entry-status" role="status" aria-live="polite"></p>
+    </form>
+    <section aria-label="Kayıtlı tarlalar"><div class="farm-entry-heading" id="farm-list-heading" hidden><h3>Tarlalarım</h3><p>Hesabına kayıtlı parseller.</p></div><div class="farm-page-list" id="farm-entry-list"></div></section>
+    <p class="profile-footer">Kayıtlarını sadece sen görebilirsin. <a href="ciftci-bilgi.html?next=tarla-bilgileri.html">Hesabına giriş yap</a></p>
+  </section>
+</main>
+<script src="assets/supabase-config.js"></script>
+<script type="module" src="assets/farm-entry-page.js"></script>
+</body>
+</html>
