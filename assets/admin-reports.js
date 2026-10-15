@@ -1,5 +1,5 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
-import { reportData,saveReport,seasonResults } from './reports.js?v=mobile-report-v1';
+import { reportData,saveReport,seasonResults } from './reports.js?v=cost-line-v2';
 import { fmt,appendMetric } from './farm-finance.js?v=seasons-v1';
 const $=id=>document.getElementById(id),cfg=window.AGROVERIX_SUPABASE||{};let client,session,scopeData=null;
 const money=n=>n===null?'—':fmt(n)+' TL';

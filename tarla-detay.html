@@ -13,7 +13,7 @@
 <link rel="stylesheet" href="assets/production.css">
 <link rel="stylesheet" href="assets/farm-detail.css?v=record-editor-20261015">
 <link rel="stylesheet" href="assets/farm-finance.css?v=seasons-v1">
-<link rel="stylesheet" href="assets/mobile-reports.css?v=mobile-report-v1">
+<link rel="stylesheet" href="assets/mobile-reports.css?v=cost-line-v2">
 </head>
 <body class="profile-page production-page farm-detail-page">
 <header class="profile-top">
@@ -44,10 +44,10 @@
   </section>
   <section class="farm-detail-card season-end-report"><p class="profile-kicker">TAHMİNLERE GÖRE</p><h2>Sezon İçi Tahmini Sonuç</h2><p id="expected-report-note"></p><div class="finance-grid" id="expected-report"></div></section>
   <section class="farm-detail-card season-end-report"><p class="profile-kicker">HASAT SONRASI GERÇEK SONUÇ</p><h2>Sezon Sonu</h2><p id="actual-report-note"></p><div class="finance-grid" id="actual-report"></div><p>Toplam maliyet = masraflar + kira. Kâr/zarar yüzdesi = kâr/zarar ÷ toplam maliyet × 100. Sıfır maliyette yüzde hesaplanmaz.</p></section>
-<section class="report-toolbar" aria-label="Kişisel Excel raporu"><button class="auth-back" type="button" data-excel-export disabled>Excel Raporumu İndir</button><a class="auth-back" id="admin-link" href="yonetici.html" hidden>Yönetici Alanı</a><p id="excel-status" role="status" aria-live="polite"></p></section>
+
   <p class="farm-detail-status" id="farm-status" role="status" aria-live="polite"></p>
 </main>
 <script src="assets/supabase-config.js"></script>
-<script type="module" src="assets/farm-detail-finance.js?v=mobile-report-v1"></script>
+<script type="module" src="assets/farm-detail-finance.js?v=cost-line-v2"></script>
 </body>
 </html>

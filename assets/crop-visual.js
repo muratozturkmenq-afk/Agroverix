@@ -12,7 +12,7 @@ export function cropVisual(crop) {
  }else if(/buğday|arpa|çavdar|yulaf|pirinç/.test(name)){
   [176,210,244].forEach((x,i)=>{stem(`M${x} 275 Q${x-7} 195 ${x} ${92+i*11}`,3);leaf(x,220,i%2?-1:1,.5);for(let j=0;j<7;j++)[-1,1].forEach(k=>add('ellipse',{cx:x+k*7,cy:96+i*11+j*10,rx:5,ry:10,fill:'#d7ad4a',transform:`rotate(${k*32} ${x+k*7} ${96+i*11+j*10})`},plant));});
  }else if(/mısır/.test(name)){
-  stem('M210 275 L210 80',7);[132,169,204,238].forEach((y,i)=>leaf(210,y,i%2?-1:1,1.1));add('ellipse',{cx:221,cy:176,rx:13,ry:36,fill:'#e5b842',transform:'rotate(20 221 176)'},plant);[-18,0,18].forEach(x=>stem(`M210 93 L${210+x} 58`,2));
+  stem('M210 275 L210 44',7);[94,132,169,204,238].forEach((y,i)=>leaf(210,y,i%2?-1:1,1.1));[[229,171,20],[191,130,-24]].forEach(([x,y,angle])=>{add('ellipse',{cx:x,cy:y,rx:13,ry:35,fill:'#e5b842',transform:`rotate(${angle} ${x} ${y})`},plant);[-5,0,5].forEach(dx=>add('path',{d:`M${x+dx} ${y-25} L${x+dx} ${y+25}`,stroke:'#c59127','stroke-width':1,transform:`rotate(${angle} ${x} ${y})`},plant));});[-18,0,18].forEach(x=>stem(`M210 58 L${210+x} 20`,2));
  }else if(/ayçiçeği/.test(name)){
   stem('M210 275 Q201 190 210 106',7);leaf(210,197);leaf(207,232,-1);for(let i=0;i<12;i++)add('ellipse',{cx:210,cy:78,rx:10,ry:26,fill:'#e9b436',transform:`rotate(${i*30} 210 106)`},plant);add('circle',{cx:210,cy:106,r:24,fill:'#624329'},plant);
  }else if(/üzüm/.test(name)){

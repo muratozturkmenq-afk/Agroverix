@@ -1,4 +1,3 @@
-import { bindReportButtons } from './reports.js?v=mobile-report-v1';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
 import { farmFinance,seasonFor,fmt,appendMetric,operationLabels,serviceTypes } from './farm-finance.js?v=seasons-v1';
 import { costPerDecare } from './operation-cost.js';
@@ -17,7 +16,7 @@ function render(){
  $('new-season').href='tarla-bilgileri.html?edit='+farm.id+'&year='+(Math.max(...farm.farmer_seasons.map(s=>s.season_year))+1);
  const actual=$('actual-report'),expected=$('expected-report');actual.replaceChildren();expected.replaceChildren();report(actual,c.actual);report(expected,c.expected);
  $('actual-report-note').textContent=season?.actual_yield==null?'Hasattan sonra Kayıtları Düzenle → Tarla Bilgilerini Düzenle sayfasının Sezon Sonu bölümüne gerçek verim ve satış fiyatını gir.':'Gerçek verim: '+fmt(season.actual_yield)+' kg/da · Gerçek satış fiyatı: '+fmt(season.actual_price)+' TL/kg';
- $('expected-report-note').textContent=season?.expected_yield==null?'Ana sayfadaki bu tarlanın simülatörüne tahmini verim ve fiyat gir.':'Tahmini verim: '+fmt(season.expected_yield)+' kg/da · Tahmini satış fiyatı: '+(season.expected_price==null?'—':fmt(season.expected_price))+' TL/kg. Sonuçlar kayıtlı masraflara göre değişir.';
+ $('expected-report-note').textContent=season?.expected_yield==null?'Ana sayfadaki Sezon Sonu Tahmini bölümüne bu tarla için verim veya fiyat gir.':'Tahmini verim: '+fmt(season.expected_yield)+' kg/da · Tahmini satış fiyatı: '+(season.expected_price==null?'—':fmt(season.expected_price))+' TL/kg. Sonuçlar kayıtlı masraflara göre değişir.';
  const list=$('farm-records');list.replaceChildren();$('farm-empty').hidden=c.rows.length>0;
  if(c.rent>0){const row=element('article','','farm-detail-record');row.append(element('b','Sezonluk Kira'),element('b',fmt(c.rent)+' TL'));list.append(row);}
  c.rows.forEach(r=>{
@@ -35,7 +34,6 @@ else{
  const client=createClient(cfg.url,cfg.publishableKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}),{data}=await client.auth.getSession();
  if(!data.session){location.replace('ciftci-bilgi.html?next='+encodeURIComponent('tarla-detay.html?farm='+farmId));}
  else{
-  bindReportButtons(client,data.session);
   const [f,r,a]=await Promise.all([client.from('farmer_farms').select('*,farmer_seasons(*)').eq('id',farmId).eq('user_id',data.session.user.id).maybeSingle(),client.from('farmer_operations').select('*').eq('farm_id',farmId).eq('user_id',data.session.user.id).order('operation_date',{ascending:false}),fetch('assets/administrative-units.json?v=2').then(r=>r.ok?r.json():null).catch(()=>null)]);
   if(f.error||r.error||!f.data){$('farm-title').textContent='Tarla bulunamadı veya hesabına ait değil.';}
   else{farm=f.data;records=r.data||[];admin=a;const select=$('farm-season-select');select.replaceChildren();farm.farmer_seasons.slice().sort((a,b)=>b.season_year-a.season_year).forEach(s=>select.add(new Option(s.season_year+' · '+s.crop,s.season_year)));select.value=String(Number(params.get('year'))||farm.season_year);if(!select.value)select.value=String(farm.season_year);render();}

@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="assets/styles.css">
 <link rel="stylesheet" href="assets/home-dashboard.css?v=seasons-v1">
 <link rel="stylesheet" href="assets/farm-finance.css?v=logo-groups-v2">
-<link rel="stylesheet" href="assets/mobile-reports.css?v=mobile-report-v1">
+<link rel="stylesheet" href="assets/mobile-reports.css?v=cost-line-v2">
 </head>
 <body>
 
@@ -33,7 +33,6 @@
       <a href="#ciftci-ozet">Tarlalarım</a>
       <a href="#ciftci">Sezon Sonu Tahmini</a>
       <a href="#zararlilar">Tarla Uyarı</a>
-      <a href="#kvkk">KVKK</a>
       <a href="tarla-bilgileri.html">Tarla Ekle</a>
       <a href="ciftci-bilgi.html?profile=edit">Profil Bilgileri</a>
     </nav>
@@ -86,7 +85,7 @@
 
 <!-- SEASON SIMULATOR -->
 <section class="sec light season" id="ciftci">
- <div class="wrap"><div class="sec-head"><p class="eyebrow">Sezon simülatörü · Her tarla ayrı</p><h2>Verim ve fiyat tahminini gir<br>kârlılığını anlık tahmin et.</h2><p class="lede">Her tarla için tahminini gir. Değişiklikler hesaplamaya anında yansır; Tahminleri Kaydet ile hesabında saklanır.</p></div>
+ <div class="wrap"><div class="sec-head"><p class="eyebrow">Sezon sonu tahmini · Her tarla ayrı</p><h2>Verim ve fiyat tahminini gir<br>kârlılığını anlık tahmin et.</h2><p class="lede">Her tarla için tahminini gir. Değişiklikler hesaplamaya anında yansır; Tahminleri Kaydet ile hesabında saklanır.</p></div>
  <p id="sim-message" role="status">Tarlaların yükleniyor…</p><div id="farm-simulators" class="farm-simulators"></div>
  </div>
 </section>
@@ -229,40 +228,6 @@
 <!-- REACH -->
 
 
-<!-- KVKK -->
-<section class="sec kvkk" id="kvkk">
-  <div class="wrap">
-    <div class="sec-head">
-      <p class="eyebrow">KVKK VE GÜVEN</p>
-      <h2>Tarla ve üretim bilgilerin hesabına özel</h2>
-      <p class="lede">Profil, tarla ve üretim kayıtlarını kendi hesabında yönetirsin. Kişisel maliyet özetini görmek için hesabına giriş yap.</p>
-    </div>
-    <div class="farmer-privacy-grid">
-      <article class="farmer-privacy-card"><b>Kendi hesabın</b><p>Tarla ve işlem kayıtların kişisel alanında gösterilir. Diğer çiftçiler kayıtlarına erişemez. Yetkili AgroVerix yöneticisi, profil, iletişim, tarla ve maliyet bilgilerini raporlama ve analiz için görüntüleyip Excel'e aktarabilir.</p></article>
-      <article class="farmer-privacy-card"><b>Senin kontrolünde</b><p>Eklediğin tarla ve üretim bilgilerini kendi ekranlarından görüntüleyip güncelleyebilirsin.</p></article>
-      <article class="farmer-privacy-card"><b>Şeffaf maliyet</b><p>Kaydettiğin masraflar ve sezonluk kira; tarla alanı ve verim bilgileriyle birlikte hesaplanır.</p></article>
-    </div>
-  </div>
-</section>
-
-<!-- CTA -->
-<section class="cta" id="basla">
-  <canvas id="wheat" aria-hidden="true"></canvas>
-  <div class="wrap cta-inner">
-    <p class="eyebrow">TARLA TAKİBİ</p>
-    <h2>Tarlalarını ve maliyetlerini tek yerde takip et</h2>
-    <div class="cta-grid farmer-cta-grid">
-      <div class="cform f">
-        <p class="eyebrow">ÜCRETSİZ ÇİFTÇİ ÜYELİĞİ</p>
-        <h3>Kendi tarlalarını takip et</h3>
-        <p class="lede" style="font-size:14px;margin:14px 0 22px">Kendi şifreni belirle, profilini oluştur ve tarlalarını ekleyerek üretim kayıtlarını tut.</p>
-        <a class="btn btn-gold full" href="ciftci-bilgi.html">Giriş yap <span class="arr">→</span></a>
-        <p class="form-note full" style="margin-top:16px">E-posta adresin ve şifrenle giriş yap. Tarlaların ve sezon kayıtların ana sayfanda görünsün.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
 </main>
 
 <footer class="foot">
@@ -277,6 +242,6 @@
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
 <script src="assets/main.js?v=seasons-v1"></script>
 <script src="assets/supabase-config.js"></script>
-<script type="module" src="assets/home-finance-dashboard.js?v=mobile-report-v1"></script>
+<script type="module" src="assets/home-finance-dashboard.js?v=cost-line-v2"></script>
 </body>
 </html>

@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="assets/profile.css">
 <link rel="stylesheet" href="assets/production.css?v=home-return-20261015">
 <link rel="stylesheet" href="assets/farm-finance.css?v=seasons-v1">
-<link rel="stylesheet" href="assets/mobile-reports.css?v=mobile-report-v1">
+<link rel="stylesheet" href="assets/mobile-reports.css?v=cost-line-v2">
 </head>
 <body class="profile-page production-page">
 <header class="profile-top">
@@ -51,7 +51,7 @@
           <div class="profile-field"><label for="operation-date">İşlem tarihi <b>*</b></label><input id="operation-date" type="date" required></div>
           <div class="profile-field"><label for="operation-type">Yapılan İşlem <b>*</b></label><select id="operation-type" required><option value="">İşlem seç</option></select></div>
           <div class="profile-field" id="operation-product-field"><label for="operation-product">Kullanılan Ürün Adı <b>*</b></label><input id="operation-product" maxlength="120" placeholder="Örn. DAP, tohum veya ilaç adı" required></div>
-          <div class="profile-field" id="operation-quantity-field"><label for="operation-quantity">Kullanılan Toplam Miktar <b>*</b></label><div class="production-quantity-control"><input id="operation-quantity" type="text" pattern="[0-9]+([.,][0-9]+)?" inputmode="decimal" placeholder="Örn. 2,5" required><select id="operation-unit" aria-label="Kullanılan Toplam Miktar birimi" required><option value="">Birim seç</option><option value="kg">kg</option><option value="g">g</option><option value="L">L</option><option value="ml">ml</option><option value="m">m</option><option value="adet">adet</option><option value="torba">torba</option><option value="şişe">şişe</option><option value="m³">m³</option><option value="saat">saat</option></select></div></div>
+          <div class="profile-field" id="operation-quantity-field"><label for="operation-quantity">Kullanılan Toplam Miktar <b>*</b></label><div class="production-quantity-control"><input id="operation-quantity" type="text" pattern="[0-9]+([.,][0-9]+)?" inputmode="decimal" placeholder="Örn. 2,5" required><select id="operation-unit" aria-label="Kullanılan Toplam Miktar birimi" required><option value="">Birim seç</option><option value="kg">kg</option><option value="ton">ton</option><option value="g">g</option><option value="L">L</option><option value="ml">ml</option><option value="m">m</option><option value="adet">adet</option><option value="torba">torba</option><option value="şişe">şişe</option><option value="m³">m³</option><option value="saat">saat</option></select></div></div>
           <div class="wide expense-service-note" id="service-note" hidden>Makine ve işçilik için ürün veya marka adı gerekmez. Tarihi, yapılan işi ve bu tarlaya ait toplam masrafı gir.</div>
           <div class="profile-field"><label for="operation-total-cost">Bu Tarla İçin Maliyet (TL) <b>*</b></label><input id="operation-total-cost" type="text" pattern="[0-9]+([.,][0-9]{1,2})?" inputmode="decimal" placeholder="Örn. 1000" required></div>
 

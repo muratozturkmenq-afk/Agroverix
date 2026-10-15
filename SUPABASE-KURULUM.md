@@ -51,3 +51,11 @@ Sezon geçişinden sonra `supabase/20261015-reports-and-profiles.sql` çalışt�
 `yonetici.html` üzerinde çiftçi, sezon ve bitki filtreleri ile analiz ve gerçek `.xlsx` indirme bulunur. Profil, tarla, sezon, masraf ve hesaplama tabloları ayrı sayfalardadır. Kimlik ve telefon metin olarak kalır; formül olarak çalıştırılmaz. Dosya tarayıcıda hazırlanır.
 
 **İzin metni değişikliği:** Telefon ve ayrı, varsayılan olarak kapalı SMS iletişim izni eklendi. Kullanıcı profilinden iznini değiştirebilir. İzin zamanı sunucuda tutulur. İletişim listesi yalnızca izin kayıtlı numaraları çıkarır; SMS göndermez. Sağlayıcı, güncel izin/IYS süreçleri ve hukuki metinler ayrıca tamamlanmalıdır. KVKK bilgilendirme kutusu SMS izni yerine geçmez.
+
+## Masraf çizgisi ve giriş düzeni (15 Ekim 2026)
+
+Sezon Sonu Tahmini bölümündeki çizgi, işlem tarihine göre aylık biriken masrafları gösterir; sezonluk kira başlangıç toplamına eklenir. Eksik hesaplama bilgisi olan noktadan sonra yanıltıcı toplam çizilmez. Grafik kayıtlı verileri kullanır, bitki görseli temsili animasyondur. Giriş yapılan hesap için Realtime aboneliği, sayfaya dönüşte yenileme ve görünür sayfada 30 saniyelik yenileme uygulanır. Kaydedilmemiş tahmin girişleri yenilemede korunur.
+
+Verim ve fiyat birbirinden bağımsız, boş bırakılabilir alanlardır. Verimle kg maliyeti hesaplanır; satış fiyatı girilene kadar gelir ve kâr/zarar boş kalır. Telefon girişi 05 ile başlayan 11 rakamdır; veritabanında mevcut +90 biçiminde saklanır. Masraf birimlerine ton eklendi.
+
+Çiftçi Excel düğmeleri yalnızca ana sayfada, genel rapor alanında ve tarla kartlarının altında bulunur. Tarla kartındaki rapor o tarlanın tüm sezonlarını içerir. Yönetici raporlama alanı korunur. Ana sayfanın KVKK ve Tarla Takibi bölümleri kaldırıldı; profil bilgilendirme bağlantısı kvkk-bilgilendirme.html sayfasına taşındı. E-posta ile giriş ve onay akışı devam eder.
