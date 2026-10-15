@@ -114,7 +114,7 @@ create table if not exists public.farmer_operations (
   operation_date date not null default current_date,
   product text,
   brand_name text,
-  quantity numeric(12,2),
+  quantity numeric(12,3),
   quantity_unit text,
   total_cost numeric(12,2) not null default 0,
   notes text,
@@ -125,6 +125,7 @@ create table if not exists public.farmer_operations (
 );
 
 alter table public.farmer_operations add column if not exists brand_name text;
+alter table public.farmer_operations alter column quantity type numeric(12,3);
 
 alter table public.farmer_operations enable row level security;
 alter table public.farmer_operations force row level security;
