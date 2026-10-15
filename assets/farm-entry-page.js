@@ -1,4 +1,5 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm";
+import { locationLabels } from "./location-labels.js";
 
 const $ = (selector) => document.querySelector(selector);
 const form = $("#farm-entry-form");
@@ -38,7 +39,7 @@ function bindLocations() {
 }
 bindLocations();
 
-fetch("assets/administrative-units.json?v=2")
+const adminReady = fetch("assets/administrative-units.json?v=2")
   .then((response) => { if (!response.ok) throw new Error(); return response.json(); })
   .then((data) => {
     admin = data;
@@ -57,7 +58,7 @@ function renderFarms(rows) {
     const title = document.createElement("b");
     title.textContent = farm.name;
     const sub = document.createElement("small");
-    sub.textContent = farm.crop + " · " + Number(farm.area_decare).toLocaleString("tr-TR") + " da · " + [farm.province, farm.district, farm.village].join(" / ");
+    sub.textContent = [farm.crop, Number(farm.area_decare).toLocaleString("tr-TR") + " da", locationLabels(farm, admin)].filter(Boolean).join(" · ");
     details.append(title, sub);
     const actions = document.createElement("div");
     const edit = document.createElement("button");
@@ -78,6 +79,7 @@ function renderFarms(rows) {
   });
 }
 async function loadFarms() {
+  await adminReady;
   const { data, error } = await client.from("farmer_farms").select("*").eq("user_id", session.user.id).order("created_at", { ascending: false });
   if (error) { message("Tarla kayıtları yüklenemedi. Kurulum durumunu kontrol et.", true); return; }
   renderFarms(data || []);

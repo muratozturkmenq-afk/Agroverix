@@ -1,11 +1,13 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm";
 import { costPerDecare } from "./operation-cost.js";
+import { locationLabels } from "./location-labels.js";
+let admin = null;
 const cfg=window.AGROVERIX_SUPABASE||{}, q=new URLSearchParams(location.search), farmId=q.get("farm");
 const $=(id)=>document.getElementById(id), money=(v)=>Number(v||0).toLocaleString("tr-TR",{maximumFractionDigits:2});
 function fail(message){$("farm-title").textContent="Tarla açılamadı";$("farm-status").textContent=message;}
 function render(farm,records){
   $("farm-title").textContent=farm.name;$("farm-crop").textContent=farm.crop||"—";$("farm-area").textContent=money(farm.area_decare);
-  $("farm-location").textContent=[farm.village,farm.district,farm.province].filter(Boolean).join(" · ")||"Konum bilgisi eklenmemiş";
+  $("farm-location").textContent=locationLabels(farm,admin)||"Konum bilgisi eklenmemiş";
   const costs=records.map(row => costPerDecare(row, farm.area_decare)).filter(v=>v!==null),per=costs.reduce((sum,v)=>sum+v,0),total=per*Number(farm.area_decare||0);
   $("farm-per-decare").textContent=costs.length?money(per):"—";$("farm-total").textContent=costs.length?money(total):"—";
   $("farm-cost-note").textContent=records.length?`${costs.length}/${records.length} kayıt hesaplanabildi. Yeni kayıtlarda dekara maliyet, tarla toplam maliyetinin tarla alanına bölünmesiyle hesaplanır.`:"Henüz üretim kaydı yok.";
@@ -22,10 +24,12 @@ else{
  const {data}=await client.auth.getSession();
  if(!data.session){$("farm-title").textContent="Tarla ayrıntılarını görmek için giriş yap";$("farm-status").innerHTML='Bu sayfa yalnızca tarla sahibine açıktır. <a href="ciftci-bilgi.html?next='+encodeURIComponent(location.pathname+location.search)+'">Giriş yap</a>.';}
  else{
-  const [farmResult,recordsResult]=await Promise.all([
+  const [farmResult,recordsResult,locations]=await Promise.all([
    client.from("farmer_farms").select("id,user_id,name,province,district,village,crop,area_decare").eq("id",farmId).eq("user_id",data.session.user.id).maybeSingle(),
-   client.from("farmer_operations").select("farm_id,operation_type,operation_date,product,package_size,quantity,quantity_unit,package_price,total_cost,cost_basis,created_at").eq("farm_id",farmId).eq("user_id",data.session.user.id).order("operation_date",{ascending:false}).order("created_at",{ascending:false})
+   client.from("farmer_operations").select("farm_id,operation_type,operation_date,product,package_size,quantity,quantity_unit,package_price,total_cost,cost_basis,created_at").eq("farm_id",farmId).eq("user_id",data.session.user.id).order("operation_date",{ascending:false}).order("created_at",{ascending:false}),
+   fetch("assets/administrative-units.json?v=2").then(response=>response.ok?response.json():null).catch(()=>null)
   ]);
+  admin=locations;
   if(farmResult.error||recordsResult.error||!farmResult.data)fail("Bu tarla bulunamadı veya hesabına ait değil.");
   else render(farmResult.data,recordsResult.data||[]);
  }

@@ -1,4 +1,5 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm";
+import { locationLabels } from "./location-labels.js";
 
 (function () {
   const $ = (selector) => document.querySelector(selector);
@@ -162,6 +163,7 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
     $("#overview-crop-count").textContent = String(new Set(farms.map((farm) => farm.crop).filter(Boolean)).size);
   }
   async function loadFarms() {
+    await adminReady;
     const list = $("#farm-list");
     list.replaceChildren();
     const { data, error } = await client.from("farmer_farms").select("*").eq("user_id", currentSession.user.id).order("created_at");
@@ -180,7 +182,7 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
       const item = document.createElement("article"); item.className = "farm-item";
       const details = document.createElement("div"); details.className = "farm-item-details";
       const title = document.createElement("b"); title.textContent = farm.name;
-      const summary = document.createElement("small"); summary.textContent = [farm.crop, farm.area_decare + " da", farm.village, farm.district, farm.province].join(" · ");
+      const summary = document.createElement("small"); summary.textContent = [farm.crop, farm.area_decare + " da", locationLabels(farm, admin)].filter(Boolean).join(" · ");
       details.append(title, summary);
       const actions = document.createElement("div"); actions.className = "farm-item-actions";
       const edit = document.createElement("button"); edit.type = "button"; edit.className = "auth-back"; edit.textContent = "Düzenle";
