@@ -154,7 +154,6 @@ function updateCostPreview() {
   $("#operation-cost-preview").textContent = "Dekara maliyet, kullanılan miktar ve ambalaj fiyatına göre sonraki aşamada hesaplanacak.";
 }$("#operation-farm").addEventListener("change", () => { updateCostPreview(); updateSummary(); });
 $("#operation-farm").addEventListener("change", () => { if ($("#operation-farm").value === "__add_farm__") location.href = "tarla-bilgileri.html"; });
-$("#operation-cost").addEventListener("input", updateCostPreview);
 $("#records-filter").addEventListener("change", updateSummary);
 $("#operation-cancel").addEventListener("click", clearForm);
 form.addEventListener("submit", async (event) => {
