@@ -343,43 +343,6 @@
   /* ---------- pest counters ---------- */
   $$(".pest b[data-count]").forEach(function (b) { once(b, function () { countTo(b, 0, +b.dataset.count, 0, 1.4, b.dataset.prefix || ""); }, 0.6); });
 
-  /* ---------- reach illustrations ---------- */
-  (function reach() {
-    var aw = $("#awning");
-    if (aw) {
-      for (var i = 0; i < 16; i++) {
-        sv("rect", { x: 40 + i * 20, y: 94, width: 20, height: 26, fill: i % 2 ? "#F1F3EA" : "#EDB43E" }, aw);
-        sv("circle", { cx: 50 + i * 20, cy: 120, r: 10, fill: i % 2 ? "#F1F3EA" : "#EDB43E" }, aw);
-      }
-    }
-    var qr = $("#store-qr"), r = rng(77);
-    if (qr) {
-      var N = 16, s = 2;
-      for (var y = 0; y < N; y++) for (var x = 0; x < N; x++) {
-        var f = (x < 5 && y < 5) || (x > 10 && y < 5) || (x < 5 && y > 10);
-        if (!f && r() < 0.5) sv("rect", { x: x * s, y: y * s, width: s, height: s, fill: "#1B1403" }, qr);
-      }
-      [[0, 0], [22, 0], [0, 22]].forEach(function (p) {
-        sv("rect", { x: p[0], y: p[1], width: 10, height: 10, fill: "#1B1403" }, qr);
-        sv("rect", { x: p[0] + 2, y: p[1] + 2, width: 6, height: 6, fill: "#FFFDF5" }, qr);
-        sv("rect", { x: p[0] + 3.5, y: p[1] + 3.5, width: 3, height: 3, fill: "#1B1403" }, qr);
-      });
-    }
-    var lines = ["Pamuğunun 1 kilosu", "sana kaça mal", "oluyor? Tarlanı", "kaydet, ücretsiz", "tn.link/pamuk"];
-    var spans = lines.map(function (_, i) { return $("#sms-" + (i + 1)); });
-    function type() {
-      spans.forEach(function (s) { s.textContent = ""; });
-      if (reduce) { lines.forEach(function (l, i) { spans[i].textContent = l; }); return; }
-      var li = 0, ci = 0;
-      var iv = setInterval(function () {
-        if (li >= lines.length) { clearInterval(iv); setTimeout(type, 4000); return; }
-        ci++; spans[li].textContent = lines[li].slice(0, ci);
-        if (ci >= lines[li].length) { li++; ci = 0; }
-      }, 55);
-    }
-    once($(".reach-grid"), type, 0.3);
-  })();
-
   /* ---------- CTA wheat field ---------- */
   (function wheat() {
     var cv = $("#wheat"); if (!cv) return;
