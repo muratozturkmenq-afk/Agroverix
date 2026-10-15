@@ -77,8 +77,9 @@ function renderRecords(rows) {
     title.textContent = labels[record.operation_type] || "Diğer işlem";
     const detail = document.createElement("small");
     const farm = farms.find((item) => item.id === record.farm_id);
-    const quantity = record.quantity ? " · " + formatMoney(record.quantity) + " " + (record.quantity_unit || "") : "";
-    detail.textContent = (farm ? farm.name + " · " : "") + new Date(record.operation_date + "T12:00:00").toLocaleDateString("tr-TR") + (record.product ? " · " + record.product : "") + quantity;
+    const quantity = record.quantity ? formatMoney(record.quantity) + " " + (record.quantity_unit || "") : "";
+    const productAndBrand = [record.product, record.brand_name ? "Marka: " + record.brand_name : ""].filter(Boolean).join(" · ");
+    detail.textContent = (farm ? farm.name + " · " : "") + new Date(record.operation_date + "T12:00:00").toLocaleDateString("tr-TR") + (productAndBrand ? " · " + productAndBrand : "") + (quantity ? " · Dekara kullanım: " + quantity : "");
     const cost = document.createElement("div");
     cost.className = "production-record-cost";
     const costValue = document.createElement("b");
@@ -130,6 +131,7 @@ function editRecord(record) {
   $("#operation-type").value = record.operation_type;
   $("#operation-date").value = record.operation_date;
   $("#operation-product").value = record.product || "";
+  $("#operation-brand").value = record.brand_name || "";
   $("#operation-quantity").value = record.quantity ?? "";
   $("#operation-unit").value = record.quantity_unit || "";
   $("#operation-cost").value = record.total_cost || "";
@@ -170,13 +172,14 @@ form.addEventListener("submit", async (event) => {
   if (!session) { message("Kaydetmek için önce telefon numaranla giriş yap. Form bilgileri bu sayfada saklanmadı.", true); return; }
   const farm = activeFarm();
   if (!farm) { message("İşlem kaydı için önce bir tarla seç veya ekle.", true); return; }
-  if ($("#operation-quantity").value && !$("#operation-unit").value) { message("Miktar girdiğinde birimini de seç.", true); return; }
+  if ($("#operation-quantity").value && !$("#operation-unit").value) { message("Dekara kullanılan miktar için ölçü birimini de seç.", true); return; }
   const record = {
     user_id: session.user.id,
     farm_id: farm.id,
     operation_type: $("#operation-type").value,
     operation_date: $("#operation-date").value,
     product: $("#operation-product").value.trim() || null,
+    brand_name: $("#operation-brand").value.trim() || null,
     quantity: $("#operation-quantity").value ? Number($("#operation-quantity").value) : null,
     quantity_unit: $("#operation-unit").value || null,
     total_cost: Number($("#operation-cost").value || 0),
