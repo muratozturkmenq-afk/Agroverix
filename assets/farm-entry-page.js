@@ -1,7 +1,9 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm";
+import { bindCropSelect } from "./crop-select.js";
 
 const $ = (selector) => document.querySelector(selector);
 const form = $("#farm-entry-form");
+const cropChoice = bindCropSelect($("#farm-entry-crop"), $("#farm-entry-crop-other"));
 const status = $("#farm-entry-status");
 const banner = $("#farm-auth-banner");
 const cfg = window.AGROVERIX_SUPABASE || {};
@@ -85,7 +87,7 @@ async function loadFarms() {
 function editFarm(farm) {
   $("#farm-entry-id").value = farm.id;
   $("#farm-entry-name").value = farm.name || "";
-  $("#farm-entry-crop").value = farm.crop || "";
+  cropChoice.setValue(farm.crop || "");
   $("#farm-entry-area").value = farm.area_decare || "";
   const province = $("#farm-entry-province");
   const district = $("#farm-entry-district");
@@ -138,7 +140,7 @@ form.addEventListener("submit", async (event) => {
   const record = {
     user_id: session.user.id,
     name: $("#farm-entry-name").value.trim(),
-    crop: $("#farm-entry-crop").value,
+    crop: cropChoice.value(),
     area_decare: Number($("#farm-entry-area").value),
     province: $("#farm-entry-province").value,
     district: $("#farm-entry-district").value,

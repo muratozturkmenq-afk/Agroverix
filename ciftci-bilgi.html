@@ -93,6 +93,7 @@
           <div class="profile-grid">
             <div class="profile-field"><label for="farm-name">Tarla adı / parsel <b>*</b></label><input id="farm-name" required placeholder="Örn. Kuzey tarla veya Parsel 1"></div>
             <div class="profile-field"><label for="farm-crop">Yetiştirdiğin ürün <b>*</b></label><select id="farm-crop" required><option value="">Ürün seç</option><option>Pamuk</option><option>Buğday</option><option>Mısır</option><option>Zeytin</option><option>Üzüm</option><option>Diğer</option></select></div>
+            <div class="profile-field" hidden><label for="farm-crop-other">Yetiştirdiğin Ürünün Adı <b>*</b></label><input id="farm-crop-other" type="text" maxlength="100" placeholder="Ürün adını yaz" disabled></div>
             <div class="profile-field"><label for="farm-area">Tarla alanı (dekar) <b>*</b></label><input id="farm-area" type="number" min="0.1" step="0.1" inputmode="decimal" placeholder="Örn. 20" required></div>
           </div>
         </fieldset>
@@ -119,6 +120,6 @@
   </section>
 </main>
 <script src="assets/supabase-config.js"></script>
-<script type="module" src="assets/profile.js?v=email-20261015"></script>
+<script type="module" src="assets/profile.js?v=crop-20261015"></script>
 </body>
 </html>
