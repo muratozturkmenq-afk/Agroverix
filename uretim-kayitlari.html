@@ -35,8 +35,8 @@
     </div>
     <div class="production-summary" id="production-summary" aria-label="Sezon özeti">
       <article><span>Kayıt</span><b id="summary-count">—</b></article>
-      <article><span>Paket fiyatlarının toplamı</span><b><span id="summary-total">—</span><small> TL</small></b></article>
-      <article><span id="summary-area-label">Dekara maliyet</span><b><span id="summary-per-decare">—</span><small> Sonraki aşamada</small></b></article>
+      <article><span id="summary-area-label">Hesaplanan maliyet / da</span><b><span id="summary-total">—</span><small> TL/da</small></b><small id="summary-cost-note">Ambalaj ve fiyat bilgileriyle hesaplanır</small></article>
+      <article><span>Hesaplanan tarla maliyeti</span><b><span id="summary-per-decare">—</span><small> TL</small></b><small id="summary-total-note">Tarla alanı ve maliyet bilgisi gerekli</small></article>
     </div>
     <form id="production-form">
       <input type="hidden" id="operation-id">
@@ -70,7 +70,7 @@
       <div class="production-record-list" id="production-record-list"></div>
       <div class="production-empty" id="production-empty"><span>＋</span><b>Henüz işlem kaydı yok</b><small>Tarladaki ilk işlemi eklediğinde burada göreceksin.</small></div>
     </section>
-    <p class="profile-footer">Dekara maliyet hesabı, ambalaj fiyatı ve dekara kullanılan miktara göre yapılacak.</p>
+    <p class="profile-footer">Dekara maliyet = (dekara kullanılan miktar ÷ ambalaj miktarı) × ambalaj fiyatı. Uyumlu birimler girildiğinde tahmini tarla toplamı da gösterilir.</p>
   </section>
 </main>
 <script src="assets/supabase-config.js"></script>
