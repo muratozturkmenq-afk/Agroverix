@@ -50,6 +50,8 @@
         <article><span>Ürün çeşidi</span><b id="overview-crop-count">0</b></article>
       </div>
     </section>
+    <details id="profile-edit-details" class="profile-edit-details" open>
+      <summary class="profile-edit-summary"><span><b>01 · Profil bilgileri</b><small>Kişisel bilgilerini görüntüle veya düzenle</small></span><i aria-hidden="true">⌄</i></summary>
     <form id="farmer-profile-form">
       <fieldset class="profile-section">
         <legend><span>01</span> Kişisel bilgiler</legend>
@@ -75,8 +77,15 @@
       <button class="profile-submit" type="submit" id="profile-submit">Profili güvenli şekilde kaydet <span>→</span></button>
       <p class="profile-result" id="profile-status" role="status" aria-live="polite"></p>
     </form>
+    </details>
     <section id="farms-section" class="profile-farms" hidden>
-      <div class="profile-section-head"><div><span class="profile-kicker">TARLA KAYITLARIN</span><h3>Tarlalarım</h3><p class="profile-help">Her tarlayı ayrı ekle. Ürün, alan ve konum bilgileri tarla bazında saklanır.</p></div><button class="profile-location-btn" id="farm-new" type="button">＋ Yeni tarla ekle</button></div>
+      <div class="profile-section-head"><div><span class="profile-kicker">AŞAMA 02 · TARLA BİLGİLERİ</span><h3>Tarlalarım</h3><p class="profile-help">Her tarlanı ayrı kaydet. Ürün, alan ve konum bilgilerini parsel bazında yönet.</p></div><button class="profile-location-btn" id="farm-new" type="button">＋ Yeni tarla ekle</button></div>
+      <nav class="farm-stage-nav" aria-label="Üyelik adımları">
+        <a href="#profile-edit-details" class="farm-stage-item"><span>01</span><b>Profil</b></a>
+        <span class="farm-stage-item is-current" aria-current="step"><span>02</span><b>Tarla bilgileri</b></span>
+        <span class="farm-stage-item is-next"><span>03</span><b>Üretim kayıtları</b></span>
+      </nav>
+      <div class="farm-stage-lead"><span class="farm-stage-number">02</span><div><span class="profile-kicker">KİŞİSEL TARIM ALANIN</span><h4>Tarlalarını ekle ve düzenle</h4><p>Birden fazla tarlan varsa her biri için ayrı kayıt oluşturabilirsin.</p></div></div>
       <form id="farm-form" hidden>
         <input type="hidden" id="farm-id">
         <fieldset class="profile-section">
