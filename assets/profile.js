@@ -28,6 +28,12 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
     return "+" + digits;
   }
   function validPhone(phone) { return /^\+905[0-9]{9}$/.test(phone); }
+  const returnToFarm = new URLSearchParams(window.location.search).get("next") === "tarla-bilgileri.html";
+  function redirectToFarm() {
+    if (!returnToFarm) return false;
+    window.location.replace("tarla-bilgileri.html");
+    return true;
+  }
   function setMode(next) {
     mode = next;
     if (next === "signup") $("#profile-edit-details").open = true;
@@ -220,6 +226,7 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
     setStatus(authStatus, "Giriş yapılıyor…");
     const { data, error } = await client.auth.signInWithPassword({ phone, password: authPassword.value });
     if (error || !data.session) { setStatus(authStatus, "Giriş yapılamadı. Telefon numaranı ve şifreni kontrol et.", true); return; }
+    if (redirectToFarm()) return;
     await showAccount(data.session);
   });
 
@@ -247,7 +254,7 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
     currentSession = session;
     record.user_id = session.user.id;
     await showAccount(session);
-    if (await saveProfile(record)) await loadProfile();
+    if (await saveProfile(record)) { await loadProfile(); if (redirectToFarm()) return; }
   });
 
   $("#overview-add-farm").addEventListener("click", () => { $("#farm-new").click(); $("#farm-form").scrollIntoView({ behavior: "smooth", block: "start" }); });
@@ -291,7 +298,7 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
     return;
   }
   client = createClient(cfg.url, cfg.publishableKey, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
-  client.auth.getSession().then(({ data }) => showAccount(data.session));
+  client.auth.getSession().then(({ data }) => { if (data.session && redirectToFarm()) return; showAccount(data.session); });
   client.auth.onAuthStateChange((_event, session) => {
     if (registrationPending) return;
     window.setTimeout(() => showAccount(session), 0);
