@@ -39,3 +39,43 @@
 .overview-stats small{font-size:11px;color:#737a6c}
 .profile-overview[hidden]{display:none!important}
 @media(max-width:760px){.profile-overview{padding:15px}.overview-welcome{align-items:flex-start;flex-direction:column}.overview-add{width:100%}.overview-stats{gap:6px}.overview-stats article{padding:9px}.overview-stats article>span{font-size:9px}.overview-stats article>b{font-size:18px}}
+
+/* Second-stage farm data workspace */
+.profile-edit-details{border-bottom:1px solid #deded2}
+.profile-edit-summary{list-style:none;display:flex;justify-content:space-between;align-items:center;gap:14px;padding:15px 0;cursor:pointer}
+.profile-edit-summary::-webkit-details-marker{display:none}
+.profile-edit-summary span b,.profile-edit-summary span small{display:block}
+.profile-edit-summary span b{font-size:12px;color:#3e4b31}
+.profile-edit-summary span small{font-size:10px;color:#7a806e;margin-top:4px}
+.profile-edit-summary>i{font-style:normal;color:#607542;font-size:18px;transition:transform .2s}
+.profile-edit-details[open] .profile-edit-summary>i{transform:rotate(180deg)}
+.farm-stage-nav{display:grid;grid-template-columns:repeat(3,1fr);margin:18px 0 22px;border:1px solid #dce0d4;border-radius:7px;overflow:hidden;background:#eeefe7}
+.farm-stage-item{display:flex;align-items:center;gap:9px;padding:11px 12px;color:#68705e;text-decoration:none;font-size:11px}
+.farm-stage-item+.farm-stage-item{border-left:1px solid #dce0d4}
+.farm-stage-item>span{width:25px;height:25px;flex:0 0 25px;display:grid;place-items:center;border-radius:50%;background:#dfe3d8;color:#67715d;font:10px 'Martian Mono',monospace}
+.farm-stage-item.is-current{background:#e4ead8;color:#344b25}
+.farm-stage-item.is-current>span{background:#56743b;color:#fff}
+.farm-stage-item.is-next{opacity:.65}
+.farm-stage-item.is-next>span{background:transparent;border:1px solid #bfc6b6}
+.farm-stage-lead{display:flex;align-items:center;gap:14px;margin:0 0 18px;padding:16px;background:#e9eddf;border:1px solid #dce3d1;border-radius:8px}
+.farm-stage-number{display:grid;place-items:center;width:42px;height:42px;flex:0 0 42px;border-radius:12px;background:#d6e1c8;color:#4d6735;font:600 15px 'Martian Mono',monospace}
+.farm-stage-lead h4{font-size:18px;letter-spacing:-.03em;margin:5px 0 3px;color:#2e3c25}
+.farm-stage-lead p{margin:0;color:#737a6c;font-size:11px;line-height:1.5}
+.profile-section-head h3{margin:7px 0 5px;font-size:25px;letter-spacing:-.04em}
+.profile-farms .profile-section{padding:21px 0}
+.profile-location{box-shadow:0 4px 15px #27331a08}
+.farm-empty{display:grid;justify-items:center;text-align:center;gap:8px;padding:30px 18px;margin-top:14px;background:#f1f1e9;border:1px dashed #bfc7b4;border-radius:8px}
+.farm-empty-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:50%;background:#e0e8d5;color:#52713a;font-size:25px}
+.farm-empty>b{margin-top:2px;font-size:15px;color:#34412a}
+.farm-empty>p{max-width:330px;margin:0;color:#747a6c;font-size:11px;line-height:1.55}
+.farm-empty-action{width:auto;height:42px;margin-top:5px;padding:0 18px}
+@media(max-width:760px){
+ .farm-stage-nav{margin:14px 0 18px}
+ .farm-stage-item{justify-content:center;flex-direction:column;gap:5px;padding:9px 3px;font-size:9px;text-align:center}
+ .farm-stage-item>span{width:23px;height:23px;flex-basis:23px}
+ .farm-stage-lead{padding:13px;gap:11px}
+ .farm-stage-lead h4{font-size:16px}
+ .farm-stage-lead p{font-size:10px}
+ .profile-section-head h3{font-size:23px}
+ .farm-empty{padding:25px 15px}
+}
