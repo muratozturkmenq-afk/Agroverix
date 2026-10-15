@@ -10,6 +10,9 @@ let client = null;
 let session = null;
 let farms = [];
 let records = [];
+let editingRecords = false;
+let requestedEditOpened = false;
+const requestedEdit = new URLSearchParams(location.search).get("edit");
 const icons = { tillage:"⌁", seed:"✳",planting:"✳", fertilizing:"＋", irrigation:"⌖", spraying:"✧", weeding:"⌁", harvest:"↟", other:"•" };
 const labels = { tillage:"Toprak hazırlığı / sürüm", seed:"Tohum",planting:"Ekim / dikim", fertilizing:"Gübreleme", irrigation:"Sulama", spraying:"İlaçlama", weeding:"Yabancı ot mücadelesi", harvest:"Hasat", other:"Diğer işlem" };
 
@@ -110,6 +113,9 @@ function renderRecords(rows) {
     cost.append(costValue, costUnit);
     const actions = document.createElement("div");
     actions.className = "production-record-actions";
+    const edit = document.createElement("button");
+    edit.type = "button"; edit.textContent = "Bu Kaydı Düzenle"; edit.hidden = !editingRecords;
+    edit.addEventListener("click", () => editRecord(record));
     const remove = document.createElement("button");
     remove.type = "button"; remove.textContent = "Sil";
     remove.addEventListener("click", async () => {
@@ -119,7 +125,7 @@ function renderRecords(rows) {
       message("Üretim kaydı silindi.");
       await loadRecords();
     });
-    actions.append(remove);
+    actions.append(edit, remove);
     card.append(icon, content, cost, actions);
     content.append(title, detail);
     list.append(card);
@@ -147,7 +153,14 @@ async function loadRecords() {
   const { data, error } = await client.from("farmer_operations").select("*").eq("user_id", session.user.id).order("operation_date", { ascending: false }).order("created_at", { ascending: false });
   if (error) { message("İşlem tablosu henüz kurulmamış. Yönetici Supabase kurulum dosyasını güncellemeli.", true); records = []; updateSummary(); return; }
   records = data || [];
+  $("#records-edit-toggle").disabled = !records.length;
   updateSummary();
+  if (requestedEdit && !requestedEditOpened) {
+    requestedEditOpened = true;
+    const record = records.find(row => row.id === requestedEdit);
+    if (record) editRecord(record);
+    else message("Düzenlenecek kayıt bulunamadı veya hesabına ait değil.", true);
+  }
 }
 function editRecord(record) {
   $("#operation-id").value = record.id;
@@ -165,6 +178,7 @@ function editRecord(record) {
   $("#production-title").textContent = "İşlem kaydını düzenle";
   $("#operation-submit").innerHTML = "Değişiklikleri kaydet <span>→</span>";
   $("#operation-cancel").hidden = false;
+  message(legacy ? "Bu eski kaydı güncellerken kullanılan miktarı ve maliyeti tarlanın tamamı için kontrol et." : "Mevcut kaydı düzenliyorsun. Kaydettiğinde bu kayıt güncellenecek.");
   updateCostPreview();
   form.scrollIntoView({ behavior: "smooth", block: "start" });
 }
@@ -191,6 +205,12 @@ function updateCostPreview() {
 }$("#operation-farm").addEventListener("change", () => { updateCostPreview(); updateSummary(); });
 $("#operation-farm").addEventListener("change", () => { if ($("#operation-farm").value === "__add_farm__") location.href = "tarla-bilgileri.html"; });
 $("#records-filter").addEventListener("change", updateSummary);
+$("#records-edit-toggle").addEventListener("click", () => {
+  editingRecords = !editingRecords;
+  $("#records-edit-toggle").setAttribute("aria-pressed", String(editingRecords));
+  $("#records-edit-toggle").textContent = editingRecords ? "Düzenlemeyi Kapat" : "Kayıtları Düzenle";
+  updateSummary();
+});
 $("#operation-cancel").addEventListener("click", clearForm);
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -219,10 +239,12 @@ form.addEventListener("submit", async (event) => {
     notes: $("#operation-note").value.trim() || null,
     updated_at: new Date().toISOString()
   };
-  if ($("#operation-id").value) record.id = $("#operation-id").value;
+  const editingId = $("#operation-id").value;
   $("#operation-submit").disabled = true;
   message("Üretim kaydı kaydediliyor…");
-  const { error } = await client.from("farmer_operations").upsert(record, { onConflict: "id" });
+  const { error } = editingId
+    ? await client.from("farmer_operations").update(record).eq("id", editingId).eq("user_id", session.user.id).select("id").single()
+    : await client.from("farmer_operations").insert(record);
   if (error) { $("#operation-submit").disabled = false; message("Kayıt kaydedilemedi. Supabase kurulumunu kontrol edip tekrar dene.", true); return; }
   message("İşlem kaydedildi. Ana sayfadaki maliyet özetine yönlendiriliyorsun…");
   window.location.assign("index.html");

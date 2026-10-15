@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="assets/styles.css">
 <link rel="stylesheet" href="assets/profile.css">
 <link rel="stylesheet" href="assets/production.css">
-<link rel="stylesheet" href="assets/farm-detail.css">
+<link rel="stylesheet" href="assets/farm-detail.css?v=record-editor-20261015">
 </head>
 <body class="profile-page production-page farm-detail-page">
 <header class="profile-top">
@@ -23,7 +23,7 @@
   <section class="farm-detail-card">
     <div class="farm-detail-head">
       <div><p class="profile-kicker">KİŞİSEL TARLA BİLGİSİ</p><h1 id="farm-title">Tarla yükleniyor…</h1><p id="farm-location"></p></div>
-      <a class="profile-submit" id="add-operation" href="uretim-kayitlari.html">İşlem ekle <span>→</span></a>
+      <div class="farm-detail-actions"><a class="profile-submit" id="add-operation" href="uretim-kayitlari.html">İşlem ekle <span>→</span></a><button class="auth-back" id="edit-records-toggle" type="button" aria-pressed="false" disabled>Kayıtları Düzenle</button><a class="auth-back" id="edit-farm" href="tarla-bilgileri.html" hidden>Tarla Bilgilerini Düzenle</a></div>
     </div>
     <div class="farm-detail-metrics">
       <article><span>Ürün</span><b id="farm-crop">—</b></article>
@@ -41,6 +41,6 @@
   <p class="farm-detail-status" id="farm-status" role="status" aria-live="polite"></p>
 </main>
 <script src="assets/supabase-config.js"></script>
-<script type="module" src="assets/farm-detail.js?v=location-names-20261015"></script>
+<script type="module" src="assets/farm-detail.js?v=record-editor-20261015"></script>
 </body>
 </html>

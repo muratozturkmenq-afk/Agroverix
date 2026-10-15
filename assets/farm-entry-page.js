@@ -10,6 +10,7 @@ const ready = Boolean(cfg.url && cfg.publishableKey);
 let client = null;
 let session = null;
 let admin = null;
+let requestedEditOpened = false;
 
 function message(text, error = false) {
   status.textContent = text;
@@ -80,6 +81,13 @@ async function loadFarms() {
   const { data, error } = await client.from("farmer_farms").select("*").eq("user_id", session.user.id).order("created_at", { ascending: false });
   if (error) { message("Tarla kayıtları yüklenemedi. Kurulum durumunu kontrol et.", true); return; }
   renderFarms(data || []);
+  const requestedEdit = new URLSearchParams(location.search).get("edit");
+  if (requestedEdit && !requestedEditOpened) {
+    requestedEditOpened = true;
+    const farm = (data || []).find(row => row.id === requestedEdit);
+    if (farm) editFarm(farm);
+    else message("Düzenlenecek tarla bulunamadı veya hesabına ait değil.", true);
+  }
 }
 function editFarm(farm) {
   $("#farm-entry-id").value = farm.id;
@@ -148,12 +156,15 @@ form.addEventListener("submit", async (event) => {
     longitude: $("#farm-entry-longitude").value ? Number($("#farm-entry-longitude").value) : null,
     updated_at: new Date().toISOString()
   };
-  if ($("#farm-entry-id").value) record.id = $("#farm-entry-id").value;
+  const editingId = $("#farm-entry-id").value;
   $("#farm-entry-submit").disabled = true;
   message("Tarla kaydı kaydediliyor…");
-  const { error } = await client.from("farmer_farms").upsert(record, { onConflict: "id" });
+  const { error } = editingId
+    ? await client.from("farmer_farms").update(record).eq("id", editingId).eq("user_id", session.user.id).select("id").single()
+    : await client.from("farmer_farms").insert(record);
   $("#farm-entry-submit").disabled = false;
   if (error) { message("Tarla kaydedilemedi. Kurulum durumunu kontrol edip tekrar dene.", true); return; }
+  if (editingId) { window.location.assign("tarla-detay.html?farm=" + encodeURIComponent(editingId)); return; }
   message("Tarla kaydın hesabına özel kaydedildi.");
   form.reset();
   $("#farm-entry-id").value = "";
