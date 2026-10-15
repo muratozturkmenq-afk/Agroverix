@@ -165,8 +165,8 @@ import { locationLabels } from "./location-labels.js";
   async function loadFarms() {
     await adminReady;
     const list = $("#farm-list");
-    list.replaceChildren();
     const { data, error } = await client.from("farmer_farms").select("*").eq("user_id", currentSession.user.id).order("created_at");
+    list.replaceChildren();
     if (error) { list.textContent = "Tarla tablosu henüz kurulmamış. Yönetici kurulum adımlarını tamamlamalı."; syncFarmOverview([]); return; }
     syncFarmOverview(data || []);
     if (!data || !data.length) {
