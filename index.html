@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Agroverix</title>
-<meta name="description" content="Çiftçiye ücretsiz tarla defteri ve anlık kilo maliyeti, tarım firmalarına sahadan gerçek bölgesel içgörü.">
+<meta name="description" content="Agroverix ile tarlalarını, üretim kayıtlarını ve dekara maliyetlerini tek yerde takip et.">
 <meta name="theme-color" content="#0D100B">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -35,13 +35,12 @@
       Agroverix
     </a>
     <nav class="nav-links" aria-label="Bölümler">
-      <a href="#iki-yon">Nasıl çalışır</a>
-      <a href="#ciftci">Çiftçiler</a>
-      <a href="#firma">Firmalar</a>
-      <a href="#anket">Neden gerçek veri</a>
+      <a href="#ciftci-ozet">Tarlalarım</a>
+      <a href="#ciftci">Sezon hesabı</a>
+      <a href="#zararlilar">Zararlı rehberi</a>
       <a href="#kvkk">KVKK</a>
     </nav>
-    <a class="btn btn-gold btn-sm" href="ciftci-bilgi.html">Ücretsiz başla</a>
+    <a class="btn btn-gold btn-sm" href="ciftci-bilgi.html">Giriş yap</a>
   </div>
 </header>
 
@@ -60,30 +59,21 @@
     <div class="fc-big"><span id="fc-cost">—</span><small>TL/da</small></div>
     <div class="fc-delta" id="fc-delta">Kişisel maliyet özeti</div>
   </a>
-  <aside class="fcard fc-firm" aria-hidden="true">
-    <div class="fc-l">Firma paneli · GAP</div>
-    <div class="fc-op" style="margin-top:8px">Beyaz sinek bildirimi<small>son 8 hafta · tarla sayısı</small></div>
-    <div class="fc-big"><span id="fc-firm-v">158</span><small>tarla</small></div>
-    <svg class="fc-spark" viewBox="0 0 220 44" preserveAspectRatio="none">
-      <defs><linearGradient id="sparkg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7C89FF" stop-opacity=".5"/><stop offset="1" stop-color="#7C89FF" stop-opacity="0"/></linearGradient></defs>
-      <path class="a" id="fc-spark-a" d=""/><path class="l" id="fc-spark-l" d=""/>
-    </svg>
-  </aside>
   <aside class="fcard fc-parcel" aria-hidden="true">
     <div class="fc-l">Kayıtlı tarla</div>
     <div class="mono" style="margin-top:8px"><b>Ada 112 · Parsel 7</b><br>Harran, Şanlıurfa<br>37,1203° K · 39,0451° D<br>20 da · pamuk · 8 işlem</div>
   </aside>
 
   <div class="wrap hero-inner">
-    <p class="kicker"><span class="live-dot"></span>Çift yönlü tarım verisi platformu</p>
+    <p class="kicker"><span class="live-dot"></span>Çiftçiler için tarla ve üretim takip programı</p>
     <h1 class="hero-title">
-      <span class="ln"><span class="w"><span>Çiftçi</span></span> <span class="w g"><span>kilo</span></span> <span class="w g"><span>maliyetini</span></span> <span class="w"><span>görür.</span></span></span>
-      <span class="ln"><span class="w"><span>Firma</span></span> <span class="w b"><span>tarlanın</span></span> <span class="w b"><span>gerçeğini.</span></span></span>
+      <span class="ln"><span class="w"><span>Tarlanın</span></span> <span class="w g"><span>maliyetini</span></span></span>
+      <span class="ln"><span class="w"><span>ürün ürün</span></span> <span class="w b"><span>takip et.</span></span></span>
     </h1>
-    <p class="hero-sub">Çiftçi tarlasını ve her işlemini kaydeder, 1 kg ürünün kendisine kaça mal olduğunu anında görür. Aynı kayıtlar, izinli ve anonim olarak, tarım firmalarına anketlerin hiçbir zaman ulaşamadığı sahadan gerçek içgörüye dönüşür.</p>
+    <p class="hero-sub">Tarlalarını ekle, yaptığın işlemleri kaydet; ürüne göre dekara ve tarla toplam maliyetini tek ekranda takip et.</p>
     <div class="hero-cta">
-      <a class="btn btn-gold" href="#ciftci">Sezon simülatörünü dene <span class="arr">→</span></a>
-      <a class="btn btn-glass" href="#firma">Firma paneline bak <span class="arr">→</span></a>
+      <a class="btn btn-gold" href="#ciftci-ozet">Ürün ve maliyetlerim <span class="arr">→</span></a>
+      <a class="btn btn-glass" href="ciftci-bilgi.html">Üyelik oluştur <span class="arr">→</span></a>
     </div>
   </div>
   <div class="scroll-cue" aria-hidden="true">Kaydır<i></i></div>
@@ -102,179 +92,10 @@
 </section>
 
 <!-- TICKER -->
-<section class="ticker" aria-label="Canlı akış örneği">
-  <div class="tk-row tk-data" id="tk-data"><div class="tk-track"></div></div>
-  <div class="tk-row tk-insight" id="tk-ins"><div class="tk-track"></div></div>
-</section>
+
 
 <!-- STORY (pinned) -->
-<section class="story" id="iki-yon">
-  <div class="story-pin wrap">
-    <div class="story-head">
-      <div>
-        <p class="eyebrow">Bir kayıt, iki yön</p>
-        <h2 style="margin-top:12px">Çiftçinin telefonundaki her kayıt, firmanın panelinde içgörü olur</h2>
-      </div>
-      <div>
-        <div class="steps-rail" role="list">
-          <div class="sr on" role="listitem"><span class="n">01</span><b>Tarlanı kaydet</b></div>
-          <div class="sr" role="listitem"><span class="n">02</span><b>İşlemini logla</b></div>
-          <div class="sr" role="listitem"><span class="n">03</span><b>Kilo maliyetini gör</b></div>
-          <div class="sr" role="listitem"><span class="n">04</span><b>Sezonu kapat</b></div>
-        </div>
-        <p class="step-desc" id="step-desc">Çiftçi tarlasını haritada çizer: konum, gerçek dekar, ürün ve tahmini verim. Firmaların hiçbir anketle ulaşamadığı ilk gerçek veri budur.</p>
-      </div>
-    </div>
 
-    <div class="story-stage">
-      <div class="phone">
-        <div class="phone-scr">
-          <div class="sbar"><span>09:41</span><span>●●● 5G ▮</span></div>
-
-          <div class="ps on" data-i="0">
-            <div class="app-h"><b>Yeni tarla</b><span>1 / 3</span></div>
-            <div class="mini-map">
-              <svg viewBox="0 0 260 150">
-                <rect width="260" height="150" fill="#7E8F55"/>
-                <path d="M0 0 H92 L80 60 H0 Z" fill="#A79A5E"/><path d="M92 0 H190 L182 52 L96 40 Z" fill="#6F8A40"/><path d="M190 0 H260 V70 L176 64 L182 52 Z" fill="#B59C66"/>
-                <path d="M0 60 H80 L84 104 L0 118 Z" fill="#8A6A44"/><path d="M176 64 L260 70 V150 H160 L170 118 Z" fill="#94A35E"/><path d="M0 118 L84 104 L170 118 L160 150 H0 Z" fill="#6E7F45"/>
-                <g stroke="rgba(0,0,0,.12)" stroke-width="1"><path d="M10 70 L76 66 M10 80 L76 76 M10 90 L78 86 M10 100 L80 96 M200 80 L250 84 M196 92 L250 96 M192 104 L250 108 M188 116 L250 120 M184 128 L250 132 M104 8 L180 14 M102 18 L180 24 M100 28 L180 34"/></g>
-                <path d="M0 60 H260 M80 0 L84 150 M176 0 L170 150" stroke="#C9B48A" stroke-width="3" fill="none" opacity=".7"/>
-                <polygon class="mm-draw" points="96,42 180,54 170,116 86,104"/>
-                <g class="mm-pin"><path d="M133 82 C 133 82, 121 68, 121 60 A 12 12 0 1 1 145 60 C 145 68, 133 82, 133 82 Z" fill="#12160E"/><circle cx="133" cy="60" r="4.5" fill="#EDB43E"/></g>
-              </svg>
-              <span class="mm-coord">37,1203 K · 39,0451 D</span>
-            </div>
-            <div class="frow"><span>Ada / Parsel</span><b>112 / 7</b></div>
-            <div class="frow"><span>Alan</span><b>20 da</b></div>
-            <div class="frow"><span>Ürün</span><b>Pamuk</b></div>
-            <div class="frow"><span>Tahmini verim</span><b>500 kg/da</b></div>
-            <button class="app-btn gold" type="button" tabindex="-1">Tarlayı kaydet</button>
-          </div>
-
-          <div class="ps" data-i="1">
-            <div class="app-h"><b>Parsel 7</b><span>İŞLEMLER</span></div>
-            <div class="oplist">
-              <div class="opi"><i class="i-till">S</i><div><b>Derin sürüm</b><small>08 Nisan</small></div><span class="c">1.450</span></div>
-              <div class="opi"><i class="i-seed">E</i><div><b>Ekim · sertifikalı tohum</b><small>22 Nisan</small></div><span class="c">1.900</span></div>
-              <div class="opi"><i class="i-fert">G</i><div><b>Taban gübresi DAP</b><small>03 Mayıs</small></div><span class="c">2.600</span></div>
-              <div class="opi"><i class="i-water">Su</i><div><b>Damla sulama</b><small>10 Haziran</small></div><span class="c">2.100</span></div>
-              <div class="opi new"><i class="i-pest">İ</i><div><b>İlaçlama · beyaz sinek</b><small>Flonicamid · 28 Haziran</small><br><span class="ruhsat">✓ Bakanlık ruhsatlı</span></div><span class="c">950</span></div>
-            </div>
-            <button class="app-btn" type="button" tabindex="-1">+ İşlem ekle</button>
-          </div>
-
-          <div class="ps" data-i="2">
-            <div class="app-h"><b>Kilo maliyetin</b><span>TAHMİNİ VERİMLE</span></div>
-            <div class="cost-card">
-              <span class="l">1 kg pamuk sana</span>
-              <span class="v"><span id="ps3-v">21,00</span><small>TL</small></span>
-              <span class="d">+2,20 TL son ilaçlamayla (yeşil kurt)</span>
-            </div>
-            <div class="mchart">
-              <svg viewBox="0 0 260 130">
-                <g class="mc-grid"><line x1="20" x2="252" y1="20" y2="20"/><line x1="20" x2="252" y1="60" y2="60"/><line x1="20" x2="252" y1="100" y2="100"/></g>
-                <text class="mc-t" x="16" y="23" text-anchor="end">30</text><text class="mc-t" x="16" y="63" text-anchor="end">15</text><text class="mc-t" x="16" y="103" text-anchor="end">0</text>
-                <path class="mc-area" d="M24 100 L52 100 L52 92.3 L80 92.3 L80 82.1 L108 82.1 L108 68.3 L136 68.3 L136 57.1 L164 57.1 L164 52.0 L192 52.0 L192 44.0 L220 44.0 L220 38.1 L248 38.1 L248 100 Z"/>
-                <path class="mc-line" d="M24 100 L52 100 L52 92.3 L80 92.3 L80 82.1 L108 82.1 L108 68.3 L136 68.3 L136 57.1 L164 57.1 L164 52.0 L192 52.0 L192 44.0 L220 44.0 L220 38.1 L248 38.1"/>
-                <text class="mc-t" x="24" y="120">Nis</text><text class="mc-t" x="136" y="120" text-anchor="middle">Haz</text><text class="mc-t" x="248" y="120" text-anchor="end">Eyl</text>
-              </svg>
-            </div>
-            <div class="ai-tip"><b>Yapay zekâ notu</b>İlaç giderin Harran ortalamasının %16 üstünde. Bölgede ikinci uygulamada etken madde değiştirenlerin verimi daha yüksek.</div>
-          </div>
-
-          <div class="ps" data-i="3">
-            <div class="app-h"><b>Sezon raporu</b><span>2026 · PAMUK</span></div>
-            <div class="rep-grid">
-              <div class="rep"><span>Gerçek verim</span><b>450 kg/da</b></div>
-              <div class="rep"><span>Kilo maliyeti</span><b>28,44 TL</b></div>
-              <div class="rep"><span>Dekar başı kâr</span><b class="good">+1.600 TL</b></div>
-              <div class="rep"><span>Tarla toplamı</span><b class="good">+32.000 TL</b></div>
-            </div>
-            <div class="cmpbar">
-              <div class="cb"><span>Sen</span><span class="t"><i style="--w:86%;background:#EDB43E"></i></span><span class="v">28,4 TL</span></div>
-              <div class="cb"><span>Harran ort.</span><span class="t"><i style="--w:78%;background:#7C89FF"></i></span><span class="v">25,9 TL</span></div>
-              <div class="cb"><span>En iyi %20</span><span class="t"><i style="--w:64%;background:#2E7A3C"></i></span><span class="v">21,3 TL</span></div>
-            </div>
-            <div class="ai-tip"><b>Gelecek sezon önerisi</b>En verimli tarlalar ilk beyaz sinek uygulamasını 6 gün erken yaptı ve gübreyi ikiye böldü.</div>
-          </div>
-        </div>
-      </div>
-
-      <svg class="story-flow" viewBox="0 0 160 260" preserveAspectRatio="none" aria-hidden="true">
-        <path id="fp1" class="flow-path fp-data" d="M0 90 C 60 90, 100 70, 160 70"/>
-        <path id="fp2" class="flow-path fp-ins" d="M160 190 C 100 190, 60 170, 0 170"/>
-        <g fill="#EDB43E">
-          <circle r="4"><animateMotion dur="2.2s" repeatCount="indefinite"><mpath href="#fp1"/></animateMotion></circle>
-          <circle r="3"><animateMotion dur="2.2s" begin="-.7s" repeatCount="indefinite"><mpath href="#fp1"/></animateMotion></circle>
-          <circle r="4"><animateMotion dur="2.2s" begin="-1.4s" repeatCount="indefinite"><mpath href="#fp1"/></animateMotion></circle>
-        </g>
-        <g fill="#7C89FF">
-          <circle r="4"><animateMotion dur="2.6s" repeatCount="indefinite"><mpath href="#fp2"/></animateMotion></circle>
-          <circle r="3"><animateMotion dur="2.6s" begin="-1.3s" repeatCount="indefinite"><mpath href="#fp2"/></animateMotion></circle>
-        </g>
-        <text class="flow-lbl" x="80" y="58" text-anchor="middle" fill="#F7D27A">anonim veri</text>
-        <text class="flow-lbl" x="80" y="214" text-anchor="middle" fill="#C3C9FF">öneri</text>
-      </svg>
-
-      <div class="laptop">
-        <div class="lap-win">
-          <div class="lap-bar"><i></i><i></i><i></i><span>panel.agroverix · Firma görünümü</span></div>
-          <div class="lap-body">
-            <div class="ls on" data-i="0">
-              <div class="ls-h"><b>Bölge Nabzı · GAP</b><span>Canlı · son kayıt 2 sn önce</span></div>
-              <div class="ls-grid">
-                <div class="ls-card"><span class="l">Kayıtlı tarlalar · Şanlıurfa</span><svg viewBox="0 0 300 180" id="l1-dots"></svg></div>
-                <div class="ls-card" style="align-content:space-between">
-                  <div style="display:grid;gap:4px"><span class="l">Kayıtlı alan</span><span class="v"><span id="l1-area">92.400</span><small>da</small></span><span class="d">+20 da · Harran</span></div>
-                  <div style="display:grid;gap:4px"><span class="l">Aktif çiftçi</span><span class="v" id="l1-farm">1.610</span><span class="d">+1 bugün</span></div>
-                  <div style="display:grid;gap:4px"><span class="l">Gerçek alan doğruluğu</span><span class="v">Parsel<small>koordinatlı</small></span></div>
-                </div>
-              </div>
-            </div>
-            <div class="ls" data-i="1">
-              <div class="ls-h"><b>Beyaz sinekte etken madde payı</b><span>GAP · son 30 gün</span></div>
-              <div class="ls-grid" style="grid-template-columns:1fr">
-                <div class="ls-card">
-                  <div class="lbars">
-                    <div class="lb"><span>Acetamiprid</span><span class="t"><i style="--w:100%"></i></span><span class="v">%33</span></div>
-                    <div class="lb me"><span>Flonicamid</span><span class="t"><i style="--w:82%"></i></span><span class="v">%27 ↑</span></div>
-                    <div class="lb"><span>Pyriproxyfen</span><span class="t"><i style="--w:55%"></i></span><span class="v">%18</span></div>
-                    <div class="lb"><span>Spiromesifen</span><span class="t"><i style="--w:36%"></i></span><span class="v">%12</span></div>
-                    <div class="lb"><span>Diğer</span><span class="t"><i style="--w:30%"></i></span><span class="v">%10</span></div>
-                  </div>
-                  <p class="ins-quote" style="margin-top:8px">Harran'da bu hafta <em>41 yeni ilaçlama</em> kaydı. İlk uygulamada <em>Flonicamid payı 3 puan arttı.</em></p>
-                </div>
-              </div>
-            </div>
-            <div class="ls" data-i="2">
-              <div class="ls-h"><b>İlaç gideri dağılımı · Harran pamuk</b><span>38 tarla · TL/da</span></div>
-              <div class="ls-grid">
-                <div class="ls-card"><svg viewBox="0 0 320 190" class="hist" id="l3-hist"></svg></div>
-                <div class="ls-card" style="align-content:space-between">
-                  <div style="display:grid;gap:4px"><span class="l">Bölge ortalaması</span><span class="v">1.760<small>TL/da</small></span></div>
-                  <div style="display:grid;gap:4px"><span class="l">Ortalama kilo maliyeti</span><span class="v">25,9<small>TL/kg</small></span></div>
-                  <p class="ins-quote">Firmalar için: <em>fiyat hassasiyeti</em> en yüksek segment 1.500 TL/da altında.</p>
-                </div>
-              </div>
-            </div>
-            <div class="ls" data-i="3">
-              <div class="ls-h"><b>Sezon sonu · verim ve ilk ilaçlama günü</b><span>GAP · 1.610 tarla</span></div>
-              <div class="ls-grid">
-                <div class="ls-card"><svg viewBox="0 0 320 200" class="sc" id="l4-sc"></svg></div>
-                <div class="ls-card" style="align-content:space-between">
-                  <div style="display:grid;gap:4px"><span class="l">En verimli %20</span><span class="v">534<small>kg/da</small></span></div>
-                  <div style="display:grid;gap:4px"><span class="l">İlk uygulama farkı</span><span class="v">6<small>gün erken</small></span></div>
-                  <p class="ins-quote">Ürün ekibi için: <em>erken uygulama</em> kampanyası Haziran'ın ilk haftasına.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
 
 <!-- SEASON SIMULATOR -->
 <section class="sec light season" id="ciftci">
@@ -352,44 +173,7 @@
 </section>
 
 <!-- INSIGHT MAP -->
-<section class="sec insight" id="firma">
-  <div class="wrap">
-    <div class="sec-head">
-      <p class="eyebrow">Firma tarafı · Bölge Nabzı</p>
-      <h2>Anket sonucu değil, sahadan haftalık nabız</h2>
-      <p class="lede">İlaç, tohum ve gübre firmaları için il, ürün ve zararlı kırılımında canlı panel. Veriler toplu ve anonimdir; 10 tarlanın altındaki hiçbir kırılım gösterilmez. Haritadaki bir ile dokunun ya da bölge seçin.</p>
-    </div>
-    <div class="ins-grid">
-      <div class="map-wrap">
-        <canvas id="trmap" aria-label="Türkiye haritası üzerinde bölgesel bildirim yoğunluğu" role="img"></canvas>
-        <div class="map-tip" id="map-tip"></div>
-        <div class="map-legend">
-          <span><i class="lg-dot" style="background:#EDB43E"></i>Bildirim yoğunluğu</span>
-          <span><i class="lg-dot" style="background:#F7D27A"></i>Tarladan veri</span>
-          <span><i class="lg-dot" style="background:#7C89FF"></i>Firmadan öneri</span>
-          <span class="tag-sample" style="margin-left:auto">Örnek veri</span>
-        </div>
-      </div>
-      <div class="ins-panel">
-        <div class="chips" id="chips" role="group" aria-label="Bölge seçimi"></div>
-        <p class="ins-head" id="ins-head"></p>
-        <div class="kpis">
-          <div class="kpi"><span class="l">Aktif çiftçi</span><span class="v" id="k-farmers">0</span></div>
-          <div class="kpi"><span class="l">Kayıtlı alan</span><span class="v"><span id="k-area">0</span><small>da</small></span></div>
-          <div class="kpi"><span class="l">Sezon işlem kaydı</span><span class="v" id="k-ops">0</span></div>
-          <div class="kpi"><span class="l">Ortalama kilo maliyeti</span><span class="v"><span id="k-kg">0</span><small>TL/kg</small></span></div>
-        </div>
-        <div class="dash-tabs" role="tablist">
-          <button class="dtab" role="tab" aria-selected="true" data-tab="pests">Zararlılar</button>
-          <button class="dtab" role="tab" aria-selected="false" data-tab="ai">Etken madde</button>
-          <button class="dtab" role="tab" aria-selected="false" data-tab="trend">Eğilim</button>
-          <button class="dtab" role="tab" aria-selected="false" data-tab="prov">İller</button>
-        </div>
-        <div class="dpanel" id="dpanel"></div>
-      </div>
-    </div>
-  </div>
-</section>
+
 
 <!-- PESTS -->
 <section class="sec pests" id="zararlilar">
@@ -518,85 +302,10 @@
 </section>
 
 <!-- SURVEY vs FIELD -->
-<section class="sec survey" id="anket">
-  <div class="wrap">
-    <div class="sec-head">
-      <p class="eyebrow">Neden gerçek veri</p>
-      <h2>8.000 euroluk anket, ilçe başına 20 kişiyle konuşur</h2>
-      <p class="lede">Klasik pazar araştırmasında 1.000 kişilik örneklem illere ve ilçelere bölündükçe incelir. Sonunda bir ilçede yirmi kişinin hatırladığı, yüz binlerce çiftçinin davranışı gibi raporlanır. Kaydırdıkça izleyin.</p>
-    </div>
-    <div class="sv-grid">
-      <div class="sv old">
-        <div class="sv-top"><h3>Klasik anket</h3><span class="tag-sample">~8.000 € · yılda bir</span></div>
-        <div class="sv-cv"><canvas id="sv-old"></canvas><div class="sv-cap"><b id="sv-old-cap">1.000 kişi, 8.000 €</b><span id="sv-old-sub">1 nokta = 1 katılımcı</span></div></div>
-      </div>
-      <div class="sv new">
-        <div class="sv-top"><h3>Agroverix</h3><span class="tag-sample" style="color:var(--gold-2)">her hafta · sezon boyu</span></div>
-        <div class="sv-cv"><canvas id="sv-new"></canvas><div class="sv-cap"><b id="sv-new-cap">Tekirdağ'da 0 kayıtlı çiftçi</b><span id="sv-new-sub">1 nokta = 1 kayıtlı tarla</span></div></div>
-      </div>
-    </div>
-    <div class="cmp-table">
-      <table>
-        <thead><tr><th>Kriter</th><th>Klasik anket</th><th>Agroverix</th></tr></thead>
-        <tbody>
-          <tr><td>Veri türü</td><td>Beyan: çiftçinin hatırladığı kadarı</td><td>Kayıt: işlem günü girilen ilaç, doz, tohum ve maliyet</td></tr>
-          <tr><td>Konum</td><td>İl ve ilçe</td><td>Parsel koordinatı ve gerçek dekar</td></tr>
-          <tr><td>Zaman</td><td>Yılda bir, tek seferlik</td><td>Ekimden hasada kesintisiz, haftalık</td></tr>
-          <tr><td>Sonuç bağlantısı</td><td>Verimle ilişki kurulamaz</td><td>Her uygulama hasat verimi ve kilo maliyetiyle eşleşir</td></tr>
-          <tr><td>Erişim</td><td>Rastgele katılımcı</td><td>İzin vermiş, gerçekten o ürünü eken çiftçi</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</section>
+
 
 <!-- SERVICES -->
-<section class="sec services" id="hizmetler">
-  <div class="wrap">
-    <div class="sec-head">
-      <p class="eyebrow">Firmalara hizmetler</p>
-      <h2>Veri, rapor ve sahayı bilen danışman</h2>
-      <p class="lede">Tohum, ilaç ve gübre firmalarının pazarlama, ürün ve satış ekipleri için dört çalışma biçimi.</p>
-    </div>
-    <div class="svc-grid">
-      <article class="svc">
-        <svg class="ico" viewBox="0 0 64 64" aria-hidden="true"><rect x="12" y="6" width="40" height="52" rx="6"/><path d="M20 20 H44 M20 28 H38"/><rect class="fillg" x="20" y="36" width="6" height="14"/><rect class="fillg" x="29" y="40" width="6" height="10"/><rect class="fillg" x="38" y="32" width="6" height="18"/></svg>
-        <p class="eyebrow">Rapor</p>
-        <h3>Bölge Nabzı bülteni</h3>
-        <p>İl ve ilçe kırılımında zararlı ve hastalık görülme oranları, uygulama zamanlaması, etken madde payları. Her ay.</p>
-        <span class="out">Çıktı: PDF + panel erişimi</span>
-      </article>
-      <article class="svc">
-        <svg class="ico" viewBox="0 0 64 64" aria-hidden="true"><circle class="fillg" cx="28" cy="28" r="18"/><path d="M41 41 L56 56"/><path d="M18 34 L24 26 L30 30 L38 20"/></svg>
-        <p class="eyebrow">Analiz</p>
-        <h3>Ürün performans takibi</h3>
-        <p>Ürününüz hangi bölgede, hangi dozda, hangi zararlıya karşı kullanılıyor; tekrar uygulama oranı ve hasat verimiyle birlikte.</p>
-        <span class="out">Çıktı: sezon sonu analiz</span>
-      </article>
-      <article class="svc">
-        <svg class="ico" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="24"/><circle cx="32" cy="32" r="15"/><circle class="fillg" cx="32" cy="32" r="6"/><path d="M32 4 V14 M32 50 V60 M4 32 H14 M50 32 H60"/></svg>
-        <p class="eyebrow">İletişim</p>
-        <h3>Hedefli çiftçi kampanyası</h3>
-        <p>Rastgele toplu SMS yerine, izin vermiş ve gerçekten o ürünü eken, o sorunu yaşayan çiftçi segmentine mesaj. Kişisel veri firmaya geçmez.</p>
-        <span class="out">Çıktı: segment + kampanya sonucu</span>
-      </article>
-      <article class="svc">
-        <svg class="ico" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="24"/><path class="fillg" d="M40 24 L35 35 L24 40 L29 29 Z"/><path d="M32 8 V12 M32 52 V56 M8 32 H12 M52 32 H56"/></svg>
-        <p class="eyebrow">Danışmanlık</p>
-        <h3>Pazar ve lansman</h3>
-        <p>Yeni ürün konumlandırması, bayi kanalı, saha günleri ve dijital iletişim için sahadan gelen veriye dayalı öneriler.</p>
-        <span class="out">Çıktı: proje bazlı çalışma</span>
-      </article>
-    </div>
-    <div class="quote">
-      <span class="q" aria-hidden="true">“</span>
-      <div>
-        <p>Bu bilgiyi yıllarca anket firmalarından satın alan taraftaydık. Firmaların hangi soruya cevap aradığını biliyoruz; Agroverix o soruların cevabını sahadan, her hafta getirmek için kuruldu.</p>
-        <small>Kurucu ekip · sektörde firma tarafından gelen deneyim</small>
-      </div>
-    </div>
-  </div>
-</section>
+
 
 <!-- REACH -->
 <section class="sec reach" id="ulasim">
@@ -686,23 +395,14 @@
 <section class="sec kvkk" id="kvkk">
   <div class="wrap">
     <div class="sec-head">
-      <p class="eyebrow">KVKK ve güven</p>
-      <h2>Kimlik bilgileri korunur, tarla verileri toplu içgörüye dönüşür</h2>
-      <p class="lede">Bu konsept sayfadaki form verileri kaydetmez veya göndermez. Canlı kayıt açılmadan önce veri sorumlusunun kimliği, işleme amaçları ve hukuki dayanak, aktarım bilgileri, saklama süresi ve başvuru yolları açıklanmalıdır. Ad-soyad ve kimlik numarası firmalara sunulmaz.</p>
+      <p class="eyebrow">KVKK VE GÜVEN</p>
+      <h2>Tarla ve üretim bilgilerin hesabına özel</h2>
+      <p class="lede">Profil, tarla ve üretim kayıtlarını kendi hesabında yönetirsin. Kişisel maliyet özetini görmek için telefon numaranla giriş yap.</p>
     </div>
-    <div class="pipe" id="pipe">
-      <div class="pipe-line"></div>
-      <div class="packet" id="packet">Kimlik bilgisi · tarla konumu</div>
-      <div class="pnode"><div class="pi"><svg viewBox="0 0 44 44"><rect x="5" y="9" width="34" height="26" rx="4"/><circle cx="16" cy="20" r="4.5"/><path d="M9 30 C 11 25, 21 25, 23 30 M27 18 H34 M27 24 H34"/></svg></div><b>Açık rızalı kayıt</b><span>Çiftçi hangi verinin, ne amaçla kullanılacağını kayıtta onaylar.</span></div>
-      <div class="pnode"><div class="pi"><svg viewBox="0 0 44 44"><path d="M22 4 L37 10 V22 C 37 31, 30 37, 22 40 C 14 37, 7 31, 7 22 V10 Z"/><path d="M15 22 L20 27 L29 17"/></svg></div><b>Kimlikten ayırma</b><span>Ad-soyad ve kimlik numarası firma analizlerinden ayrılır; tarla verileri uygun şekilde toplulaştırılır.</span></div>
-      <div class="pnode"><div class="pi"><svg viewBox="0 0 44 44"><path d="M22 6 L39 14 L22 22 L5 14 Z"/><path d="M5 22 L22 30 L39 22"/><path d="M5 30 L22 38 L39 30"/></svg></div><b>Toplulaştırma</b><span>Veri il, ilçe, ürün ve zararlı düzeyinde birleşir. En az 10 tarla şartı.</span></div>
-      <div class="pnode"><div class="pi"><svg viewBox="0 0 44 44"><rect x="8" y="5" width="28" height="34" rx="4"/><path d="M14 30 V24 M20 30 V18 M26 30 V21 M32 30 V14"/></svg></div><b>Rapor ve öneri</b><span>Firma rapor alır, çiftçi bölgesel öneri alır.</span></div>
-    </div>
-    <div class="rules">
-      <div class="rule"><b>10</b><span>tarladan az kayıt olan hiçbir ilçe kırılımı raporlanmaz.</span></div>
-      <div class="rule"><b>0</b><span>ad-soyad veya kimlik numarası firma raporlarında yer alır.</span></div>
-      <div class="rule"><b>1 tık</b><span>ile çiftçi rızasını geri çeker, verisi silinir.</span></div>
-      <div class="rule"><b>Ücretsiz</b><span>tarla defteri, kilo maliyeti ve sezon raporu çiftçi için hep ücretsiz.</span></div>
+    <div class="farmer-privacy-grid">
+      <article class="farmer-privacy-card"><b>Kendi hesabın</b><p>Tarla ve işlem kayıtların, giriş yaptığın kişisel alanda gösterilir.</p></article>
+      <article class="farmer-privacy-card"><b>Senin kontrolünde</b><p>Eklediğin tarla ve üretim bilgilerini kendi ekranlarından görüntüleyip güncelleyebilirsin.</p></article>
+      <article class="farmer-privacy-card"><b>Şeffaf maliyet</b><p>Hesaplama için kullanılan miktar, ambalaj büyüklüğü ve paket fiyatı açıkça gösterilir.</p></article>
     </div>
   </div>
 </section>
@@ -711,26 +411,15 @@
 <section class="cta" id="basla">
   <canvas id="wheat" aria-hidden="true"></canvas>
   <div class="wrap cta-inner">
-    <p class="eyebrow">Başlayalım</p>
-    <h2>Tarladan gelen veri iki yöne de kazandırır</h2>
-    <div class="cta-grid">
+    <p class="eyebrow">ÇİFTÇİ ALANIM</p>
+    <h2>Tarlalarını ve maliyetlerini tek yerde takip et</h2>
+    <div class="cta-grid farmer-cta-grid">
       <div class="cform f">
-        <p class="eyebrow">Ücretsiz çiftçi üyeliği</p>
+        <p class="eyebrow">ÜCRETSİZ ÇİFTÇİ ÜYELİĞİ</p>
         <h3>Telefon numaranla kendi alanını oluştur</h3>
-        <p class="lede" style="font-size:14px;margin:14px 0 22px">Kendi şifreni belirle, profilini ve tarla kayıtlarını hesabında güvenle tut. Her çiftçi yalnızca kendi bilgilerine erişir.</p>
+        <p class="lede" style="font-size:14px;margin:14px 0 22px">Kendi şifreni belirle, profilini oluştur ve tarlalarını ekleyerek üretim kayıtlarını tut.</p>
         <a class="btn btn-gold full" href="ciftci-bilgi.html">Üyelik oluştur / giriş yap <span class="arr">→</span></a>
-        <p class="form-note full" style="margin-top:16px">Kendi şifreni belirle; girişte telefon numaranı kullanıcı adı olarak kullan. Kayıt sırasında SMS onayı yoktur.</p>
-      </div>
-      <div class="cform c">
-        <p class="eyebrow" style="color:#C3C9FF">Firmalar için</p>
-        <h3>Bölgeniz için örnek Nabız raporu isteyin</h3>
-        <form id="form-c" novalidate>
-          <div class="fld"><label for="c-firma">Firma</label><input id="c-firma" type="text" placeholder="Firma adı" autocomplete="organization"></div>
-          <div class="fld"><label for="c-bolge">Bölge</label><select id="c-bolge"><option>Ege</option><option>Çukurova</option><option>GAP</option><option>Trakya</option><option>İç Anadolu</option></select></div>
-          <div class="fld full"><label for="c-konu">Konu</label><select id="c-konu"><option>Zararlı ve hastalık takibi</option><option>Ürün performans analizi</option><option>Hedefli çiftçi kampanyası</option><option>Pazar ve lansman danışmanlığı</option></select></div>
-          <button class="btn btn-blue full" type="submit">Örnek rapor iste <span class="arr">→</span></button>
-          <p class="ok" id="c-ok" role="status"></p>
-        </form>
+        <p class="form-note full" style="margin-top:16px">Girişte telefon numaranı kullanıcı adı olarak kullan. Kayıt sırasında SMS onayı yoktur.</p>
       </div>
     </div>
   </div>
