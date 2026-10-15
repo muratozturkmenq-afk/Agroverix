@@ -190,6 +190,7 @@ function editRecord(record) {
   $("#operation-cancel").hidden = false;
   message(legacy ? "Bu eski kaydı güncellerken kullanılan miktarı ve maliyeti tarlanın tamamı için kontrol et." : "Mevcut kaydı düzenliyorsun. Kaydettiğinde bu kayıt güncellenecek.");
   updateCostPreview();
+  updateSummary();
   form.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 function clearForm() {
@@ -200,6 +201,8 @@ function clearForm() {
   $("#operation-submit").innerHTML = "İşlemi kaydet <span>→</span>";
   $("#operation-cancel").hidden = true;
   renderFarmOptions();
+  selectCategory();
+  updateSummary();
   message("");
 }
 function updateCostPreview() {
@@ -275,10 +278,11 @@ if (!cfg.url || !cfg.publishableKey) {
   session = data.session;
   banner.hidden = Boolean(session);
   if (session) await loadFarms();
-  client.auth.onAuthStateChange(async (_event, newSession) => {
+  client.auth.onAuthStateChange((event, newSession) => {
+    if (!["SIGNED_IN","SIGNED_OUT"].includes(event)) return;
     session = newSession;
     banner.hidden = Boolean(session);
-    if (session) await loadFarms();
+    if (session) setTimeout(() => loadFarms(),0);
     else {
       farms = []; records = []; renderFarmOptions(); updateSummary();
       message("Giriş yaparak kendi kayıtlarını görüntüleyebilirsin.");
