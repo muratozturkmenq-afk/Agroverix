@@ -59,3 +59,9 @@ Sezon Sonu Tahmini bölümündeki çizgi, işlem tarihine göre aylık biriken m
 Verim ve fiyat birbirinden bağımsız, boş bırakılabilir alanlardır. Verimle kg maliyeti hesaplanır; satış fiyatı girilene kadar gelir ve kâr/zarar boş kalır. Telefon girişi 05 ile başlayan 11 rakamdır; veritabanında mevcut +90 biçiminde saklanır. Masraf birimlerine ton eklendi.
 
 Çiftçi Excel düğmeleri yalnızca ana sayfada, genel rapor alanında ve tarla kartlarının altında bulunur. Tarla kartındaki rapor o tarlanın tüm sezonlarını içerir. Yönetici raporlama alanı korunur. Ana sayfanın KVKK ve Tarla Takibi bölümleri kaldırıldı; profil bilgilendirme bağlantısı kvkk-bilgilendirme.html sayfasına taşındı. E-posta ile giriş ve onay akışı devam eder.
+
+## Tarla kartları ve rapor düğmesi (16 Ekim 2026)
+
+Çiftçi Excel düğmesi tarla kartlarından ve Tarlalarım bölümünden kaldırıldı. Ana sayfanın en altında, kartlardan bağımsız tek bir Excel Raporumu İndir düğmesi bulunur; çiftçinin kendi bütün kayıtlarını indirir. Yönetici rapor alanı korunur.
+
+Tarlalarım kartları artık her tarla için ayrı gösterilir ve Tarla Adı - Bitki adıyla etiketlenir. Maliyetler bu tarlanın seçili sezonuna aittir. Açılıştaki tarla bilgi kutuları küçültüldü. Alt sayfalardaki Ana Sayfaya Dön bağlantıları daha büyük, sarı ve vurgulu düğmeler olarak gösterilir.

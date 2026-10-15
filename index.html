@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="assets/styles.css">
 <link rel="stylesheet" href="assets/home-dashboard.css?v=seasons-v1">
 <link rel="stylesheet" href="assets/farm-finance.css?v=logo-groups-v2">
-<link rel="stylesheet" href="assets/mobile-reports.css?v=cost-line-v2">
+<link rel="stylesheet" href="assets/mobile-reports.css?v=compact-home-v3">
 </head>
 <body>
 
@@ -68,12 +68,12 @@
 <section class="farmer-dashboard" id="ciftci-ozet">
   <div class="wrap">
     <div class="farmer-dashboard-head">
-      <div><p class="eyebrow">TARLA VE BİTKİ ÖZETİ</p><h2>Ürünlerim ve maliyetlerim</h2><p class="farmer-dashboard-lede">Ürün kartına dokun, o üründeki tarlalarını ve maliyetlerini gör.</p></div>
+      <div><p class="eyebrow">TARLA VE BİTKİ ÖZETİ</p><h2>Tarlalarım ve Maliyetlerim</h2><p class="farmer-dashboard-lede">Tarla adı ve bitkisine göre maliyetlerini gör. Detaylar için kartına dokun.</p></div>
       <div class="finance-header-actions"><a class="btn btn-gold" href="uretim-kayitlari.html">Masraf Girişi <span class="arr">→</span></a><a class="btn btn-ghost" href="tarla-bilgileri.html">Tarla Ekle →</a></div>
     </div>
     <p class="farmer-dashboard-message" id="home-dashboard-message" role="status" aria-live="polite">Kişisel maliyet özetini görmek için giriş yap.</p>
     <a class="farmer-dashboard-login" id="home-dashboard-login" href="ciftci-bilgi.html?next=index.html">Giriş yap <span class="arr">→</span></a>
-    <div class="farmer-crop-grid" id="home-crop-grid"></div><section class="report-toolbar" aria-label="Kişisel Excel raporu"><button class="auth-back" type="button" data-excel-export disabled>Excel Raporumu İndir</button><a class="auth-back" id="admin-link" href="yonetici.html" hidden>Yönetici Alanı</a><p id="excel-status" role="status" aria-live="polite"></p></section>
+    <div class="farmer-crop-grid" id="home-crop-grid"></div><a class="farmer-dashboard-login" id="admin-link" href="yonetici.html" hidden>Yönetici Alanı →</a>
   </div>
 </section>
 
@@ -228,6 +228,7 @@
 <!-- REACH -->
 
 
+<section class="wrap home-report-footer" aria-label="Kişisel Excel raporu"><button class="btn btn-gold" type="button" data-excel-export disabled>Excel Raporumu İndir</button><p id="excel-status" role="status" aria-live="polite"></p></section>
 </main>
 
 <footer class="foot">
@@ -242,6 +243,6 @@
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
 <script src="assets/main.js?v=seasons-v1"></script>
 <script src="assets/supabase-config.js"></script>
-<script type="module" src="assets/home-finance-dashboard.js?v=cost-line-v2"></script>
+<script type="module" src="assets/home-finance-dashboard.js?v=compact-home-v3"></script>
 </body>
 </html>
