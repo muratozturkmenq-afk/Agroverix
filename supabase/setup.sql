@@ -166,3 +166,6 @@ create policy "Farmers can delete only their own operations"
 
 create index if not exists farmer_operations_user_date_idx on public.farmer_operations (user_id, operation_date desc);
 create index if not exists farmer_operations_farm_date_idx on public.farmer_operations (farm_id, operation_date desc);
+
+-- New records use the whole-field total cost; earlier package records retain their formula.
+alter table public.farmer_operations add column if not exists cost_basis text not null default 'package_per_decare';

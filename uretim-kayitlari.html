@@ -35,7 +35,7 @@
     </div>
     <div class="production-summary" id="production-summary" aria-label="Sezon özeti">
       <article><span>Kayıt</span><b id="summary-count">—</b></article>
-      <article><span id="summary-area-label">Hesaplanan maliyet / da</span><b><span id="summary-total">—</span><small> TL/da</small></b><small id="summary-cost-note">Ambalaj ve fiyat bilgileriyle hesaplanır</small></article>
+      <article><span id="summary-area-label">Hesaplanan maliyet / da</span><b><span id="summary-total">—</span><small> TL/da</small></b><small id="summary-cost-note">Tarla maliyeti ve alanıyla hesaplanır</small></article>
       <article><span>Hesaplanan tarla maliyeti</span><b><span id="summary-per-decare">—</span><small> TL</small></b><small id="summary-total-note">Tarla alanı ve maliyet bilgisi gerekli</small></article>
     </div>
     <form id="production-form">
@@ -47,10 +47,8 @@
           <div class="profile-field"><label for="operation-date">İşlem tarihi <b>*</b></label><input id="operation-date" type="date" required></div>
           <div class="profile-field"><label for="operation-type">Yapılan işlem <b>*</b></label><select id="operation-type" required><option value="">İşlem seç</option><option value="tillage">Toprak hazırlığı / sürüm</option><option value="seed">Tohum</option><option value="planting">Ekim / dikim</option><option value="fertilizing">Gübreleme</option><option value="irrigation">Sulama</option><option value="spraying">İlaçlama</option><option value="weeding">Yabancı ot mücadelesi</option><option value="harvest">Hasat</option><option value="other">Diğer işlem</option></select></div>
           <div class="profile-field"><label for="operation-product">Kullanılan Ürün Adı <b>*</b></label><input id="operation-product" maxlength="120" placeholder="Örn. DAP, tohum veya ilaç adı" required></div>
-
-          <div class="profile-field"><label for="operation-package-size">Şişe / torba miktarı</label><input id="operation-package-size" maxlength="40" placeholder="Örn. 50 kg, 1 L, 300 ml"></div>
-          <div class="profile-field"><label for="operation-quantity">Dekara Kullanılan Miktar <b>*</b></label><div class="production-quantity-control"><input id="operation-quantity" type="text" pattern="[0-9]+([.,][0-9]+)?" inputmode="decimal" placeholder="Örn. 2,5" required><select id="operation-unit" aria-label="Dekara Kullanılan Miktar birimi" required><option value="">Birim seç</option><option value="kg/da">kg/da</option><option value="g/da">g/da</option><option value="L/da">L/da</option><option value="ml/da">ml/da</option><option value="m/da">m/da</option><option value="adet/da">adet/da</option><option value="m³/da">m³/da</option><option value="saat/da">saat/da</option></select></div></div>
-          <div class="profile-field"><label for="operation-package-price">Şişe / torba fiyatı (TL)</label><input id="operation-package-price" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Örn. 850"></div>
+          <div class="profile-field"><label for="operation-quantity">Bu Tarla İçin Kullanılan Miktar <b>*</b></label><div class="production-quantity-control"><input id="operation-quantity" type="text" pattern="[0-9]+([.,][0-9]+)?" inputmode="decimal" placeholder="Örn. 2,5" required><select id="operation-unit" aria-label="Bu Tarla İçin Kullanılan Miktar birimi" required><option value="">Birim seç</option><option value="kg">kg</option><option value="g">g</option><option value="L">L</option><option value="ml">ml</option><option value="m">m</option><option value="adet">adet</option><option value="torba">torba</option><option value="şişe">şişe</option><option value="m³">m³</option><option value="saat">saat</option></select></div></div>
+          <div class="profile-field"><label for="operation-total-cost">Bu Tarla İçin Maliyet (TL) <b>*</b></label><input id="operation-total-cost" type="text" pattern="[0-9]+([.,][0-9]{1,2})?" inputmode="decimal" placeholder="Örn. 1000" required></div>
 
 
 
@@ -60,7 +58,7 @@
 
           <div class="profile-field wide"><label for="operation-note">Not</label><textarea id="operation-note" rows="3" maxlength="500" placeholder="İşlemle ilgili eklemek istediğin kısa not"></textarea></div>
         </div>
-        <p class="operation-cost-preview" id="operation-cost-preview">Dekara maliyet, kullanılan miktar ve ambalaj fiyatına göre sonraki aşamada hesaplanacak.</p>
+        <p class="operation-cost-preview" id="operation-cost-preview">Dekara maliyet = bu tarla için maliyet ÷ tarla alanı.</p>
       </fieldset>
       <div class="production-form-actions"><button class="profile-submit" id="operation-submit" type="submit">İşlemi kaydet <span>→</span></button><button class="auth-back" id="operation-cancel" type="button" hidden>Vazgeç</button></div>
       <p class="profile-result production-status" id="production-status" role="status" aria-live="polite"></p>
@@ -70,11 +68,11 @@
       <div class="production-record-list" id="production-record-list"></div>
       <div class="production-empty" id="production-empty"><span>＋</span><b>Henüz işlem kaydı yok</b><small>Tarladaki ilk işlemi eklediğinde burada göreceksin.</small></div>
     </section>
-    <p class="profile-footer">Dekara maliyet = (dekara kullanılan miktar ÷ ambalaj miktarı) × ambalaj fiyatı. Uyumlu birimler girildiğinde tahmini tarla toplamı da gösterilir.</p>
+    <p class="profile-footer">Dekara maliyet = bu tarla için maliyet ÷ tarla alanı (dekar).</p>
     <a class="profile-submit production-home-link" href="index.html">Ana Sayfaya Dön <span aria-hidden="true">→</span></a>
   </section>
 </main>
 <script src="assets/supabase-config.js"></script>
-<script type="module" src="assets/production.js?v=seed-quantity-20261015"></script>
+<script type="module" src="assets/production.js?v=field-total-20261015"></script>
 </body>
 </html>

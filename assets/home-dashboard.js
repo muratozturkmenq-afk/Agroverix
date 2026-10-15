@@ -1,4 +1,5 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm";
+import { costPerDecare } from "./operation-cost.js";
 const cfg = window.AGROVERIX_SUPABASE || {};
 const area = document.querySelector("#ciftci-ozet");
 const message = document.querySelector("#home-dashboard-message");
@@ -7,25 +8,9 @@ const grid = document.querySelector("#home-crop-grid");
 const heroFarms = document.querySelector("#hero-farm-cards");
 const money = (value) => Number(value || 0).toLocaleString("tr-TR", { maximumFractionDigits: 2 });
 const text = (tag, className, value) => { const node = document.createElement(tag); if (className) node.className = className; node.textContent = value; return node; };
-function unitInfo(unit) {
-  const key = String(unit || "").toLocaleLowerCase("tr-TR").replace(/\s/g, "");
-  const map = {kg:{dimension:"mass",factor:1},g:{dimension:"mass",factor:0.001},ton:{dimension:"mass",factor:1000},l:{dimension:"volume",factor:1},lt:{dimension:"volume",factor:1},litre:{dimension:"volume",factor:1},ml:{dimension:"volume",factor:0.001},"m³":{dimension:"volume",factor:1000},m3:{dimension:"volume",factor:1000},m:{dimension:"length",factor:1},adet:{dimension:"count",factor:1},saat:{dimension:"time",factor:1}};
-  return map[key] || null;
-}
-function costPerDecare(record) {
-  const quantity = Number(record.quantity);
-  const price = record.package_price === null || record.package_price === undefined || record.package_price === "" ? NaN : Number(record.package_price);
-  const pack = String(record.package_size || "").trim().match(/^(\d+(?:[.,]\d+)?)\s*([\p{L}³0-9]+)$/u);
-  const usedUnit = String(record.quantity_unit || "").replace(/\s*\/\s*da$/i, "").trim();
-  if (!Number.isFinite(quantity) || quantity <= 0 || !Number.isFinite(price) || price < 0 || !pack) return null;
-  const amount = Number(pack[1].replace(",", "."));
-  const used = unitInfo(usedUnit), packaged = unitInfo(pack[2]);
-  if (!Number.isFinite(amount) || amount <= 0 || !used || !packaged || used.dimension !== packaged.dimension) return null;
-  return quantity * used.factor / (amount * packaged.factor) * price;
-}
 function farmCost(farm, records) {
   const rows = records.filter((row) => row.farm_id === farm.id);
-  const values = rows.map(costPerDecare).filter((value) => value !== null);
+  const values = rows.map(row => costPerDecare(row, farm.area_decare)).filter((value) => value !== null);
   return { rows, values, perDecare: values.length ? values.reduce((sum, value) => sum + value, 0) : null,
     total: values.length ? values.reduce((sum, value) => sum + value, 0) * Number(farm.area_decare || 0) : null };
 }
@@ -107,7 +92,7 @@ async function showDashboard(client, user) {
   message.textContent = "Tarlaların ve hesaplanabilen maliyetlerin yükleniyor…";
   const [farmResult, recordResult] = await Promise.all([
     client.from("farmer_farms").select("id,name,crop,area_decare").eq("user_id", user.id).order("created_at", {ascending:true}),
-    client.from("farmer_operations").select("farm_id,operation_type,operation_date,product,package_size,quantity,quantity_unit,package_price,created_at").eq("user_id", user.id).order("operation_date", {ascending:false}).order("created_at", {ascending:false})
+    client.from("farmer_operations").select("farm_id,operation_type,operation_date,product,package_size,quantity,quantity_unit,package_price,total_cost,cost_basis,created_at").eq("user_id", user.id).order("operation_date", {ascending:false}).order("created_at", {ascending:false})
   ]);
   if (farmResult.error || recordResult.error) { heroNotice('Tarla özeti yüklenemedi. Sayfayı yenileyerek tekrar dene.'); message.textContent = "Kişisel özet yüklenemedi. Üretim kayıtları sayfasından tekrar deneyebilirsin."; return; }
   const farms = farmResult.data || [], records = recordResult.data || [];
