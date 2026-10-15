@@ -20,7 +20,11 @@ function activeFarm() {
   return farms.find((farm) => farm.id === $("#operation-farm").value) || null;
 }
 function selectedFilterFarm() {
-  return $("#records-filter").value || $("#operation-farm").value;
+  return $("#records-filter").value;
+}
+function localToday() {
+  const now = new Date();
+  return new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 }
 function farmOptionLabel(farm) {
   return farm.name + " · " + farm.crop + " · " + Number(farm.area_decare).toLocaleString("tr-TR") + " da";
@@ -34,10 +38,11 @@ function renderFarmOptions() {
     input.add(new Option(farmOptionLabel(farm), farm.id));
     filter.add(new Option(farm.name + " · " + farm.crop, farm.id));
   });
+  if (!farms.length) input.add(new Option("Tarla ekleme sayfasına git →", "__add_farm__"));
   input.disabled = farms.length === 0;
   filter.disabled = farms.length === 0;
   if (farms.length === 1) input.value = farms[0].id;
-  if ($("#operation-date") && !$("#operation-date").value) $("#operation-date").value = new Date().toISOString().slice(0, 10);
+  if ($("#operation-date") && !$("#operation-date").value) $("#operation-date").value = localToday();
   updateCostPreview();
 }
 function formatMoney(value) {
@@ -48,9 +53,11 @@ function updateSummary() {
   const filtered = farmId ? records.filter((row) => row.farm_id === farmId) : records;
   const cost = filtered.reduce((sum, row) => sum + Number(row.total_cost || 0), 0);
   const farm = farms.find((row) => row.id === farmId);
+  const area = farm ? Number(farm.area_decare) : farms.filter((row) => filtered.some((entry) => entry.farm_id === row.id)).reduce((sum, row) => sum + Number(row.area_decare || 0), 0);
   $("#summary-count").textContent = String(filtered.length);
   $("#summary-total").textContent = formatMoney(cost);
-  $("#summary-per-decare").textContent = farm && farm.area_decare ? formatMoney(cost / Number(farm.area_decare)) : "—";
+  $("#summary-area-label").textContent = farm ? "Seçili tarlada" : "Tarlalar ortalaması";
+  $("#summary-per-decare").textContent = area ? formatMoney(cost / area) : "—";
   $("#production-empty").hidden = filtered.length > 0;
   renderRecords(filtered);
 }
@@ -106,8 +113,6 @@ async function loadFarms() {
   renderFarmOptions();
   if (!farms.length) {
     message("Önce Aşama 02'de en az bir tarla eklemelisin.");
-    $("#operation-farm").add(new Option("Tarla ekleme sayfasına git →", "__add_farm__"));
-    $("#operation-farm").addEventListener("change", () => { if ($("#operation-farm").value === "__add_farm__") location.href = "tarla-bilgileri.html"; });
     updateSummary();
     return;
   }
@@ -138,7 +143,7 @@ function editRecord(record) {
 function clearForm() {
   form.reset();
   $("#operation-id").value = "";
-  $("#operation-date").value = new Date().toISOString().slice(0, 10);
+  $("#operation-date").value = localToday();
   $("#production-title").textContent = "Yeni işlem kaydı";
   $("#operation-submit").innerHTML = "İşlemi kaydet <span>→</span>";
   $("#operation-cancel").hidden = true;
@@ -156,6 +161,7 @@ function updateCostPreview() {
   target.append("Bu işlem için dekara düşen maliyet: ", perDecare);
 }
 $("#operation-farm").addEventListener("change", () => { updateCostPreview(); updateSummary(); });
+$("#operation-farm").addEventListener("change", () => { if ($("#operation-farm").value === "__add_farm__") location.href = "tarla-bilgileri.html"; });
 $("#operation-cost").addEventListener("input", updateCostPreview);
 $("#records-filter").addEventListener("change", updateSummary);
 $("#operation-cancel").addEventListener("click", clearForm);
