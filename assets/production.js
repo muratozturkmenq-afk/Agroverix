@@ -51,13 +51,11 @@ function formatMoney(value) {
 function updateSummary() {
   const farmId = selectedFilterFarm();
   const filtered = farmId ? records.filter((row) => row.farm_id === farmId) : records;
-  const cost = filtered.reduce((sum, row) => sum + Number(row.total_cost || 0), 0);
-  const farm = farms.find((row) => row.id === farmId);
-  const area = farm ? Number(farm.area_decare) : farms.filter((row) => filtered.some((entry) => entry.farm_id === row.id)).reduce((sum, row) => sum + Number(row.area_decare || 0), 0);
+  const packagePrice = filtered.reduce((sum, row) => sum + Number(row.package_price || 0), 0);
   $("#summary-count").textContent = String(filtered.length);
-  $("#summary-total").textContent = formatMoney(cost);
-  $("#summary-area-label").textContent = farm ? "Seçili tarlada" : "Tarlalar ortalaması";
-  $("#summary-per-decare").textContent = area ? formatMoney(cost / area) : "—";
+  $("#summary-total").textContent = formatMoney(packagePrice);
+  $("#summary-area-label").textContent = "Dekara maliyet";
+  $("#summary-per-decare").textContent = "—";
   $("#production-empty").hidden = filtered.length > 0;
   renderRecords(filtered);
 }
@@ -78,14 +76,14 @@ function renderRecords(rows) {
     const detail = document.createElement("small");
     const farm = farms.find((item) => item.id === record.farm_id);
     const quantity = record.quantity ? formatMoney(record.quantity) + " " + (record.quantity_unit || "") : "";
-    const productAndBrand = [record.product, record.brand_name ? "Marka: " + record.brand_name : ""].filter(Boolean).join(" · ");
+    const productAndBrand = [record.product, record.package_size ? "Ambalaj: " + record.package_size : "", record.brand_name ? "Marka: " + record.brand_name : ""].filter(Boolean).join(" · ");
     detail.textContent = (farm ? farm.name + " · " : "") + new Date(record.operation_date + "T12:00:00").toLocaleDateString("tr-TR") + (productAndBrand ? " · " + productAndBrand : "") + (quantity ? " · Dekara kullanım: " + quantity : "");
     const cost = document.createElement("div");
     cost.className = "production-record-cost";
     const costValue = document.createElement("b");
-    costValue.textContent = formatMoney(record.total_cost) + " TL";
+    costValue.textContent = record.package_price !== null && record.package_price !== undefined ? formatMoney(record.package_price) + " TL / paket" : record.total_cost ? "Eski maliyet: " + formatMoney(record.total_cost) + " TL" : "Fiyat girilmedi";
     const costUnit = document.createElement("small");
-    costUnit.textContent = farm?.area_decare ? formatMoney(Number(record.total_cost || 0) / Number(farm.area_decare)) + " TL/da" : "Maliyet";
+    costUnit.textContent = record.package_size ? "Ambalaj: " + record.package_size : "Paket bilgisi";
     cost.append(costValue, costUnit);
     const actions = document.createElement("div");
     actions.className = "production-record-actions";
@@ -131,10 +129,10 @@ function editRecord(record) {
   $("#operation-type").value = record.operation_type;
   $("#operation-date").value = record.operation_date;
   $("#operation-product").value = record.product || "";
-  $("#operation-brand").value = record.brand_name || "";
+  $("#operation-package-size").value = record.package_size || "";
   $("#operation-quantity").value = record.quantity ?? "";
   $("#operation-unit").value = record.quantity_unit || "";
-  $("#operation-cost").value = record.total_cost || "";
+  $("#operation-package-price").value = record.package_price ?? "";
   $("#operation-note").value = record.notes || "";
   $("#production-title").textContent = "İşlem kaydını düzenle";
   $("#operation-submit").innerHTML = "Değişiklikleri kaydet <span>→</span>";
@@ -153,16 +151,8 @@ function clearForm() {
   message("");
 }
 function updateCostPreview() {
-  const farm = activeFarm();
-  const cost = Number($("#operation-cost").value || 0);
-  const target = $("#operation-cost-preview");
-  if (!farm) { target.textContent = "Tarlayı seçtiğinde dekara düşen maliyet burada hesaplanır."; return; }
-  target.replaceChildren();
-  const perDecare = document.createElement("strong");
-  perDecare.textContent = formatMoney(cost / Number(farm.area_decare || 1)) + " TL/da";
-  target.append("Bu işlem için dekara düşen maliyet: ", perDecare);
-}
-$("#operation-farm").addEventListener("change", () => { updateCostPreview(); updateSummary(); });
+  $("#operation-cost-preview").textContent = "Dekara maliyet, kullanılan miktar ve ambalaj fiyatına göre sonraki aşamada hesaplanacak.";
+}$("#operation-farm").addEventListener("change", () => { updateCostPreview(); updateSummary(); });
 $("#operation-farm").addEventListener("change", () => { if ($("#operation-farm").value === "__add_farm__") location.href = "tarla-bilgileri.html"; });
 $("#operation-cost").addEventListener("input", updateCostPreview);
 $("#records-filter").addEventListener("change", updateSummary);
@@ -170,6 +160,7 @@ $("#operation-cancel").addEventListener("click", clearForm);
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   if (!session) { message("Kaydetmek için önce telefon numaranla giriş yap. Form bilgileri bu sayfada saklanmadı.", true); return; }
+  if (!$("#operation-product").value.trim()) { message("Kullanılan Ürün Adı zorunludur.", true); return; }
   const farm = activeFarm();
   if (!farm) { message("İşlem kaydı için önce bir tarla seç veya ekle.", true); return; }
   if ($("#operation-quantity").value && !$("#operation-unit").value) { message("Dekara kullanılan miktar için ölçü birimini de seç.", true); return; }
@@ -178,11 +169,11 @@ form.addEventListener("submit", async (event) => {
     farm_id: farm.id,
     operation_type: $("#operation-type").value,
     operation_date: $("#operation-date").value,
-    product: $("#operation-product").value.trim() || null,
-    brand_name: $("#operation-brand").value.trim() || null,
+    product: $("#operation-product").value.trim(),
+    package_size: $("#operation-package-size").value.trim() || null,
     quantity: $("#operation-quantity").value ? Number($("#operation-quantity").value) : null,
     quantity_unit: $("#operation-unit").value || null,
-    total_cost: Number($("#operation-cost").value || 0),
+    package_price: $("#operation-package-price").value ? Number($("#operation-package-price").value) : null,
     notes: $("#operation-note").value.trim() || null,
     updated_at: new Date().toISOString()
   };
