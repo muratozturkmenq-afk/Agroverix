@@ -1,0 +1,11 @@
+.nav-toggle{display:none}
+@media(max-width:1100px){
+ .nav .nav-in{position:relative;flex-wrap:wrap;column-gap:14px;row-gap:5px;padding-bottom:10px}
+ .nav .home-brand{order:1}.nav .nav-in>.btn{order:2;margin-left:auto}
+ .nav .nav-toggle{order:3;flex-basis:100%;width:100%;min-height:44px;display:flex;align-items:center;gap:10px;padding:9px 13px;border:1px solid var(--line-d);border-radius:8px;background:var(--soil);color:var(--cotton);font-size:14px;font-weight:700;text-align:left;cursor:pointer}
+ .nav-toggle-icon{width:19px;color:var(--gold);font-size:19px;line-height:1}.nav-toggle-arrow{margin-left:auto;font-size:19px;color:var(--gold)}
+ .nav .nav-links{display:none;position:absolute;top:100%;left:var(--gut);right:var(--gut);margin:0;padding:8px;gap:3px;max-height:calc(100dvh - 170px);overflow-y:auto;overscroll-behavior:contain;background:var(--soil);border:1px solid var(--line-d);border-radius:11px;box-shadow:0 16px 35px var(--night)}
+ .nav.is-menu-open .nav-links{display:grid}.nav.is-menu-open .nav-toggle{border-color:var(--gold)}.nav.is-menu-open .nav-toggle-arrow{transform:rotate(180deg)}
+ .nav .nav-links a{display:flex;align-items:center;min-height:46px;padding:10px 12px;border-radius:6px;color:var(--cotton);font-size:15px;line-height:1.4;text-decoration:none;overflow-wrap:anywhere}.nav .nav-links a::after{display:none}.nav .nav-links a:hover,.nav .nav-links a:focus-visible{background:var(--moss);color:var(--gold-2)}
+ .hero .hero-inner{padding-top:185px}.hero,.farmer-dashboard,.season,.pests{scroll-margin-top:160px}
+}
