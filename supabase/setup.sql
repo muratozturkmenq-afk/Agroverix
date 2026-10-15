@@ -110,7 +110,7 @@ create table if not exists public.farmer_operations (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
   farm_id uuid not null references public.farmer_farms(id) on delete cascade,
-  operation_type text not null check (operation_type in ('tillage','planting','fertilizing','irrigation','spraying','weeding','harvest','other')),
+  operation_type text not null check (operation_type in ('tillage','seed','planting','fertilizing','irrigation','spraying','weeding','harvest','other')),
   operation_date date not null default current_date,
   product text,
   brand_name text,

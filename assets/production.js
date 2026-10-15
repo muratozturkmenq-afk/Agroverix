@@ -9,8 +9,8 @@ let client = null;
 let session = null;
 let farms = [];
 let records = [];
-const icons = { tillage:"⌁", planting:"✳", fertilizing:"＋", irrigation:"⌖", spraying:"✧", weeding:"⌁", harvest:"↟", other:"•" };
-const labels = { tillage:"Toprak hazırlığı / sürüm", planting:"Ekim / dikim", fertilizing:"Gübreleme", irrigation:"Sulama", spraying:"İlaçlama", weeding:"Yabancı ot mücadelesi", harvest:"Hasat", other:"Diğer işlem" };
+const icons = { tillage:"⌁", seed:"✳",planting:"✳", fertilizing:"＋", irrigation:"⌖", spraying:"✧", weeding:"⌁", harvest:"↟", other:"•" };
+const labels = { tillage:"Toprak hazırlığı / sürüm", seed:"Tohum",planting:"Ekim / dikim", fertilizing:"Gübreleme", irrigation:"Sulama", spraying:"İlaçlama", weeding:"Yabancı ot mücadelesi", harvest:"Hasat", other:"Diğer işlem" };
 
 function message(text, error = false) {
   status.textContent = text || "";
@@ -189,7 +189,7 @@ function clearForm() {
 function updateCostPreview() {
   const preview = $("#operation-cost-preview");
   if (!preview) return;
-  const record = {quantity:$("#operation-quantity").value,quantity_unit:$("#operation-unit").value,package_size:$("#operation-package-size").value,package_price:$("#operation-package-price").value};
+  const record = {quantity:$("#operation-quantity").value.trim().replace(',', '.'),quantity_unit:$("#operation-unit").value,package_size:$("#operation-package-size").value,package_price:$("#operation-package-price").value};
   const cost = calculateCostPerDecare(record);
   const farm = activeFarm();
   if (cost === null) { preview.textContent = "Önizleme için ambalaj miktarını (ör. 50 kg), paket fiyatını ve uyumlu kullanım birimlerini gir."; return; }
@@ -205,7 +205,8 @@ form.addEventListener("submit", async (event) => {
   if (!$("#operation-product").value.trim()) { message("Kullanılan Ürün Adı zorunludur.", true); return; }
   const farm = activeFarm();
   if (!farm) { message("İşlem kaydı için önce bir tarla seç veya ekle.", true); return; }
-  if (!$("#operation-quantity").value || Number($("#operation-quantity").value) <= 0) { message("Dekara Kullanılan Miktar zorunludur.", true); return; }
+  const quantity = Number($("#operation-quantity").value.trim().replace(',', '.'));
+  if (!Number.isFinite(quantity) || quantity <= 0) { message("Dekara Kullanılan Miktar zorunludur.", true); return; }
   if (!$("#operation-unit").value) { message("Dekara Kullanılan Miktar için birim seç.", true); return; }
   const record = {
     user_id: session.user.id,
@@ -214,7 +215,7 @@ form.addEventListener("submit", async (event) => {
     operation_date: $("#operation-date").value,
     product: $("#operation-product").value.trim(),
     package_size: $("#operation-package-size").value.trim() || null,
-    quantity: $("#operation-quantity").value ? Number($("#operation-quantity").value) : null,
+    quantity,
     quantity_unit: $("#operation-unit").value || null,
     package_price: $("#operation-package-price").value ? Number($("#operation-package-price").value) : null,
     notes: $("#operation-note").value.trim() || null,
