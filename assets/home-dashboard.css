@@ -38,3 +38,10 @@
   .farmer-farm-cost { grid-column:1/-1; display:flex; justify-content:space-between; text-align:left; padding-top:8px; border-top:1px solid rgba(18,22,14,.1); }
 }
 @media(prefers-reduced-motion:reduce) { .farmer-crop-card { transition:none; } }
+
+.farmer-privacy-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+.farmer-privacy-card { border:1px solid rgba(18,22,14,.12); border-radius:16px; padding:20px; background:#fffdf6; }
+.farmer-privacy-card b { display:block; margin-bottom:9px; }
+.farmer-privacy-card p { margin:0; color:var(--muted,#596052); line-height:1.55; }
+.farmer-cta-grid { grid-template-columns:minmax(0,680px); }
+@media(max-width:760px) { .farmer-privacy-grid { grid-template-columns:1fr; } }
