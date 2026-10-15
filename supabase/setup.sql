@@ -113,6 +113,7 @@ create table if not exists public.farmer_operations (
   operation_type text not null check (operation_type in ('tillage','planting','fertilizing','irrigation','spraying','weeding','harvest','other')),
   operation_date date not null default current_date,
   product text,
+  brand_name text,
   quantity numeric(12,2),
   quantity_unit text,
   total_cost numeric(12,2) not null default 0,
@@ -122,6 +123,8 @@ create table if not exists public.farmer_operations (
   constraint farmer_operation_quantity_positive check (quantity is null or quantity > 0),
   constraint farmer_operation_cost_nonnegative check (total_cost >= 0)
 );
+
+alter table public.farmer_operations add column if not exists brand_name text;
 
 alter table public.farmer_operations enable row level security;
 alter table public.farmer_operations force row level security;
