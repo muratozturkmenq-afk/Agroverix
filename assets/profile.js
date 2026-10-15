@@ -30,6 +30,7 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
   function validPhone(phone) { return /^\+905[0-9]{9}$/.test(phone); }
   function setMode(next) {
     mode = next;
+    if (next === "signup") $("#profile-edit-details").open = true;
     authCard.hidden = next !== "login";
     profileCard.hidden = next !== "signup";
     $("#farms-section").hidden = true;
@@ -53,6 +54,7 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
   async function showAccount(session) {
     currentSession = session;
     if (!session) { setMode("login"); return; }
+    $("#profile-edit-details").open = false;
     authCard.hidden = true;
     profileCard.hidden = false;
     credentials.hidden = true;
@@ -159,7 +161,15 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
     const { data, error } = await client.from("farmer_farms").select("*").eq("user_id", currentSession.user.id).order("created_at");
     if (error) { list.textContent = "Tarla tablosu henüz kurulmamış. Yönetici kurulum adımlarını tamamlamalı."; syncFarmOverview([]); return; }
     syncFarmOverview(data || []);
-    if (!data || !data.length) { list.textContent = "Henüz tarla eklenmedi. İlk tarlanı ekleyerek başlayabilirsin."; return; }
+    if (!data || !data.length) {
+      const empty = document.createElement("div"); empty.className = "farm-empty";
+      const icon = document.createElement("span"); icon.className = "farm-empty-icon"; icon.setAttribute("aria-hidden", "true"); icon.textContent = "⌖";
+      const title = document.createElement("b"); title.textContent = "İlk tarlanı kaydet";
+      const copy = document.createElement("p"); copy.textContent = "Tarla adı, ürün, dekar alanı ve konum bilgilerini ekleyerek kişisel kayıt alanını oluşturmaya başla.";
+      const add = document.createElement("button"); add.type = "button"; add.className = "profile-submit farm-empty-action"; add.textContent = "＋ İlk tarlamı ekle";
+      add.addEventListener("click", () => $("#farm-new").click());
+      empty.append(icon, title, copy, add); list.replaceChildren(empty); return;
+    }
     data.forEach((farm) => {
       const item = document.createElement("article"); item.className = "farm-item";
       const details = document.createElement("div"); details.className = "farm-item-details";
