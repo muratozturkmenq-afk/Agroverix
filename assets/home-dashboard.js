@@ -4,6 +4,7 @@ const area = document.querySelector("#ciftci-ozet");
 const message = document.querySelector("#home-dashboard-message");
 const login = document.querySelector("#home-dashboard-login");
 const grid = document.querySelector("#home-crop-grid");
+const heroFarms = document.querySelector("#hero-farm-cards");
 const money = (value) => Number(value || 0).toLocaleString("tr-TR", { maximumFractionDigits: 2 });
 const text = (tag, className, value) => { const node = document.createElement(tag); if (className) node.className = className; node.textContent = value; return node; };
 function unitInfo(unit) {
@@ -27,6 +28,33 @@ function farmCost(farm, records) {
   const values = rows.map(costPerDecare).filter((value) => value !== null);
   return { rows, values, perDecare: values.length ? values.reduce((sum, value) => sum + value, 0) : null,
     total: values.length ? values.reduce((sum, value) => sum + value, 0) * Number(farm.area_decare || 0) : null };
+}
+function heroNotice(copy, href, action) {
+  if (!heroFarms) return;
+  const card = text('div', 'hero-farm-card', '');
+  card.append(text('b', 'hero-farm-name', 'Tarla maliyet özetin'), text('p', 'hero-farm-note', copy));
+  if (href) { const link = text('a', 'hero-farm-action', action); link.href = href; card.append(link); }
+  heroFarms.replaceChildren(card);
+}
+function renderHeroFarms(farms, records) {
+  if (!heroFarms) return;
+  heroFarms.replaceChildren();
+  if (!farms.length) { heroNotice('İlk tarlanı eklediğinde maliyet özetin burada görünecek.', 'tarla-bilgileri.html', 'Tarla ekle →'); return; }
+  farms.forEach(farm => {
+    const cost = farmCost(farm, records);
+    const card = text('a', 'hero-farm-card', '');
+    card.href = 'tarla-detay.html?farm=' + encodeURIComponent(farm.id);
+    card.append(text('b', 'hero-farm-name', farm.name));
+    const per = text('div', 'hero-farm-metric', '');
+    per.append(text('span', '', 'Dekara Maliyet'), text('strong', '', cost.perDecare === null ? '— TL/da' : money(cost.perDecare) + ' TL/da'));
+    const total = text('div', 'hero-farm-metric hero-farm-total', '');
+    total.append(text('span', '', 'Toplam Maliyet'), text('strong', '', cost.total === null ? '— TL' : money(cost.total) + ' TL'));
+    card.append(per);
+    if (!cost.rows.length) card.append(text('small', 'hero-farm-note', 'Henüz işlem kaydı yok.'));
+    else if (cost.values.length < cost.rows.length) card.append(text('small', 'hero-farm-note', (cost.rows.length - cost.values.length) + ' işlemde hesaplama bilgisi eksik.'));
+    card.append(total);
+    heroFarms.append(card);
+  });
 }
 function cardCrop(crop, farms, records) {
   const known = farms.map((farm) => ({ farm, cost: farmCost(farm, records) }));
@@ -69,18 +97,21 @@ function cardCrop(crop, farms, records) {
   return wrap;
 }
 function showGuest() {
+  heroNotice('Tarla başına dekara ve toplam maliyetini görmek için giriş yap.', 'ciftci-bilgi.html', 'Giriş yap →');
   area.hidden = false; login.hidden = false; grid.replaceChildren();
   message.textContent = "Bu özet yalnızca kendi hesabına giriş yaptığında görünür.";
 }
 async function showDashboard(client, user) {
+  heroNotice('Tarlalarının maliyetleri yükleniyor…');
   area.hidden = false; login.hidden = true; grid.replaceChildren();
   message.textContent = "Tarlaların ve hesaplanabilen maliyetlerin yükleniyor…";
   const [farmResult, recordResult] = await Promise.all([
     client.from("farmer_farms").select("id,name,crop,area_decare").eq("user_id", user.id).order("created_at", {ascending:true}),
     client.from("farmer_operations").select("farm_id,operation_type,operation_date,product,package_size,quantity,quantity_unit,package_price,created_at").eq("user_id", user.id).order("operation_date", {ascending:false}).order("created_at", {ascending:false})
   ]);
-  if (farmResult.error || recordResult.error) { message.textContent = "Kişisel özet yüklenemedi. Üretim kayıtları sayfasından tekrar deneyebilirsin."; return; }
+  if (farmResult.error || recordResult.error) { heroNotice('Tarla özeti yüklenemedi. Sayfayı yenileyerek tekrar dene.'); message.textContent = "Kişisel özet yüklenemedi. Üretim kayıtları sayfasından tekrar deneyebilirsin."; return; }
   const farms = farmResult.data || [], records = recordResult.data || [];
+  renderHeroFarms(farms, records);
   if (!farms.length) {
     message.textContent = "Önce bir tarla ekle; ürün kartların ve maliyet özetlerin burada oluşacak.";
     const add = text("a", "farmer-dashboard-login", "Tarla ekle →"); add.href = "tarla-bilgileri.html"; grid.append(add); return;
