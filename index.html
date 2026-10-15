@@ -10,6 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Sans:ital,wght@0,400..700;1,400&family=Martian+Mono:wght@400..600&display=swap">
 <link rel="stylesheet" href="assets/styles.css">
+<link rel="stylesheet" href="assets/home-dashboard.css">
 </head>
 <body>
 
@@ -86,6 +87,18 @@
     </div>
   </div>
   <div class="scroll-cue" aria-hidden="true">Kaydır<i></i></div>
+</section>
+
+<section class="farmer-dashboard" id="ciftci-ozet">
+  <div class="wrap">
+    <div class="farmer-dashboard-head">
+      <div><p class="eyebrow">ÇİFTÇİ ALANIM</p><h2>Ürünlerim ve maliyetlerim</h2><p class="farmer-dashboard-lede">Ürün kartına dokun, o üründeki tarlalarını ve maliyetlerini gör.</p></div>
+      <a class="btn btn-gold" href="uretim-kayitlari.html">Yeni üretim kaydı <span class="arr">→</span></a>
+    </div>
+    <p class="farmer-dashboard-message" id="home-dashboard-message" role="status" aria-live="polite">Kişisel maliyet özetini görmek için giriş yap.</p>
+    <a class="farmer-dashboard-login" id="home-dashboard-login" href="ciftci-bilgi.html?next=index.html">Giriş yap / üyelik oluştur <span class="arr">→</span></a>
+    <div class="farmer-crop-grid" id="home-crop-grid"></div>
+  </div>
 </section>
 
 <!-- TICKER -->
