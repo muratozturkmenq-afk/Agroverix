@@ -13,7 +13,7 @@
 <style>
 .farm-page-layout{max-width:1120px;margin:42px auto 0;display:grid;grid-template-columns:minmax(220px,.65fr) minmax(0,1.35fr);gap:clamp(24px,5vw,72px);align-items:start}
 .farm-page-intro{padding-top:28px}.farm-page-intro h1{font-size:clamp(44px,5.6vw,70px)}
-.farm-page-intro .profile-progress span:nth-of-type(2){color:#f1f3ea}.farm-page-intro .profile-progress span:nth-of-type(2) b{color:#edb43e}
+.farm-page-intro .profile-progress span:nth-of-type(2){color:#f1f3ea}.farm-stage-link{display:flex;align-items:center;gap:6px;color:#9ba390;text-decoration:none;font:9px Martian Mono,monospace}.farm-stage-link:hover{color:#f1f3ea}.farm-page-intro .profile-progress span:nth-of-type(2) b{color:#edb43e}
 .farm-page-card{min-width:0}.farm-page-kicker{display:flex;justify-content:space-between;align-items:center;gap:12px}
 .farm-entry-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .farm-entry-grid .wide{grid-column:1/-1}
@@ -47,7 +47,7 @@
     <h1>Tarla<br><em>bilgilerin.</em></h1>
     <p>Ürününü, alanını ve konumunu ekle. Birden fazla tarlan varsa her birini ayrı ayrı kaydedebilirsin.</p>
     <div class="profile-progress" aria-label="Kayıt aşamaları">
-      <span><b>01</b> Profil</span><i></i><span><b>02</b> Tarla</span><i></i><span><b>03</b> Üretim</span>
+      <span><b>01</b> Profil</span><i></i><span><b>02</b> Tarla</span><i></i><a class="farm-stage-link" href="uretim-kayitlari.html"><b>03</b> Üretim</a>
     </div>
     <div class="profile-side-note"><span class="profile-lock">⌖</span><div><b>Tarlanın konumunu ekle</b><small>Telefonundan konum alabilir veya köy ve mahalle seçebilirsin.</small></div></div>
   </section>
