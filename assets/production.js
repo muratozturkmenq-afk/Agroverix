@@ -140,6 +140,12 @@ async function loadFarms() {
   if (error) { message("Tarla listesi yüklenemedi. Supabase kurulumunu kontrol et.", true); return; }
   farms = data || [];
   renderFarmOptions();
+  const requestedFarm = new URLSearchParams(location.search).get("farm");
+  if (requestedFarm && farms.some((farm) => farm.id === requestedFarm)) {
+    $("#operation-farm").value = requestedFarm;
+    $("#records-filter").value = requestedFarm;
+    updateCostPreview();
+  }
   if (!farms.length) {
     message("Önce Aşama 02'de en az bir tarla eklemelisin.");
     updateSummary();
