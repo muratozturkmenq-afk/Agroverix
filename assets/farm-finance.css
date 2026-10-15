@@ -13,3 +13,7 @@
 @keyframes crop-emerge{0%{transform:translateY(0) scale(.08,.06);opacity:.15}60%{transform:scale(.78,.8);opacity:1}100%{transform:scale(1)}}
 .hero-farm-metric>strong{font-variant-numeric:tabular-nums}.farm-entry-card>div:last-child{display:flex;gap:8px;align-items:center}.farm-entry-card .auth-back{text-decoration:none;padding:8px 10px;font-size:11px}
 @media(prefers-reduced-motion:reduce){.crop-art .crop-live-plant{animation:none}}
+
+.home-brand{flex-shrink:0}.home-logo{display:block;width:clamp(180px,20vw,240px);height:auto;max-width:100%}.footer-brand .home-logo{width:200px}
+@media(max-width:1100px){.nav-links{display:none}.nav-in>.btn{margin-left:auto}}
+@media(max-width:390px){.nav-in{gap:12px}.home-logo{width:170px}}

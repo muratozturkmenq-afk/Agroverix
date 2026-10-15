@@ -1,4 +1,5 @@
-import { farmFinance, seasonFor, decimal, fmt, appendMetric } from './farm-finance.js?v=seasons-v1';
+import { parseNumberInput as decimal, bindNumberInput, setNumberInputValue } from './number-input.js?v=groups-v1';
+import { farmFinance, seasonFor, fmt, appendMetric } from './farm-finance.js?v=seasons-v1';
 import { cropVisual } from './crop-visual.js?v=seasons-v1';
 const node=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text)n.textContent=text;return n;};
 export function renderSimulators(farms,records,client,user,onSaved){
@@ -9,7 +10,7 @@ export function renderSimulators(farms,records,client,user,onSaved){
   const card=node('article','farm-simulator'),art=cropVisual(season.crop),body=node('div','farm-simulator-body'),header=node('div','sim-farm-head');
   header.append(node('h3','',farm.name),node('p','',season.crop+' · '+fmt(season.area_decare)+' da · '+year+' sezonu'));
   const fields=node('form','sim-forecast-form');
-  function input(label,value,id){const wrap=node('div','sim-input'),l=node('label','',label),i=node('input');i.id=id;l.htmlFor=id;i.type='text';i.inputMode='decimal';i.pattern='[0-9]+([.,][0-9]+)?';i.required=true;i.value=value??'';i.placeholder='Elle gir';wrap.append(l,i);fields.append(wrap);return i;}
+  function input(label,value,id){const wrap=node('div','sim-input'),l=node('label','',label),i=node('input');i.id=id;l.htmlFor=id;i.type='text';i.inputMode='decimal';i.pattern='[0-9]+([.,][0-9]+)?';i.required=true;bindNumberInput(i,{maximumFractionDigits:label.includes('Fiyat')?2:3});setNumberInputValue(i,value);i.placeholder='Elle gir';wrap.append(l,i);fields.append(wrap);return i;}
   const y=input('Tahmini Verim (kg/da)',season.expected_yield,'expected-yield-'+farm.id),p=input('Tahmini Satış Fiyatı (TL/kg)',season.expected_price,'expected-price-'+farm.id),save=node('button','btn btn-gold','Tahminleri Kaydet');save.type='submit';fields.append(save);
   const status=node('p','sim-save-status');status.setAttribute('role','status');const metrics=node('div','finance-grid');metrics.setAttribute('aria-live','polite');const foot=node('p','sim-assumption'),link=node('a','sim-detail-link','Tarla ve sezon detayını gör →');link.href='tarla-detay.html?farm='+encodeURIComponent(farm.id);
   function render(){

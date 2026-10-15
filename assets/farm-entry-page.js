@@ -1,5 +1,6 @@
+import { parseNumberInput as decimal, bindNumberInput, setNumberInputValue } from './number-input.js?v=groups-v1';
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm";
-import { farmFinance, seasonFor, decimal, appendMetric } from "./farm-finance.js?v=seasons-v1";
+import { farmFinance, seasonFor, appendMetric } from "./farm-finance.js?v=seasons-v1";
 import { locationLabels } from "./location-labels.js";
 
 const $ = (selector) => document.querySelector(selector);
@@ -13,6 +14,7 @@ let session = null;
 let admin = null;
 let requestedEditOpened = false;
 let editingFarm = null, operationRows = [];
+['farm-entry-area','farm-rent','farm-actual-yield','farm-actual-price'].forEach(id=>bindNumberInput($('#'+id),{maximumFractionDigits:id==='farm-actual-yield'?3:2}));
 $("#farm-season-year").value = new Date().getFullYear();
 function tenureChanged(){ const rented=$("#farm-tenure").value==='rented'; $("#farm-rent-field").hidden=!rented; $("#farm-rent").required=rented; $("#farm-rent").disabled=!rented; updateSeasonPreview(); }
 function updateSeasonPreview(){
@@ -25,8 +27,8 @@ function updateSeasonPreview(){
 }
 function seasonFields(year){
  const s=editingFarm ? seasonFor(editingFarm,year) : null;
- $("#farm-tenure").value=s?.tenure||'';$("#farm-rent").value=s?.rent_total??'';$("#farm-actual-yield").value=s?.actual_yield??'';$("#farm-actual-price").value=s?.actual_price??'';
- if(s){$("#farm-entry-crop").value=s.crop;$("#farm-entry-area").value=s.area_decare;}
+ $("#farm-tenure").value=s?.tenure||'';setNumberInputValue($('#farm-rent'),s?.rent_total);setNumberInputValue($('#farm-actual-yield'),s?.actual_yield);setNumberInputValue($('#farm-actual-price'),s?.actual_price);
+ if(s){$("#farm-entry-crop").value=s.crop;setNumberInputValue($("#farm-entry-area"),s.area_decare);}
  tenureChanged();
 }
 $("#farm-tenure").addEventListener('change',tenureChanged);
@@ -120,7 +122,7 @@ function editFarm(farm) {
   $("#farm-entry-id").value = farm.id;
   $("#farm-entry-name").value = farm.name || "";
   $("#farm-entry-crop").value = farm.crop || "";
-  $("#farm-entry-area").value = farm.area_decare || "";
+  setNumberInputValue($("#farm-entry-area"),farm.area_decare);
   const province = $("#farm-entry-province");
   const district = $("#farm-entry-district");
   const village = $("#farm-entry-village");
@@ -172,7 +174,7 @@ form.addEventListener("submit", async (event) => {
     return;
   }
   if (!$("#farm-entry-village").value) { message("İl, ilçe ve köy/mahalle seçimini tamamla.", true); return; }
-  const area = Number($("#farm-entry-area").value.trim().replace(',', '.'));
+  const area = decimal($("#farm-entry-area").value);
   if (!Number.isFinite(area) || area <= 0 || area > 1000000) { message("Tarla alanını sıfırdan büyük, en fazla 1.000.000 dekar olacak şekilde yaz.", true); return; }
   const record = {
     user_id: session.user.id,

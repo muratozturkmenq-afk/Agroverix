@@ -1,3 +1,4 @@
+import { parseNumberInput, bindNumberInput, setNumberInputValue } from './number-input.js?v=groups-v1';
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm";
 import { farmFinance, seasonFor, serviceTypes, operationLabels } from "./farm-finance.js?v=seasons-v1";
 import { costPerDecare } from "./operation-cost.js";
@@ -13,6 +14,7 @@ let farms = [];
 let records = [];
 let editingRecords = false;
 let requestedEditOpened = false;
+bindNumberInput($('#operation-quantity'),{maximumFractionDigits:3});bindNumberInput($('#operation-total-cost'),{maximumFractionDigits:2});
 function selectCategory(type=''){
  const service=$('#expense-category').value==='service';
  const select=$('#operation-type'); select.replaceChildren(new Option('İşlem seç',''));
@@ -181,9 +183,9 @@ function editRecord(record) {
   const farm = activeFarm();
   const legacy = record.cost_basis !== "field_total";
   const per = calculateCostPerDecare(record);
-  $("#operation-quantity").value = legacy && record.quantity && farm ? Number((Number(record.quantity) * Number(seasonFor(farm,Number($("#operation-season").value))?.area_decare||farm.area_decare)).toFixed(3)) : record.quantity ?? "";
+  setNumberInputValue($("#operation-quantity"),legacy && record.quantity && farm ? Number((Number(record.quantity) * Number(seasonFor(farm,Number($("#operation-season").value))?.area_decare||farm.area_decare)).toFixed(3)) : record.quantity ?? "");
   $("#operation-unit").value = String(record.quantity_unit || "").replace(/\/da$/, "");
-  $("#operation-total-cost").value = per !== null && farm ? Number((per * Number(seasonFor(farm,Number($("#operation-season").value))?.area_decare||farm.area_decare)).toFixed(2)) : "";
+  setNumberInputValue($("#operation-total-cost"),per !== null && farm ? Number((per * Number(seasonFor(farm,Number($("#operation-season").value))?.area_decare||farm.area_decare)).toFixed(2)) : "");
   $("#operation-note").value = record.notes || "";
   $("#production-title").textContent = "Masraf Girişi";
   $("#operation-submit").innerHTML = "Değişiklikleri kaydet <span>→</span>";
@@ -209,7 +211,7 @@ function updateCostPreview() {
   const preview = $("#operation-cost-preview");
   const farm = activeFarm();
   const raw = $("#operation-total-cost").value.trim();
-  const total = Number(raw.replace(',', '.'));
+  const total = parseNumberInput(raw);
   if (!farm || !raw || !Number.isFinite(total) || total < 0 || Number(seasonFor(farm,Number($("#operation-season").value))?.area_decare||farm.area_decare) <= 0) {
     preview.textContent = "Dekara maliyeti görmek için tarla seç ve bu tarla için toplam maliyeti gir.";
     return;
@@ -233,11 +235,11 @@ form.addEventListener("submit", async (event) => {
   if (!service && !$("#operation-product").value.trim()) { message("Kullanılan Ürün Adı zorunludur.", true); return; }
   const farm = activeFarm();
   if (!farm) { message("İşlem kaydı için önce bir tarla seç veya ekle.", true); return; }
-  const quantity = service ? 1 : Number($("#operation-quantity").value.trim().replace(',', '.'));
+  const quantity = service ? 1 : parseNumberInput($("#operation-quantity").value);
   if (!Number.isFinite(quantity) || quantity <= 0) { message("Kullanılan Toplam Miktar sıfırdan büyük olmalıdır.", true); return; }
   if (!service && !$("#operation-unit").value) { message("Kullanılan Toplam Miktar için birim seç.", true); return; }
   const rawCost = $("#operation-total-cost").value.trim();
-  const totalCost = Number(rawCost.replace(",", "."));
+  const totalCost = parseNumberInput(rawCost);
   if (!rawCost || !Number.isFinite(totalCost) || totalCost < 0) { message("Bu Tarla İçin Maliyet tutarını sıfır veya daha büyük gir.", true); return; }
   const record = {
     user_id: session.user.id,
