@@ -140,7 +140,7 @@ import { bindCropSelect } from "./crop-select.js";
       user_id: currentSession.user.id,
       name: $("#farm-name").value.trim(),
       crop: cropChoice.value(),
-      area_decare: Number($("#farm-area").value),
+      area_decare: Number($("#farm-area").value.trim().replace(',', '.')),
       province: farmProvince.value,
       district: farmDistrict.value,
       village: farmVillage.value,
@@ -281,6 +281,8 @@ import { bindCropSelect } from "./crop-select.js";
   farmForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (!currentSession) return;
+    const area = Number($("#farm-area").value.trim().replace(',', '.'));
+    if (!Number.isFinite(area) || area <= 0) { setStatus(farmStatus, "Tarla alanını sıfırdan büyük bir dekar değeri olarak yaz.", true); return; }
     setStatus(farmStatus, "Tarla kaydediliyor…");
     const { error } = await client.from("farmer_farms").upsert(farmRecord(), { onConflict: "id" });
     if (error) { setStatus(farmStatus, "Tarla kaydedilemedi. Yönetici kurulum adımlarını tamamlamalı.", true); return; }

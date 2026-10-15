@@ -137,11 +137,13 @@ form.addEventListener("submit", async (event) => {
     return;
   }
   if (!$("#farm-entry-village").value) { message("İl, ilçe ve köy/mahalle seçimini tamamla.", true); return; }
+  const area = Number($("#farm-entry-area").value.trim().replace(',', '.'));
+  if (!Number.isFinite(area) || area <= 0 || area > 1000000) { message("Tarla alanını sıfırdan büyük, en fazla 1.000.000 dekar olacak şekilde yaz.", true); return; }
   const record = {
     user_id: session.user.id,
     name: $("#farm-entry-name").value.trim(),
     crop: cropChoice.value(),
-    area_decare: Number($("#farm-entry-area").value),
+    area_decare: area,
     province: $("#farm-entry-province").value,
     district: $("#farm-entry-district").value,
     village: $("#farm-entry-village").value,
