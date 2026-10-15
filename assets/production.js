@@ -162,7 +162,8 @@ form.addEventListener("submit", async (event) => {
   if (!$("#operation-product").value.trim()) { message("Kullanılan Ürün Adı zorunludur.", true); return; }
   const farm = activeFarm();
   if (!farm) { message("İşlem kaydı için önce bir tarla seç veya ekle.", true); return; }
-  if ($("#operation-quantity").value && !$("#operation-unit").value) { message("Dekara kullanılan miktar için ölçü birimini de seç.", true); return; }
+  if (!$("#operation-quantity").value || Number($("#operation-quantity").value) <= 0) { message("Dekara Kullanılan Miktar zorunludur.", true); return; }
+  if (!$("#operation-unit").value) { message("Dekara Kullanılan Miktar için birim seç.", true); return; }
   const record = {
     user_id: session.user.id,
     farm_id: farm.id,
