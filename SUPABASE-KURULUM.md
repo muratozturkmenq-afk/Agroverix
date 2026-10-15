@@ -33,3 +33,11 @@ Bu anahtar tarayıcıda görünür; bu normaldir. **Secret/service_role key'i bu
 Çiftçi profilindeki il, ilçe ve köy/mahalle alanları açılır listelerdir. Tarla kayıtlarında aynı listeler her tarla için ayrıca doldurulur. KVKK kutusu analiz izni vermez; tam aydınlatma metni ve veri sorumlusu bilgileri tamamlanmadan gerçek veri toplamaya başlanmamalıdır.
 
 Bu rehber hukuki uygunluk onayı değildir.
+# Tarla ve sezon güncellemesi (15 Ekim 2026)
+
+Mevcut kurulumda `supabase/20261015-farm-seasons.sql` dosyasını SQL Editor'de çalıştırın. Bu geçiş, mevcut kayıtları silmeden masraflara sezon yılı ekler ve kullanıcıya özel `farmer_seasons` tablosunu kurar. Yeni kurulumlarda önce `supabase/setup.sql` ve `supabase/field-total-cost.sql`, sonra bu geçiş çalıştırılır.
+
+Her tarla/sezon için ürün, alan, mülkiyet, toplam kira, tahmini verim/fiyat ve gerçek verim/fiyat ayrı saklanır. Eski masraflar işlem tarihinin yılına bağlanır. Yeni bir sezon açıldığında önceki yılın bilgileri korunur. Eski kayıtlarda mülkiyet varsayılanı mülktür; kiralık tarlanın kira bedeli tarla düzenleme ekranından girilmelidir.
+
+Hesaplar: toplam maliyet = masraflar + kira; dekara maliyet = toplam maliyet / alan; kg maliyeti = toplam maliyet / (verim kg/da × alan); gelir = verim × alan × kg satış fiyatı; kâr/zarar = gelir − toplam maliyet; kâr/zarar yüzdesi = kâr/zarar / toplam maliyet × 100. Eksik eski masraf veya sıfır bölen olduğunda yanıltıcı sıfır gösterilmez. Tahminler ve gerçek hasat sonuçları ayrı gösterilir.
+

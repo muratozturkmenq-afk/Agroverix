@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="assets/styles.css">
 <link rel="stylesheet" href="assets/profile.css">
 <link rel="stylesheet" href="assets/production.css?v=home-return-20261015">
+<link rel="stylesheet" href="assets/farm-finance.css?v=seasons-v1">
 </head>
 <body class="profile-page production-page">
 <header class="profile-top">
@@ -22,16 +23,16 @@
   <section class="production-intro">
     <p class="eyebrow">Sezon boyunca yanında</p>
     <h1>Üretim<br><em>kayıtların.</em></h1>
-    <p>Tarlada yaptığın her işi tarihi, kullanılan miktarı ve ürün fiyatıyla kaydet. Dekara düşen maliyet bu bilgiler üzerinden hesaplanacak.</p>
+    <p>Tohum, gübre ve ilaç girdilerini; makine ve işçilik masraflarını ayrı kaydet. Maliyeti tarlanın tamamı için gir.</p>
     <nav class="profile-progress production-progress" aria-label="Kayıt aşamaları">
       <a href="ciftci-bilgi.html"><b>01</b> Profil</a><i></i><a href="tarla-bilgileri.html"><b>02</b> Tarla</a><i></i><span aria-current="step"><b>03</b> Üretim</span>
     </nav>
     <div class="profile-side-note"><span class="profile-lock">⌑</span><div><b>Hesabına özel kayıt</b><small>İşlem ve maliyet bilgilerin kişisel alanında saklanır.</small></div></div>
   </section>
   <section class="profile-card production-card" aria-labelledby="production-title">
-    <div class="profile-card-head production-card-head"><div><span class="profile-kicker">AŞAMA 03 · SEZON TAKİBİ</span><h2 id="production-title">Yeni işlem kaydı</h2></div><span class="profile-required">* Zorunlu alanlar</span></div>
+    <div class="profile-card-head production-card-head"><div><span class="profile-kicker">AŞAMA 03 · SEZON TAKİBİ</span><h2 id="production-title">Masraf Girişi</h2></div><span class="profile-required">* Zorunlu alanlar</span></div>
     <div class="production-auth-banner" id="production-auth-banner" role="status">
-      <span aria-hidden="true">⌑</span><p><b>Bu ekranı inceleyebilirsin.</b> Tarlalarını ve kayıtlarını görmek için <a href="ciftci-bilgi.html?next=uretim-kayitlari.html">telefon numaranla giriş yap</a>. Yeni hesap açtıktan sonra da bu sayfaya dönersin.</p>
+      <span aria-hidden="true">⌑</span><p><b>Bu ekranı inceleyebilirsin.</b> Tarlalarını ve kayıtlarını görmek için <a href="ciftci-bilgi.html?next=uretim-kayitlari.html">hesabına giriş yap</a>. Yeni hesap açtıktan sonra da bu sayfaya dönersin.</p>
     </div>
     <div class="production-summary" id="production-summary" aria-label="Sezon özeti">
       <article><span>Kayıt</span><b id="summary-count">—</b></article>
@@ -44,10 +45,13 @@
         <legend><span>01</span> İşlem bilgileri</legend>
         <div class="production-form-grid">
           <div class="profile-field wide"><label for="operation-farm">Tarla Adı <b>*</b></label><select id="operation-farm" required><option value="">Giriş yaptığında tarlaların yüklenecek</option></select></div>
+          <div class="profile-field"><label for="operation-season">Sezon Yılı <b>*</b></label><select id="operation-season" required><option value="">Önce tarla seç</option></select></div>
+          <div class="profile-field wide"><label for="expense-category">Masraf Türü <b>*</b></label><select id="expense-category" required><option value="input">Malzeme Girdisi · Tohum, Gübre, İlaç</option><option value="service">Makine ve İşçilik · Sürüm, Ekim, Çapalama</option></select></div>
           <div class="profile-field"><label for="operation-date">İşlem tarihi <b>*</b></label><input id="operation-date" type="date" required></div>
-          <div class="profile-field"><label for="operation-type">Yapılan işlem <b>*</b></label><select id="operation-type" required><option value="">İşlem seç</option><option value="tillage">Toprak hazırlığı / sürüm</option><option value="seed">Tohum</option><option value="planting">Ekim / dikim</option><option value="fertilizing">Gübreleme</option><option value="irrigation">Sulama</option><option value="spraying">İlaçlama</option><option value="weeding">Yabancı ot mücadelesi</option><option value="harvest">Hasat</option><option value="other">Diğer işlem</option></select></div>
-          <div class="profile-field"><label for="operation-product">Kullanılan Ürün Adı <b>*</b></label><input id="operation-product" maxlength="120" placeholder="Örn. DAP, tohum veya ilaç adı" required></div>
-          <div class="profile-field"><label for="operation-quantity">Bu Tarla İçin Kullanılan Miktar <b>*</b></label><div class="production-quantity-control"><input id="operation-quantity" type="text" pattern="[0-9]+([.,][0-9]+)?" inputmode="decimal" placeholder="Örn. 2,5" required><select id="operation-unit" aria-label="Bu Tarla İçin Kullanılan Miktar birimi" required><option value="">Birim seç</option><option value="kg">kg</option><option value="g">g</option><option value="L">L</option><option value="ml">ml</option><option value="m">m</option><option value="adet">adet</option><option value="torba">torba</option><option value="şişe">şişe</option><option value="m³">m³</option><option value="saat">saat</option></select></div></div>
+          <div class="profile-field"><label for="operation-type">Yapılan İşlem <b>*</b></label><select id="operation-type" required><option value="">İşlem seç</option></select></div>
+          <div class="profile-field" id="operation-product-field"><label for="operation-product">Kullanılan Ürün Adı <b>*</b></label><input id="operation-product" maxlength="120" placeholder="Örn. DAP, tohum veya ilaç adı" required></div>
+          <div class="profile-field" id="operation-quantity-field"><label for="operation-quantity">Kullanılan Toplam Miktar <b>*</b></label><div class="production-quantity-control"><input id="operation-quantity" type="text" pattern="[0-9]+([.,][0-9]+)?" inputmode="decimal" placeholder="Örn. 2,5" required><select id="operation-unit" aria-label="Kullanılan Toplam Miktar birimi" required><option value="">Birim seç</option><option value="kg">kg</option><option value="g">g</option><option value="L">L</option><option value="ml">ml</option><option value="m">m</option><option value="adet">adet</option><option value="torba">torba</option><option value="şişe">şişe</option><option value="m³">m³</option><option value="saat">saat</option></select></div></div>
+          <div class="wide expense-service-note" id="service-note" hidden>Makine ve işçilik için ürün veya marka adı gerekmez. Tarihi, yapılan işi ve bu tarlaya ait toplam masrafı gir.</div>
           <div class="profile-field"><label for="operation-total-cost">Bu Tarla İçin Maliyet (TL) <b>*</b></label><input id="operation-total-cost" type="text" pattern="[0-9]+([.,][0-9]{1,2})?" inputmode="decimal" placeholder="Örn. 1000" required></div>
 
 
@@ -73,6 +77,6 @@
   </section>
 </main>
 <script src="assets/supabase-config.js"></script>
-<script type="module" src="assets/production.js?v=record-editor-20261015"></script>
+<script type="module" src="assets/production.js?v=seasons-v1"></script>
 </body>
 </html>

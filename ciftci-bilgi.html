@@ -42,14 +42,7 @@
   </section>
   <section class="profile-card" id="profile-card" hidden>
     <div class="profile-card-head"><div><span class="profile-kicker">KİŞİSEL ALANIN</span><h2 id="profile-title">Çiftçi profilin</h2><p class="profile-account-phone" id="profile-account-phone"></p></div><div class="profile-actions"><button class="auth-back" id="auth-back" type="button" hidden>← Girişe dön</button><button class="auth-signout" id="auth-signout" type="button" hidden>Güvenli çıkış</button></div></div>
-    <section class="profile-overview" id="profile-overview" hidden aria-label="Tarım alanı özeti">
-      <div class="overview-welcome"><div><span class="profile-kicker">ÇİFTÇİ PANELİ</span><h3 id="overview-greeting">Merhaba</h3><p>Profilini ve tarlalarını tek yerden yönet.</p></div><button class="profile-submit overview-add" id="overview-add-farm" type="button">＋ Tarla ekle</button></div>
-      <div class="overview-stats">
-        <article><span>Kayıtlı tarla</span><b id="overview-farm-count">0</b></article>
-        <article><span>Toplam alan</span><b><span id="overview-area">0</span> <small>da</small></b></article>
-        <article><span>Ürün çeşidi</span><b id="overview-crop-count">0</b></article>
-      </div>
-    </section>
+
     <details id="profile-edit-details" class="profile-edit-details" open>
       <summary class="profile-edit-summary"><span><b>01 · Profil bilgileri</b><small>Kişisel bilgilerini görüntüle veya düzenle</small></span><i aria-hidden="true">⌄</i></summary>
     <form id="farmer-profile-form">
@@ -78,47 +71,11 @@
       <p class="profile-result" id="profile-status" role="status" aria-live="polite"></p>
     </form>
     </details>
-    <section id="farms-section" class="profile-farms" hidden>
-      <div class="profile-section-head"><div><span class="profile-kicker">AŞAMA 02 · TARLA BİLGİLERİ</span><h3>Tarlalarım</h3><p class="profile-help">Her tarlanı ayrı kaydet. Ürün, alan ve konum bilgilerini parsel bazında yönet.</p></div><button class="profile-location-btn" id="farm-new" type="button">＋ Yeni tarla ekle</button></div>
-      <nav class="farm-stage-nav" aria-label="Üyelik adımları">
-        <a href="#profile-edit-details" class="farm-stage-item"><span>01</span><b>Profil</b></a>
-        <span class="farm-stage-item is-current" aria-current="step"><span>02</span><b>Tarla bilgileri</b></span>
-        <a href="uretim-kayitlari.html" class="farm-stage-item is-next"><span>03</span><b>Üretim kayıtları</b></a>
-      </nav>
-      <div class="farm-stage-lead"><span class="farm-stage-number">02</span><div><span class="profile-kicker">KİŞİSEL TARIM ALANIN</span><h4>Tarlalarını ekle ve düzenle</h4><p>Birden fazla tarlan varsa her biri için ayrı kayıt oluşturabilirsin.</p></div></div>
-      <form id="farm-form" hidden>
-        <input type="hidden" id="farm-id">
-        <fieldset class="profile-section">
-          <legend><span>01</span> Tarla bilgileri</legend>
-          <div class="profile-grid">
-            <div class="profile-field"><label for="farm-name">Tarla adı / parsel <b>*</b></label><input id="farm-name" required placeholder="Örn. Kuzey tarla veya Parsel 1"></div>
-            <div class="profile-field"><label for="farm-crop">Yetiştirdiğin ürün <b>*</b></label><input id="farm-crop" type="text" list="farm-crop-suggestions" maxlength="100" placeholder="Ürün seç veya adını yaz" pattern=".*\S.*" required><datalist id="farm-crop-suggestions"><option value="Pamuk"><option value="Buğday"><option value="Mısır"><option value="Zeytin"><option value="Üzüm"></datalist></div>
-            <div class="profile-field"><label for="farm-area">Tarla alanı (dekar) <b>*</b></label><input id="farm-area" type="text" inputmode="decimal" pattern="[0-9]+([.,][0-9]+)?" placeholder="Örn. 20" required></div>
-          </div>
-        </fieldset>
-        <fieldset class="profile-section">
-          <legend><span>02</span> Tarla konumu</legend>
-          <div class="profile-grid profile-address">
-            <div class="profile-field"><label for="farm-province">İl <b>*</b></label><select id="farm-province" required><option value="">İller yükleniyor…</option></select></div>
-            <div class="profile-field"><label for="farm-district">İlçe <b>*</b></label><select id="farm-district" required disabled><option value="">Önce il seçin</option></select></div>
-            <div class="profile-field"><label for="farm-village">Köy / Mahalle <b>*</b></label><select id="farm-village" required disabled><option value="">Önce ilçe seçin</option></select></div>
-          </div>
-          <div class="profile-location">
-            <div class="profile-location-icon" aria-hidden="true">⌖</div>
-            <div class="profile-location-copy"><b>Tarlanın haritadaki konumu</b><small id="farm-location-status">Telefon konumunu tarladayken ekleyebilirsin.</small></div>
-            <button class="profile-location-btn" id="farm-get-location" type="button">Konum ekle <span>＋</span></button>
-            <input type="hidden" id="farm-latitude"><input type="hidden" id="farm-longitude">
-          </div>
-        </fieldset>
-        <div class="profile-form-actions"><button class="profile-submit" type="submit" id="farm-submit">Tarlayı kaydet <span>→</span></button><button class="auth-back" id="farm-cancel" type="button">Vazgeç</button></div>
-        <p class="profile-result" id="farm-status" role="status" aria-live="polite"></p>
-      </form>
-      <div id="farm-list" class="farm-list"></div>
-    </section>
+
     <p class="profile-footer">Oturum açtığında kayıtların bu hesaba özel gösterilir.</p>
   </section>
 </main>
 <script src="assets/supabase-config.js"></script>
-<script type="module" src="assets/profile.js?v=save-home-20261015"></script>
+<script type="module" src="assets/account.js?v=seasons-v1"></script>
 </body>
 </html>

@@ -12,25 +12,28 @@
 <link rel="stylesheet" href="assets/profile.css">
 <link rel="stylesheet" href="assets/production.css">
 <link rel="stylesheet" href="assets/farm-detail.css?v=record-editor-20261015">
+<link rel="stylesheet" href="assets/farm-finance.css?v=seasons-v1">
 </head>
 <body class="profile-page production-page farm-detail-page">
 <header class="profile-top">
   <a class="brand" href="index.html" aria-label="Agroverix ana sayfa"><span class="profile-mark">A</span> Agroverix</a>
-  <span class="profile-step">ÇİFTÇİ ALANIM · TARLA DETAYI</span>
-  <a class="profile-back" href="index.html#ciftci-ozet">← Ürünlerime dön</a>
+  <span class="profile-step">TARLA VE SEZON DETAYI</span>
+  <a class="profile-back" href="index.html">← Ana Sayfaya Dön</a>
 </header>
 <main class="farm-detail-layout">
   <section class="farm-detail-card">
     <div class="farm-detail-head">
       <div><p class="profile-kicker">KİŞİSEL TARLA BİLGİSİ</p><h1 id="farm-title">Tarla yükleniyor…</h1><p id="farm-location"></p></div>
-      <div class="farm-detail-actions"><a class="profile-submit" id="add-operation" href="uretim-kayitlari.html">İşlem ekle <span>→</span></a><button class="auth-back" id="edit-records-toggle" type="button" aria-pressed="false" disabled>Kayıtları Düzenle</button><a class="auth-back" id="edit-farm" href="tarla-bilgileri.html" hidden>Tarla Bilgilerini Düzenle</a></div>
+      <div class="farm-detail-actions"><a class="profile-submit" id="add-operation" href="uretim-kayitlari.html">Masraf Girişi <span>→</span></a><button class="auth-back" id="edit-records-toggle" type="button" aria-pressed="false" disabled>Kayıtları Düzenle</button><a class="auth-back" id="edit-farm" href="tarla-bilgileri.html" hidden>Tarla Bilgilerini Düzenle</a></div>
     </div>
+    <label class="season-selector" for="farm-season-select">Sezon Yılı<select id="farm-season-select"></select></label>
     <div class="farm-detail-metrics">
       <article><span>Ürün</span><b id="farm-crop">—</b></article>
       <article><span>Alan</span><b><span id="farm-area">—</span> da</b></article>
       <article><span>Hesaplanan maliyet</span><b><span id="farm-per-decare">—</span> TL/da</b></article>
       <article><span>Hesaplanan tarla toplamı</span><b><span id="farm-total">—</span> TL</b></article>
     </div>
+    <a id="new-season" class="auth-back" href="tarla-bilgileri.html">Yeni Sezon Aç</a>
     <p class="farm-detail-note" id="farm-cost-note" role="status" aria-live="polite"></p>
   </section>
   <section class="farm-detail-card">
@@ -38,9 +41,11 @@
     <div id="farm-records" class="farm-detail-records"></div>
     <p id="farm-empty" class="farm-detail-empty" hidden>Bu tarlada henüz kayıt yok. İlk işlemi ekleyerek maliyet takibini başlat.</p>
   </section>
+  <section class="farm-detail-card season-end-report"><p class="profile-kicker">TAHMİNLERE GÖRE</p><h2>Sezon İçi Tahmini Sonuç</h2><p id="expected-report-note"></p><div class="finance-grid" id="expected-report"></div></section>
+  <section class="farm-detail-card season-end-report"><p class="profile-kicker">HASAT SONRASI GERÇEK SONUÇ</p><h2>Sezon Sonu</h2><p id="actual-report-note"></p><div class="finance-grid" id="actual-report"></div><p>Toplam maliyet = masraflar + kira. Kâr/zarar yüzdesi = kâr/zarar ÷ toplam maliyet × 100. Sıfır maliyette yüzde hesaplanmaz.</p></section>
   <p class="farm-detail-status" id="farm-status" role="status" aria-live="polite"></p>
 </main>
 <script src="assets/supabase-config.js"></script>
-<script type="module" src="assets/farm-detail.js?v=record-editor-20261015"></script>
+<script type="module" src="assets/farm-detail-finance.js?v=seasons-v1"></script>
 </body>
 </html>

@@ -34,12 +34,13 @@
 .farm-entry-heading{padding:22px 0 0}.farm-entry-heading h3{font-size:18px;margin:0 0 5px}.farm-entry-heading p{margin:0;color:#737a6c;font-size:11px;line-height:1.5}
 @media(max-width:760px){.farm-page-layout{display:block;margin:24px auto 0}.farm-page-intro{padding:0 5px 18px}.farm-page-intro h1{font-size:46px}.farm-page-intro .profile-side-note{display:none}.farm-page-card{padding:20px 17px}.farm-page-kicker .profile-required{display:none}.farm-entry-grid{grid-template-columns:1fr;gap:13px}.farm-entry-grid .wide{grid-column:auto}.farm-entry-card{align-items:flex-start;flex-direction:column}.farm-entry-card button{width:100%}.farm-page-actions{grid-template-columns:1fr}.farm-page-actions .auth-back{height:44px}}
 </style>
+<link rel="stylesheet" href="assets/farm-finance.css?v=seasons-v1">
 </head>
 <body class="profile-page">
 <header class="profile-top">
   <a class="brand" href="index.html" aria-label="Agroverix ana sayfa"><span class="profile-mark">A</span> Agroverix</a>
   <span class="profile-step">AŞAMA <i>·</i> 02 TARLA BİLGİLERİ</span>
-  <a class="profile-back" href="ciftci-bilgi.html">Hesabıma dön →</a>
+  <a class="profile-back" href="index.html">Ana Sayfaya Dön →</a>
 </header>
 <main class="farm-page-layout">
   <section class="profile-intro farm-page-intro">
@@ -54,7 +55,7 @@
   <section class="profile-card farm-page-card" aria-labelledby="farm-page-title">
     <div class="profile-card-head farm-page-kicker"><div><span class="profile-kicker">AŞAMA 02 · TARLA BİLGİLERİ</span><h2 id="farm-page-title">Yeni tarla kaydı</h2></div><span class="profile-required">* Zorunlu alanlar</span></div>
     <div class="farm-auth-banner" id="farm-auth-banner" role="status">
-      <span aria-hidden="true">⌑</span><p><b>Görüntüleme açık, kayıt hesabına özel.</b> Tarlayı kaydetmek ve kayıtlarını görmek için <a id="farm-login-link" href="ciftci-bilgi.html?next=tarla-bilgileri.html">telefon numaranla giriş yap</a>.</p>
+      <span aria-hidden="true">⌑</span><p><b>Görüntüleme açık, kayıt hesabına özel.</b> Tarlayı kaydetmek ve kayıtlarını görmek için <a id="farm-login-link" href="ciftci-bilgi.html?next=tarla-bilgileri.html">hesabına giriş yap</a>.</p>
     </div>
     <div class="farm-entry-heading"><h3>Tarla bilgileri</h3><p>Bu bilgileri her parsel için ayrı gir. Alanı dekar cinsinden yaz.</p></div>
     <form id="farm-entry-form">
@@ -62,6 +63,7 @@
       <fieldset class="profile-section">
         <legend><span>01</span> Ürün ve alan</legend>
         <div class="farm-entry-grid">
+          <div class="profile-field wide"><label for="farm-season-year">Sezon Yılı <b>*</b></label><input id="farm-season-year" type="number" min="2000" max="2200" step="1" required><small>Yeni yıl için aynı tarlayı düzenleyip yeni sezon yılını yaz. Önceki sezonun masrafları ve sonuçları saklanır.</small></div>
           <div class="profile-field"><label for="farm-entry-name">Tarla adı / parsel <b>*</b></label><input id="farm-entry-name" required maxlength="80" placeholder="Örn. Kuzey tarla veya Parsel 1"></div>
           <div class="profile-field"><label for="farm-entry-crop">Yetiştirdiğin ürün <b>*</b></label><input id="farm-entry-crop" type="text" list="farm-entry-crop-suggestions" maxlength="100" placeholder="Ürün seç veya adını yaz" pattern=".*\S.*" required><datalist id="farm-entry-crop-suggestions"><option value="Pamuk"><option value="Buğday"><option value="Mısır"><option value="Zeytin"><option value="Üzüm"><option value="Ayçiçeği"><option value="Arpa"></datalist></div>
           <div class="profile-field"><label for="farm-entry-area">Tarla alanı (dekar) <b>*</b></label><input id="farm-entry-area" type="text" inputmode="decimal" pattern="[0-9]+([.,][0-9]+)?" placeholder="Örn. 20" required></div>
@@ -81,6 +83,14 @@
           <input type="hidden" id="farm-entry-latitude"><input type="hidden" id="farm-entry-longitude">
         </div>
       </fieldset>
+      <fieldset class="profile-section"><legend><span>03</span> Mülkiyet ve Kira</legend><div class="farm-entry-grid">
+        <div class="profile-field"><label for="farm-tenure">Tarla Durumu <b>*</b></label><select id="farm-tenure" required><option value="">Seçin</option><option value="owned">Mülk</option><option value="rented">Kiralık</option></select></div>
+        <div class="profile-field" id="farm-rent-field" hidden><label for="farm-rent">Sezonluk Toplam Kira (TL) <b>*</b></label><input id="farm-rent" type="text" inputmode="decimal" pattern="[0-9]+([.,][0-9]{1,2})?" placeholder="Tarlanın tamamının sezonluk kirası"><small>Bu tutar masraflara bir kez eklenir.</small></div>
+      </div></fieldset>
+      <fieldset class="profile-section" id="season-end"><legend><span>04</span> Sezon Sonu</legend><p class="profile-help">Bu bölümü hasattan sonra doldur. Sezon devam ediyorsa boş bırak. Sıfır verim ve sıfır satış fiyatı da kaydedilebilir.</p><div class="farm-entry-grid">
+        <div class="profile-field"><label for="farm-actual-yield">Gerçek Verim (kg/da)</label><input id="farm-actual-yield" type="text" inputmode="decimal" pattern="[0-9]+([.,][0-9]+)?" placeholder="Hasattan sonra gir"></div>
+        <div class="profile-field"><label for="farm-actual-price">Gerçek Satış Fiyatı (TL/kg)</label><input id="farm-actual-price" type="text" inputmode="decimal" pattern="[0-9]+([.,][0-9]{1,2})?" placeholder="Gerçekleşen kg satış fiyatı"></div>
+      </div><div id="farm-season-preview" class="finance-grid" aria-live="polite"></div><p id="farm-season-note" class="profile-help"></p></fieldset>
       <div class="farm-page-note"><b>Hesabına özel kayıt</b>Kaydedilen tarla bilgileri yalnızca giriş yapan hesabınla ilişkilendirilir. KVKK aydınlatma metnini incelemeden gerçek kişisel bilgi ekleme.</div>
       <div class="farm-page-actions"><button class="profile-submit" type="submit" id="farm-entry-submit">Tarlayı kaydet <span>→</span></button><button class="auth-back" type="button" id="farm-entry-cancel" hidden>Vazgeç</button></div>
       <p class="profile-result farm-page-alert" id="farm-entry-status" role="status" aria-live="polite"></p>
@@ -90,6 +100,6 @@
   </section>
 </main>
 <script src="assets/supabase-config.js"></script>
-<script type="module" src="assets/farm-entry-page.js?v=record-editor-20261015"></script>
+<script type="module" src="assets/farm-entry-page.js?v=seasons-v1"></script>
 </body>
 </html>
