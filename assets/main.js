@@ -82,34 +82,7 @@
 
   /* ---------- hero live cards ---------- */
   (function heroCards() {
-    var ops = [
-      { i: "S", c: "#8B5E3C", t: "Derin sürüm kaydedildi", s: "08 Nisan · 1.450 TL/da", v: 1450 },
-      { i: "E", c: "#3F7D3A", t: "Ekim kaydedildi", s: "Sertifikalı tohum · 1.900 TL/da", v: 1900 },
-      { i: "G", c: "#C08A10", t: "Taban gübresi kaydedildi", s: "DAP 20 kg/da · 2.600 TL/da", v: 2600 },
-      { i: "Su", c: "#2F3CCF", t: "Sulama kaydedildi", s: "Damla sulama · 2.100 TL/da", v: 2100 },
-      { i: "İ", c: "#B4372A", t: "İlaçlama kaydedildi", s: "Beyaz sinek · Flonicamid · 950 TL/da", v: 950 },
-      { i: "G", c: "#C08A10", t: "Üst gübre kaydedildi", s: "Üre 25 kg/da · 1.500 TL/da", v: 1500 },
-      { i: "İ", c: "#B4372A", t: "İlaçlama kaydedildi", s: "Yeşil kurt · Emamektin benzoat · 1.100 TL/da", v: 1100 },
-      { i: "H", c: "#12160E", t: "Hasat kaydedildi", s: "Makineli hasat · 1.200 TL/da", v: 1200 }
-    ];
-    var idx = 4, cum = 0;
-    for (var k = 0; k <= idx; k++) cum += ops[k].v;
-    var ico = $("#fc-ico"), op = $("#fc-op"), cost = $("#fc-cost"), delta = $("#fc-delta");
-    function show(o, prev) {
-      ico.textContent = o.i; ico.style.background = o.c; ico.style.color = o.c === "#12160E" ? "#F1F3EA" : (o.c === "#C08A10" ? "#1B1403" : "#fff");
-      op.innerHTML = o.t + "<small>" + o.s + "</small>";
-      countTo(cost, prev, cum / 500, 2, 0.9);
-      delta.textContent = "+" + fmt(o.v / 500, 2) + " TL bu işlemle";
-    }
-    show(ops[idx], (cum - ops[idx].v) / 500);
-    if (!reduce) setInterval(function () {
-      var prev = cum / 500;
-      idx = (idx + 1) % ops.length;
-      if (idx === 0) { cum = 0; prev = 0; }
-      cum += ops[idx].v;
-      show(ops[idx], prev);
-      if (hasG) G.fromTo(".fc-farmer .fc-row", { x: 14, opacity: 0 }, { x: 0, opacity: 1, duration: 0.5, ease: "power2.out" });
-    }, 3000);
+    // Kişisel çiftçi kartını home-dashboard.js gerçek hesap verileriyle doldurur.
 
     var vals = [40, 52, 71, 90, 112, 131, 150, 158];
     var a = $("#fc-spark-a"), l = $("#fc-spark-l"), fv = $("#fc-firm-v");
