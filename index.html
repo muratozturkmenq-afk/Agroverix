@@ -14,7 +14,7 @@
 <link rel="stylesheet" href="assets/farm-finance.css?v=logo-groups-v2">
 <link rel="stylesheet" href="assets/mobile-reports.css?v=compact-home-v3">
 <link rel="stylesheet" href="assets/hero-report.css?v=hero-report-v1">
-<link rel="stylesheet" href="assets/mobile-navigation.css?v=mobile-nav-v1">
+<link rel="stylesheet" href="assets/mobile-navigation.css?v=mobile-native-v3">
 </head>
 <body>
 
@@ -31,7 +31,13 @@
 <header class="nav" id="nav">
   <div class="wrap nav-in">
     <a class="brand home-brand" href="#top" aria-label="Agroverix ana sayfa"><svg class="home-logo" width="240" height="75" viewBox="120 110 960 300" role="img" aria-label="AgroVerix — Cebimdeki Tarlam"><image href="assets/images/agroverix-logo-transparent.svg" width="1360" height="520"/></svg></a>
-    <button class="nav-toggle" id="nav-toggle" type="button" aria-controls="primary-navigation" aria-expanded="false"><span aria-hidden="true" class="nav-toggle-icon">☰</span><span>Sayfalar</span><span aria-hidden="true" class="nav-toggle-arrow">⌄</span></button>
+    <details class="mobile-page-menu" id="mobile-page-menu"><summary class="nav-toggle" id="nav-toggle"><span aria-hidden="true" class="nav-toggle-icon">☰</span><span>Sayfalar</span><span aria-hidden="true" class="nav-toggle-arrow">⌄</span></summary><nav class="mobile-page-links" aria-label="Telefon sayfaları" data-lenis-prevent>
+      <a href="#ciftci-ozet">Tarlalarım</a>
+      <a href="#ciftci">Sezon Sonu Tahmini</a>
+      <a href="#zararlilar">Tarla Uyarı</a>
+      <a href="tarla-bilgileri.html">Tarla Ekle</a>
+      <a href="ciftci-bilgi.html?profile=edit">Profil Bilgileri</a>
+    </nav></details>
     <nav class="nav-links" id="primary-navigation" aria-label="Bölümler" data-lenis-prevent>
       <a href="#ciftci-ozet">Tarlalarım</a>
       <a href="#ciftci">Sezon Sonu Tahmini</a>
@@ -75,7 +81,6 @@
       <div class="finance-header-actions"><a class="btn btn-gold" href="uretim-kayitlari.html">Masraf Girişi <span class="arr">→</span></a><a class="btn btn-ghost" href="tarla-bilgileri.html">Tarla Ekle →</a></div>
     </div>
     <p class="farmer-dashboard-message" id="home-dashboard-message" role="status" aria-live="polite">Kişisel maliyet özetini görmek için giriş yap.</p>
-    <a class="farmer-dashboard-login" id="home-dashboard-login" href="ciftci-bilgi.html?next=index.html">Giriş yap <span class="arr">→</span></a>
     <div class="farmer-crop-grid" id="home-crop-grid"></div><a class="farmer-dashboard-login" id="admin-link" href="yonetici.html" hidden>Yönetici Alanı →</a>
   </div>
 </section>
@@ -245,8 +250,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
 <script src="assets/main.js?v=seasons-v1"></script>
-<script src="assets/mobile-navigation.js?v=mobile-nav-v1" defer></script>
+<script src="assets/mobile-navigation.js?v=mobile-native-v3" defer></script>
 <script src="assets/supabase-config.js"></script>
-<script type="module" src="assets/home-finance-dashboard.js?v=compact-home-v3"></script>
+<script type="module" src="assets/home-finance-dashboard.js?v=menu-fix-v3"></script>
 </body>
 </html>

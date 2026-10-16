@@ -2,7 +2,7 @@ import { bindReportButtons } from './reports.js?v=cost-line-v2';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
 import { farmFinance, seasonFor, fmt, appendMetric } from './farm-finance.js?v=seasons-v1';
 import { renderSimulators } from './season-simulator.js?v=cost-line-v2';
-const cfg=window.AGROVERIX_SUPABASE||{},hero=document.querySelector('#hero-farm-cards'),grid=document.querySelector('#home-crop-grid'),message=document.querySelector('#home-dashboard-message'),login=document.querySelector('#home-dashboard-login');
+const cfg=window.AGROVERIX_SUPABASE||{},hero=document.querySelector('#hero-farm-cards'),grid=document.querySelector('#home-crop-grid'),message=document.querySelector('#home-dashboard-message');
 const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text)n.textContent=text;return n;};
 function notice(copy){const card=el('div','hero-farm-card');card.append(el('b','hero-farm-name','Tarla Maliyet Özeti'),el('p','hero-farm-note',copy));hero.replaceChildren(card);}
 function renderHero(farms,records){
@@ -24,13 +24,13 @@ function renderCrops(farms,records){
   button.addEventListener('click',()=>{list.hidden=!list.hidden;button.setAttribute('aria-expanded',String(!list.hidden));button.querySelector('.farmer-crop-arrow').textContent=list.hidden?'＋':'−';});wrap.append(button,list);grid.append(wrap);
  });
 }
-function guest(){notice('Kendi tarlalarını ve maliyetlerini görmek için giriş yap.');grid.replaceChildren();login.hidden=false;message.textContent='Özetler sadece kendi hesabına giriş yaptığında görünür.';document.querySelector('#farm-simulators').replaceChildren();document.querySelector('#sim-message').textContent='Kişisel sezon sonu tahminini kullanmak için giriş yap.';}
+function guest(){notice('Kendi tarlalarını ve maliyetlerini görmek için giriş yap.');grid.replaceChildren();message.textContent='Özetler sadece kendi hesabına giriş yaptığında görünür.';document.querySelector('#farm-simulators').replaceChildren();document.querySelector('#sim-message').textContent='Kişisel sezon sonu tahminini kullanmak için giriş yap.';}
 if(!cfg.url||!cfg.publishableKey)guest();else{
  const client=createClient(cfg.url,cfg.publishableKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});let generation=0,activeSession=null,signature=null,channel=null,refreshTimer=0,pendingLoad=null;
  async function load(session,{quiet=false}={}){activeSession=session;if(!quiet)bindReportButtons(client,session);const request=++generation;if(!session){signature=null;guest();return;}
   const [f,r]=await Promise.all([client.from('farmer_farms').select('*,farmer_seasons(*)').eq('user_id',session.user.id).order('created_at'),client.from('farmer_operations').select('*').eq('user_id',session.user.id)]);
   if(request!==generation)return;if(f.error||r.error){notice('Tarla özeti yüklenemedi. Sayfayı yenileyerek tekrar dene.');message.textContent='Kayıtlar yüklenemedi.';document.querySelector('#sim-message').textContent='Sezon bilgileri yüklenemedi.';return;}
-  const farms=f.data||[],records=r.data||[],nextSignature=JSON.stringify([session.user.id,farms,records]);if(quiet&&nextSignature===signature)return;signature=nextSignature;login.hidden=true;message.textContent='Tarla kartından maliyet detaylarını açabilir, sezon yılını seçerek eski kayıtlarını görebilirsin.';renderHero(farms,records);renderCrops(farms,records);renderSimulators(farms,records,client,session.user,()=>{renderHero(farms,records);renderCrops(farms,records);bindReportButtons(client,session);});bindReportButtons(client,session);
+  const farms=f.data||[],records=r.data||[],nextSignature=JSON.stringify([session.user.id,farms,records]);if(quiet&&nextSignature===signature)return;signature=nextSignature;message.textContent='Tarla kartından maliyet detaylarını açabilir, sezon yılını seçerek eski kayıtlarını görebilirsin.';renderHero(farms,records);renderCrops(farms,records);renderSimulators(farms,records,client,session.user,()=>{renderHero(farms,records);renderCrops(farms,records);bindReportButtons(client,session);});bindReportButtons(client,session);
   const navLogin=document.querySelector('.nav-in > a.btn');if(navLogin){navLogin.textContent='Çıkış yap';navLogin.onclick=async e=>{e.preventDefault();await client.auth.signOut();location.assign('index.html');};}
  }
  async function refresh(){if(!activeSession||document.hidden||pendingLoad)return;pendingLoad=load(activeSession,{quiet:true});try{await pendingLoad;}finally{pendingLoad=null;}}
