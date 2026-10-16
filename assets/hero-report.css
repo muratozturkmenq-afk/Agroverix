@@ -1,6 +1,6 @@
 /* Fields always come before the separate export action in the opening screen. */
 /* Keep the opening headline near the drone, independent of the hero height. */
-@media(min-width:1101px){.hero{align-items:flex-start}.hero .hero-inner{padding-top:180px}}
+@media(min-width:1101px){.hero{align-items:flex-start}.hero .hero-inner{padding-top:210px}}
 @media(max-width:1100px){.hero{justify-content:flex-start}}
 .hero-farm-summary{display:flex;flex-direction:column;gap:12px;overflow:visible;bottom:calc(clamp(70px,10vh,120px) + 60px)}
 .hero-farm-cards{flex:1;min-height:0;align-content:start;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--gold-ink) transparent;padding:3px}
