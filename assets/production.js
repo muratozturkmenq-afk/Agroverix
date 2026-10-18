@@ -213,7 +213,7 @@ function updateCostPreview() {
   const raw = $("#operation-total-cost").value.trim();
   const total = parseNumberInput(raw);
   if (!farm || !raw || !Number.isFinite(total) || total < 0 || Number(seasonFor(farm,Number($("#operation-season").value))?.area_decare||farm.area_decare) <= 0) {
-    preview.textContent = "Dekara maliyeti görmek için tarla seç ve bu tarla için toplam maliyeti gir.";
+    preview.textContent = "Dekara maliyeti görmek için tarla seç ve bu uygulamanın maliyetini gir.";
     return;
   }
   preview.textContent = "Dekara maliyet: " + formatMoney(total / Number(seasonFor(farm,Number($("#operation-season").value))?.area_decare||farm.area_decare)) + " TL/da · " + farm.name + " (" + formatMoney(farm.area_decare) + " da) için toplam " + formatMoney(total) + " TL";
@@ -232,15 +232,15 @@ form.addEventListener("submit", async (event) => {
   event.preventDefault();
   if (!session) { message("Kaydetmek için önce hesabına giriş yap. Form bilgileri bu sayfada saklanmadı.", true); return; }
   const service=$("#expense-category").value === "service";
-  if (!service && !$("#operation-product").value.trim()) { message("Kullanılan Ürün Adı zorunludur.", true); return; }
+  if (!service && !$("#operation-product").value.trim()) { message("Kullanılan Ürünün Markası zorunludur.", true); return; }
   const farm = activeFarm();
   if (!farm) { message("İşlem kaydı için önce bir tarla seç veya ekle.", true); return; }
   const quantity = service ? 1 : parseNumberInput($("#operation-quantity").value);
-  if (!Number.isFinite(quantity) || quantity <= 0) { message("Kullanılan Toplam Miktar sıfırdan büyük olmalıdır.", true); return; }
-  if (!service && !$("#operation-unit").value) { message("Kullanılan Toplam Miktar için birim seç.", true); return; }
+  if (!Number.isFinite(quantity) || quantity <= 0) { message("Bu Uygulamada Kullanılan Toplam Miktar sıfırdan büyük olmalıdır.", true); return; }
+  if (!service && !$("#operation-unit").value) { message("Bu Uygulamada Kullanılan Toplam Miktar için birim seç.", true); return; }
   const rawCost = $("#operation-total-cost").value.trim();
   const totalCost = parseNumberInput(rawCost);
-  if (!rawCost || !Number.isFinite(totalCost) || totalCost < 0) { message("Bu Tarla İçin Maliyet tutarını sıfır veya daha büyük gir.", true); return; }
+  if (!rawCost || !Number.isFinite(totalCost) || totalCost < 0) { message("Bu Uygulamada Kullanılan Ürünün Maliyeti tutarını sıfır veya daha büyük gir.", true); return; }
   const record = {
     user_id: session.user.id,
     farm_id: farm.id,

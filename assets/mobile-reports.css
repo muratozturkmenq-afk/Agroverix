@@ -28,3 +28,6 @@
 
 /* Shared transparent horizontal logo: keep the artwork aspect ratio. */
 .home-logo{display:block;height:auto;object-fit:contain}
+
+/* Readable labels for cost and season result cards on every screen size. */
+.finance-metric>span,.farm-simulator .finance-metric>span,.farm-detail-page .finance-metric>span,.farm-detail-metrics article>span,.farmer-crop-metric>span,.hero-farm-metric>span{font-size:15px;font-weight:600;line-height:1.45;overflow-wrap:anywhere}
