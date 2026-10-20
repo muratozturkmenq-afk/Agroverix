@@ -26,14 +26,14 @@ function updateStockSelection(fill=false){
   if(fill)$('#operation-auto-cost').checked=true;
   const old=records.find(r=>r.id===$('#operation-id').value),available=Number(item.stock_quantity)+(old?.inventory_item_id===item.id?Number(old.inventory_quantity||0):0);
   $('#operation-stock-hint').textContent=item.name+' · Kullanılabilir: '+fmt(available)+' '+item.base_unit+'. Torba / şişe içeriğini kg veya L cinsinden gir. Kaydettiğinde stok güncellenir.';
- }else{allUnitOptions.forEach(o=>unit.add(new Option(o.label,o.value)));unit.value=previous;$('#operation-stock-hint').textContent=inventoryReady?'Stoktan ürün seçtiğinde kullanılan toplam miktar stoktan düşer. Stok kullanmadan girilen kayıtlar Alışveriş ve Stok sayfasında sonradan eşleştirilebilir.':'Stok listesi yüklenemedi. Normal masraf girişine devam edebilirsin; stok eşleştirmesi için Alışveriş ve Stok sayfasını aç.';}
+ }else{allUnitOptions.forEach(o=>unit.add(new Option(o.label,o.value)));unit.value=previous;$('#operation-stock-hint').textContent=!session?'Alışveriş ve Stok sayfasına kaydettiğin ürünler giriş yaptıktan sonra burada listelenir.':inventoryReady?'Stoktan ürün seçtiğinde kullanılan toplam miktar stoktan düşer. Stok kullanmadan girilen kayıtlar Alışveriş ve Stok sayfasında sonradan eşleştirilebilir.':'Stok listesi yüklenemedi. Normal masraf girişine devam edebilirsin; stok eşleştirmesi için Alışveriş ve Stok sayfasını aç.';}
  if(fill&&!item&&$('#operation-total-cost').readOnly)$('#operation-total-cost').value='';
  $('#operation-product').readOnly=Boolean(item);
  updateCostPreview();
 }
 async function loadStock(){
  const uid=session?.user.id;if(!uid)return;
- try{const [stock,capability]=await Promise.all([loadInventory(client,uid),client.rpc('agroverix_operation_costing_ready')]);if(session?.user.id!==uid)return;inventoryItems=stock.items;inventoryPurchases=stock.purchases;inventoryReady=true;autoCostReady=!capability.error&&capability.data===true;}
+ try{const [stock,capability]=await Promise.all([loadInventory(client,uid),client.rpc('agroverix_operation_costing_ready').catch(()=>({error:true}))]);if(session?.user.id!==uid)return;inventoryItems=stock.items;inventoryPurchases=stock.purchases;inventoryReady=true;autoCostReady=!capability.error&&capability.data===true;}
  catch{inventoryItems=[];inventoryPurchases=[];inventoryReady=false;autoCostReady=false;}
  const s=$('#operation-inventory-item'),previous=s.value;s.replaceChildren(new Option('Stok kullanmadan giriş',''));inventoryItems.forEach(i=>s.add(new Option(i.name+(i.brand?' · '+i.brand:'')+' · '+fmt(i.stock_quantity)+' '+i.base_unit,i.id)));
  const linked=records.find(r=>r.id===$('#operation-id').value)?.inventory_item_id;
