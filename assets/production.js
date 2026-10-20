@@ -18,26 +18,34 @@ let editingRecords = false;
 let requestedEditOpened = false;
 let inventoryItems=[],inventoryPurchases=[],inventoryReady=false,autoCostReady=false;
 const allUnitOptions=[...$('#operation-unit').options].map(o=>({value:o.value,label:o.textContent}));
+const legacyProductValue='__legacy_product__';
+function editingRecord(){return records.find(r=>r.id===$('#operation-id').value);}
+function selectedProduct(){return inventoryItems.find(i=>i.id===$('#operation-inventory-item').value);}
+function addLegacyProductOption(select,record){
+ if(record&&!record.inventory_item_id&&!serviceTypes.has(record.operation_type))select.add(new Option((record.product||'Eski ürün')+' · Önceki kayıt (alışverişe bağlı değil)',legacyProductValue));
+}
 function updateStockSelection(fill=false){
- const item=inventoryItems.find(i=>i.id===$('#operation-inventory-item').value),unit=$('#operation-unit'),previous=unit.value;
+ const item=selectedProduct(),unit=$('#operation-unit'),previous=unit.value;
  unit.replaceChildren();
  if(item){compatibleUnits(item.base_unit).forEach(u=>unit.add(new Option(u,u)));unit.value=compatibleUnits(item.base_unit).includes(previous)?previous:item.base_unit;
-  if(fill||!$('#operation-product').value)$('#operation-product').value=(item.brand||item.name).slice(0,120);
   if(fill)$('#operation-auto-cost').checked=true;
   const old=records.find(r=>r.id===$('#operation-id').value),available=Number(item.stock_quantity)+(old?.inventory_item_id===item.id?Number(old.inventory_quantity||0):0);
   $('#operation-stock-hint').textContent=item.name+' · Kullanılabilir: '+fmt(available)+' '+item.base_unit+'. Torba / şişe içeriğini kg veya L cinsinden gir. Kaydettiğinde stok güncellenir.';
- }else{allUnitOptions.forEach(o=>unit.add(new Option(o.label,o.value)));unit.value=previous;$('#operation-stock-hint').textContent=!session?'Alışveriş ve Stok sayfasına kaydettiğin ürünler giriş yaptıktan sonra burada listelenir.':inventoryReady?'Stoktan ürün seçtiğinde kullanılan toplam miktar stoktan düşer. Stok kullanmadan girilen kayıtlar Alışveriş ve Stok sayfasında sonradan eşleştirilebilir.':'Stok listesi yüklenemedi. Normal masraf girişine devam edebilirsin; stok eşleştirmesi için Alışveriş ve Stok sayfasını aç.';}
+ }else{allUnitOptions.forEach(o=>unit.add(new Option(o.label,o.value)));unit.value=previous;$('#operation-stock-hint').textContent=$('#operation-inventory-item').value===legacyProductValue?'Bu eski kayıt alışverişe bağlı değil; mevcut maliyeti elle düzenleyebilirsin. Otomatik hesap için listeden satın aldığın ürünü seç.':!session?'Alışverişlerine kaydettiğin ürünler hesabına giriş yaptıktan sonra burada listelenir.':!inventoryReady?'Alışveriş ürünleri yüklenemedi. Sayfayı yenileyerek tekrar dene.':!inventoryPurchases.length?'Önce Alışveriş Ekle sayfasında aldığın ürünü, miktarını ve bedelini kaydet.':'Alışveriş yaptığın ürünü listeden seç; kullanılan miktarı girince maliyet otomatik dolacak.';}
  if(fill&&!item&&$('#operation-total-cost').readOnly)$('#operation-total-cost').value='';
- $('#operation-product').readOnly=Boolean(item);
  updateCostPreview();
 }
 async function loadStock(){
  const uid=session?.user.id;if(!uid)return;
  try{const [stock,capability]=await Promise.all([loadInventory(client,uid),client.rpc('agroverix_operation_costing_ready').catch(()=>({error:true}))]);if(session?.user.id!==uid)return;inventoryItems=stock.items;inventoryPurchases=stock.purchases;inventoryReady=true;autoCostReady=!capability.error&&capability.data===true;}
  catch{inventoryItems=[];inventoryPurchases=[];inventoryReady=false;autoCostReady=false;}
- const s=$('#operation-inventory-item'),previous=s.value;s.replaceChildren(new Option('Stok kullanmadan giriş',''));inventoryItems.forEach(i=>s.add(new Option(i.name+(i.brand?' · '+i.brand:'')+' · '+fmt(i.stock_quantity)+' '+i.base_unit,i.id)));
- const linked=records.find(r=>r.id===$('#operation-id').value)?.inventory_item_id;
- if(linked&&!inventoryReady)s.add(new Option('Kayıtlı stok bağlantısı (yüklenemedi)',linked));
+ const s=$('#operation-inventory-item'),previous=s.value,old=editingRecord();
+ s.replaceChildren(new Option(!inventoryReady?'Alışveriş ürünleri yüklenemedi':inventoryPurchases.length?'Alışveriş yapılan ürünü seç':'Henüz alışveriş kaydı yok',''));
+ const purchasedIds=new Set(inventoryPurchases.map(p=>p.item_id));
+ inventoryItems.filter(i=>purchasedIds.has(i.id)||i.id===old?.inventory_item_id).forEach(i=>s.add(new Option(i.name+(i.brand?' · '+i.brand:'')+' · Kalan: '+fmt(i.stock_quantity)+' '+i.base_unit,i.id)));
+ addLegacyProductOption(s,old);
+ const linked=old?.inventory_item_id;
+ if(linked&&![...s.options].some(o=>o.value===linked))s.add(new Option('Kayıtlı ürün (yüklenemedi)',linked));
  s.value=previous;s.disabled=!inventoryReady||$('#expense-category').value==='service';updateStockSelection();
 }
 $('#operation-inventory-item').addEventListener('change',()=>updateStockSelection(true));
@@ -47,11 +55,12 @@ function selectCategory(type=''){
  const select=$('#operation-type'); select.replaceChildren(new Option('İşlem seç',''));
  Object.entries(labels).filter(([key])=>serviceTypes.has(key)===service).forEach(([key,label])=>select.add(new Option(label,key)));
  if(type && [...select.options].some(o=>o.value===type))select.value=type;
- ['operation-product-field','operation-quantity-field','operation-inventory-field'].forEach(id=>$('#'+id).hidden=service);
+ ['operation-product-field','operation-quantity-field'].forEach(id=>$('#'+id).hidden=service);
  $('#operation-inventory-item').disabled=service||!inventoryReady;
+ $('#operation-inventory-item').required=!service;
  if(service){$('#operation-inventory-item').value='';if($('#operation-total-cost').readOnly)$('#operation-total-cost').value='';}
  updateStockSelection();
- ['operation-product','operation-quantity','operation-unit'].forEach(id=>{$('#'+id).required=!service;$('#'+id).disabled=service;});
+ ['operation-quantity','operation-unit'].forEach(id=>{$('#'+id).required=!service;$('#'+id).disabled=service;});
  $('#service-note').hidden=!service;
 }
 $('#expense-category').addEventListener('change',()=>selectCategory());
@@ -213,14 +222,15 @@ function editRecord(record) {
   renderSeasons(record.season_year);
   $('#expense-category').value=serviceTypes.has(record.operation_type)?'service':'input';selectCategory(record.operation_type);
   $("#operation-date").value = record.operation_date;
-  $("#operation-product").value = record.product || "";
   const farm = activeFarm();
   const legacy = record.cost_basis !== "field_total";
   const per = calculateCostPerDecare(record);
   setNumberInputValue($("#operation-quantity"),legacy && record.quantity && farm ? Number((Number(record.quantity) * Number(seasonFor(farm,Number($("#operation-season").value))?.area_decare||farm.area_decare)).toFixed(3)) : record.quantity ?? "");
   const stockSelect=$('#operation-inventory-item');
+  [...stockSelect.options].filter(o=>o.value===legacyProductValue).forEach(o=>o.remove());
+  addLegacyProductOption(stockSelect,record);
   if(record.inventory_item_id&&![...stockSelect.options].some(o=>o.value===record.inventory_item_id))stockSelect.add(new Option('Kayıtlı stok bağlantısı',record.inventory_item_id));
-  stockSelect.value=record.inventory_item_id||'';updateStockSelection();
+  stockSelect.value=record.inventory_item_id||(serviceTypes.has(record.operation_type)?'':legacyProductValue);updateStockSelection();
   $("#operation-unit").value = String(record.quantity_unit || "").replace(/\/da$/, "");
   setNumberInputValue($("#operation-total-cost"),per !== null && farm ? Number((per * Number(seasonFor(farm,Number($("#operation-season").value))?.area_decare||farm.area_decare)).toFixed(2)) : "");
   $("#operation-note").value = record.notes || "";
@@ -235,6 +245,7 @@ function editRecord(record) {
 function clearForm() {
   form.reset();
   $("#operation-id").value = "";
+  [...$('#operation-inventory-item').options].filter(o=>o.value===legacyProductValue).forEach(o=>o.remove());
   $("#operation-date").value = localToday();
   $("#production-title").textContent = "Masraf Girişi";
   $("#operation-submit").innerHTML = "İşlemi kaydet <span>→</span>";
@@ -249,7 +260,7 @@ function updateCostPreview() {
   const farm = activeFarm();
   const item=inventoryItems.find(i=>i.id===$('#operation-inventory-item').value),service=$('#expense-category').value==='service';
   const automatic=Boolean(item&&!service&&autoCostReady&&$('#operation-auto-cost').checked),field=$('#operation-total-cost'),note=$('#operation-pricing-note');
-  $('#operation-auto-cost-field').hidden=service;$('#operation-auto-cost').disabled=!item||!autoCostReady||service;
+  $('#operation-auto-cost-field').hidden=service||!item;$('#operation-auto-cost').disabled=!item||!autoCostReady||service;
   field.readOnly=automatic;note.classList.remove('is-error');
   $('#operation-cost-label').textContent=service?'Bu Tarla İçin Makine / İşçilik Maliyeti (TL) *':'Bu Uygulamada Kullanılan Ürünün Maliyeti (TL) *';
   if(automatic){
@@ -257,7 +268,7 @@ function updateCostPreview() {
    if(result.error){field.value='';note.textContent=result.error;note.classList.add('is-error');preview.textContent='Ürünü, işlem tarihini ve kullanılan toplam miktarı kontrol et.';return;}
    setNumberInputValue(field,result.total);
    note.textContent=fmt(result.quantity)+' '+item.base_unit+' × '+fmt(result.unitCost)+' TL/'+item.base_unit+' = '+formatMoney(result.total)+' TL · '+(result.stored?'Bu işlemde kayıtlı birim alış fiyatı.':'İşlem tarihine kadar olan alışverişlerin ağırlıklı ortalaması.');
-  }else note.textContent=service?'Bu tarlaya ait makine veya işçilik masrafını gir.':item?(autoCostReady?'Otomatik hesap kapalı. Bu uygulamanın maliyetini elle gir.':'Otomatik hesap servisi yüklenemedi. Yeniden denemek için sayfayı yenile.'):'Maliyeti elle girebilir veya alışverişlerinden hesaplamak için stok ürünü seçebilirsin.';
+  }else note.textContent=service?'Bu tarlaya ait makine veya işçilik masrafını gir.':item?(autoCostReady?'Otomatik hesap kapalı. Bu uygulamanın maliyetini elle gir.':'Otomatik hesap servisi yüklenemedi. Yeniden denemek için sayfayı yenile.'):$('#operation-inventory-item').value===legacyProductValue?'Önceki kaydın maliyetini elle düzenleyebilir veya alışveriş ürünü seçerek otomatik hesaplatabilirsin.':'Listeden ürünü seçip miktarı gir; alışveriş fiyatına göre maliyet burada görünecek.';
   const raw = $("#operation-total-cost").value.trim();
   const total = parseNumberInput(raw);
   if (!farm || !raw || !Number.isFinite(total) || total < 0 || Number(seasonFor(farm,Number($("#operation-season").value))?.area_decare||farm.area_decare) <= 0) {
@@ -285,14 +296,18 @@ form.addEventListener("submit", async (event) => {
   updateCostPreview();
   if (!session) { message("Kaydetmek için önce hesabına giriş yap. Form bilgileri bu sayfada saklanmadı.", true); return; }
   const service=$("#expense-category").value === "service";
-  if (!service && !$("#operation-product").value.trim()) { message("Kullanılan Ürünün Markası zorunludur.", true); return; }
+  const product=selectedProduct(),previousRecord=editingRecord();
+  const keepLegacyProduct=Boolean(previousRecord&&!previousRecord.inventory_item_id&&!serviceTypes.has(previousRecord.operation_type)&&$('#operation-inventory-item').value===legacyProductValue);
+  if (!service && !product && !keepLegacyProduct) { message("Alışveriş yapılan ürünler listesinden kullanılan ürünü seç.", true); return; }
+  if (!service && !inventoryReady) { message("Alışveriş ürünleri yüklenemedi. Kaydetmeden önce sayfayı yenile.", true); return; }
+  if (!service && product && $('#operation-auto-cost').checked && !autoCostReady) { message("Otomatik hesap servisi yüklenemedi. Sayfayı yenileyerek tekrar dene.", true); return; }
   const farm = activeFarm();
   if (!farm) { message("İşlem kaydı için önce bir tarla seç veya ekle.", true); return; }
   const quantity = service ? 1 : parseNumberInput($("#operation-quantity").value);
   if (!Number.isFinite(quantity) || quantity <= 0) { message("Bu Uygulamada Kullanılan Toplam Miktar sıfırdan büyük olmalıdır.", true); return; }
   if (!service && !$("#operation-unit").value) { message("Bu Uygulamada Kullanılan Toplam Miktar için birim seç.", true); return; }
   const rawCost = $("#operation-total-cost").value.trim();
-  const autoSelected=Boolean(!service&&autoCostReady&&$('#operation-inventory-item').value&&$('#operation-auto-cost').checked);
+  const autoSelected=Boolean(!service&&autoCostReady&&product&&$('#operation-auto-cost').checked);
   if(autoSelected&&currentAutomaticCost().error){message(currentAutomaticCost().error,true);return;}
   const totalCost = parseNumberInput(rawCost);
   if (!rawCost || !Number.isFinite(totalCost) || totalCost < 0) { message("Bu Uygulamada Kullanılan Ürünün Maliyeti tutarını sıfır veya daha büyük gir.", true); return; }
@@ -302,7 +317,7 @@ form.addEventListener("submit", async (event) => {
     season_year: Number($("#operation-season").value),
     operation_type: $("#operation-type").value,
     operation_date: $("#operation-date").value,
-    product: service ? labels[$("#operation-type").value] : $("#operation-product").value.trim(),
+    product: service ? labels[$("#operation-type").value] : product ? [product.name,product.brand].filter(Boolean).join(' · ').slice(0,120) : previousRecord.product,
     cost_basis: "field_total",
     total_cost: totalCost,
     package_size: null,
@@ -313,7 +328,7 @@ form.addEventListener("submit", async (event) => {
     updated_at: new Date().toISOString()
   };
   const editingId = $("#operation-id").value;
-  const oldRecord=records.find(r=>r.id===editingId),stockId=service?null:$('#operation-inventory-item').value||null;
+  const oldRecord=records.find(r=>r.id===editingId),stockId=service||keepLegacyProduct?null:$('#operation-inventory-item').value||null;
   if(!autoCostReady&&oldRecord?.cost_source==='inventory_average'){message('Bu kaydın otomatik maliyet servisi yüklenemedi. Kaydetmeden önce sayfayı yenile.',true);return;}
   if(!inventoryReady&&oldRecord?.inventory_item_id){message('Stok bağlantısı yüklenemedi. Stok güncellenmeden bu kayıt değiştirilemez; sayfayı yenile.',true);return;}
   if(stockId){
@@ -350,7 +365,7 @@ if (!cfg.url || !cfg.publishableKey) {
     banner.hidden = Boolean(session);
     if (session) setTimeout(async()=>{await loadStock();await loadFarms();},0);
     else {
-      farms = []; records = [];inventoryItems=[];inventoryPurchases=[];inventoryReady=false;autoCostReady=false;$('#operation-inventory-item').replaceChildren(new Option('Stok kullanmadan giriş',''));$('#operation-inventory-item').disabled=true;updateStockSelection();renderFarmOptions(); updateSummary();
+      farms = []; records = [];inventoryItems=[];inventoryPurchases=[];inventoryReady=false;autoCostReady=false;$('#operation-inventory-item').replaceChildren(new Option('Giriş yaptığında alışverişlerin yüklenecek',''));$('#operation-inventory-item').disabled=true;updateStockSelection();renderFarmOptions(); updateSummary();
       message("Giriş yaparak kendi kayıtlarını görüntüleyebilirsin.");
     }
   });
