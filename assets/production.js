@@ -40,8 +40,16 @@ function updateStockSelection(fill=false){
 }
 async function loadStock(){
  const uid=session?.user.id;if(!uid)return;
- try{const [stock,capability]=await Promise.all([loadInventory(client,uid),client.rpc('agroverix_operation_costing_ready').catch(()=>({error:true}))]);if(session?.user.id!==uid)return;inventoryItems=stock.items;inventoryPurchases=stock.purchases;inventoryReady=true;autoCostReady=!capability.error&&capability.data===true;}
- catch{inventoryItems=[];inventoryPurchases=[];inventoryReady=false;autoCostReady=false;}
+ // Supabase queries are thenables; settle each result without calling .catch on the query builder.
+ const [stockResult,capabilityResult]=await Promise.allSettled([
+  loadInventory(client,uid),
+  Promise.resolve().then(()=>client.rpc('agroverix_operation_costing_ready'))
+ ]);
+ if(session?.user.id!==uid)return;
+ if(stockResult.status==='fulfilled'){
+  inventoryItems=stockResult.value.items;inventoryPurchases=stockResult.value.purchases;inventoryReady=true;
+ }else{inventoryItems=[];inventoryPurchases=[];inventoryReady=false;}
+ autoCostReady=capabilityResult.status==='fulfilled'&&!capabilityResult.value.error&&capabilityResult.value.data===true;
  const s=$('#operation-inventory-item'),previous=s.value,old=editingRecord();
  s.replaceChildren(new Option(!inventoryReady?'Alışveriş markaları yüklenemedi':inventoryPurchases.length?'Alışveriş yapılan ürünün markasını seç':'Henüz alışveriş kaydı yok',''));
  const purchasedIds=new Set(inventoryPurchases.map(p=>p.item_id));
