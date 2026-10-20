@@ -7,7 +7,7 @@ export function compatibleUnits(base){return Object.keys(units).filter(k=>units[
 export function today(){const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10);}
 export function stockError(error){
  const text=error?.message||'';
- if(/Yetersiz stok|birimi|miktar|hesabına|bulunamadı|eski kaydı|Makine ve işçilik|sahibi|[Öö]deme|[Bb]orç|Alışveriş bedeli|Kayıt isteği/.test(text))return text;
+ if(/Yetersiz stok|birimi|miktar|hesabına|bulunamadı|eski kaydı|Makine ve işçilik|sahibi|[Öö]deme|[Bb]orç|Alışveriş bedeli|Kayıt isteği|[Oo]tomatik maliyet|İşlem tarihine|Hesaplanan maliyet/.test(text))return text;
  if(['42P01','PGRST205','PGRST202','42703'].includes(error?.code))return 'Alışveriş ve Stok kurulumu henüz etkin değil. Lütfen daha sonra tekrar dene.';
  return 'Kayıt tamamlanamadı. Bağlantını kontrol edip tekrar dene.';
 }
