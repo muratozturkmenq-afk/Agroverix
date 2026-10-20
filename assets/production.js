@@ -21,6 +21,10 @@ const allUnitOptions=[...$('#operation-unit').options].map(o=>({value:o.value,la
 const legacyProductValue='__legacy_product__';
 function editingRecord(){return records.find(r=>r.id===$('#operation-id').value);}
 function selectedProduct(){return inventoryItems.find(i=>i.id===$('#operation-inventory-item').value);}
+function purchasedBrandLabel(item){
+ const brand=String(item.brand||'').trim(),name=String(item.name||'').trim();
+ return brand?brand+(name&&brand.toLocaleLowerCase('tr-TR')!==name.toLocaleLowerCase('tr-TR')?' · '+name:''):name+' · Marka belirtilmemiş';
+}
 function addLegacyProductOption(select,record){
  if(record&&!record.inventory_item_id&&!serviceTypes.has(record.operation_type))select.add(new Option((record.product||'Eski ürün')+' · Önceki kayıt (alışverişe bağlı değil)',legacyProductValue));
 }
@@ -29,7 +33,7 @@ function updateStockSelection(fill=false){
  unit.replaceChildren();
  if(item){compatibleUnits(item.base_unit).forEach(u=>unit.add(new Option(u,u)));unit.value=compatibleUnits(item.base_unit).includes(previous)?previous:item.base_unit;
   const old=records.find(r=>r.id===$('#operation-id').value),available=Number(item.stock_quantity)+(old?.inventory_item_id===item.id?Number(old.inventory_quantity||0):0);
-  $('#operation-stock-hint').textContent=item.name+' · Kullanılabilir: '+fmt(available)+' '+item.base_unit+'. Torba / şişe içeriğini kg veya L cinsinden gir. Kaydettiğinde stok güncellenir.';
+  $('#operation-stock-hint').textContent=purchasedBrandLabel(item)+' · Kullanılabilir: '+fmt(available)+' '+item.base_unit+'. Torba / şişe içeriğini kg veya L cinsinden gir. Kaydettiğinde stok güncellenir.';
  }else{allUnitOptions.forEach(o=>unit.add(new Option(o.label,o.value)));unit.value=previous;$('#operation-stock-hint').textContent=$('#operation-inventory-item').value===legacyProductValue?'Bu eski kayıt alışverişe bağlı değil; mevcut maliyeti elle düzenleyebilirsin. Otomatik hesap için listeden satın aldığın ürünü seç.':!session?'Alışverişlerine kaydettiğin ürünler hesabına giriş yaptıktan sonra burada listelenir.':!inventoryReady?'Alışveriş ürünleri yüklenemedi. Sayfayı yenileyerek tekrar dene.':!inventoryPurchases.length?'Önce Alışveriş Ekle sayfasında aldığın ürünü, miktarını ve bedelini kaydet.':'Alışveriş yaptığın ürünü listeden seç; kullanılan miktarı girince maliyet otomatik dolacak.';}
  if(fill&&!item&&$('#operation-total-cost').readOnly)$('#operation-total-cost').value='';
  updateCostPreview();
@@ -39,9 +43,9 @@ async function loadStock(){
  try{const [stock,capability]=await Promise.all([loadInventory(client,uid),client.rpc('agroverix_operation_costing_ready').catch(()=>({error:true}))]);if(session?.user.id!==uid)return;inventoryItems=stock.items;inventoryPurchases=stock.purchases;inventoryReady=true;autoCostReady=!capability.error&&capability.data===true;}
  catch{inventoryItems=[];inventoryPurchases=[];inventoryReady=false;autoCostReady=false;}
  const s=$('#operation-inventory-item'),previous=s.value,old=editingRecord();
- s.replaceChildren(new Option(!inventoryReady?'Alışveriş ürünleri yüklenemedi':inventoryPurchases.length?'Alışveriş yapılan ürünü seç':'Henüz alışveriş kaydı yok',''));
+ s.replaceChildren(new Option(!inventoryReady?'Alışveriş markaları yüklenemedi':inventoryPurchases.length?'Alışveriş yapılan ürünün markasını seç':'Henüz alışveriş kaydı yok',''));
  const purchasedIds=new Set(inventoryPurchases.map(p=>p.item_id));
- inventoryItems.filter(i=>purchasedIds.has(i.id)||i.id===old?.inventory_item_id).forEach(i=>s.add(new Option(i.name+(i.brand?' · '+i.brand:'')+' · Kalan: '+fmt(i.stock_quantity)+' '+i.base_unit,i.id)));
+ inventoryItems.filter(i=>purchasedIds.has(i.id)||i.id===old?.inventory_item_id).sort((a,b)=>purchasedBrandLabel(a).localeCompare(purchasedBrandLabel(b),'tr')).forEach(i=>s.add(new Option(purchasedBrandLabel(i)+' · Kalan: '+fmt(i.stock_quantity)+' '+i.base_unit,i.id)));
  addLegacyProductOption(s,old);
  const linked=old?.inventory_item_id;
  if(linked&&![...s.options].some(o=>o.value===linked))s.add(new Option('Kayıtlı ürün (yüklenemedi)',linked));
@@ -369,7 +373,7 @@ if (!cfg.url || !cfg.publishableKey) {
     banner.hidden = Boolean(session);
     if (session) setTimeout(async()=>{await loadStock();await loadFarms();},0);
     else {
-      farms = []; records = [];inventoryItems=[];inventoryPurchases=[];inventoryReady=false;autoCostReady=false;$('#operation-inventory-item').replaceChildren(new Option('Giriş yaptığında alışverişlerin yüklenecek',''));$('#operation-inventory-item').disabled=true;updateStockSelection();renderFarmOptions(); updateSummary();
+      farms = []; records = [];inventoryItems=[];inventoryPurchases=[];inventoryReady=false;autoCostReady=false;$('#operation-inventory-item').replaceChildren(new Option('Giriş yaptığında alışveriş markaların yüklenecek',''));$('#operation-inventory-item').disabled=true;updateStockSelection();renderFarmOptions(); updateSummary();
       message("Giriş yaparak kendi kayıtlarını görüntüleyebilirsin.");
     }
   });
