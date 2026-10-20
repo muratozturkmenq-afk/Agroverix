@@ -16,15 +16,11 @@ export function createPaymentLedger({getClient,refresh,getSaving,setSaving,onEdi
  const paid=p=>cents(p.paid_total)/100;
  const debt=p=>Math.max(0,cents(p.total_cost)-cents(p.paid_total))/100;
  function selected(){return purchases.find(p=>p.id===select.value);}
- function updateSelection(){
-  const p=selected(),editing=payments.find(x=>x.id===$('#payment-id').value);
-  $('#payment-selection-note').textContent=p?p.supplier+' · '+date(p.purchase_date)+' · Alışveriş: '+money(p.total_cost)+' · Ödenen: '+money(paid(p))+' · Kalan: '+money(debt(p))+(editing?' · Düzenlenen ödeme: '+money(editing.amount):''):'Alışverişi seçtiğinde kalan borcu burada görürsün.';
- }
  function options(preferred){
   const previous=preferred??select.value;select.replaceChildren(new Option(purchases.length?'Alışveriş seç':'Önce alışveriş kaydet',''));
   purchases.slice().sort((a,b)=>b.purchase_date.localeCompare(a.purchase_date)||a.id.localeCompare(b.id)).forEach(p=>select.add(new Option(p.supplier+' · '+date(p.purchase_date)+' · '+name(p)+' · kalan '+money(debt(p)),p.id)));
   if(purchases.some(p=>p.id===previous))select.value=previous;
-  select.disabled=Boolean($('#payment-id').value);updateSelection();
+  select.disabled=Boolean($('#payment-id').value);
  }
  function reset(){form.reset();$('#payment-id').value='';requestId=crypto.randomUUID();$('#payment-date').value=today();$('#payment-title').textContent='Ödeme Ekle';$('#payment-save').textContent='Ödemeyi Kaydet →';$('#payment-cancel').hidden=true;options();}
  function open(p,record){
@@ -53,7 +49,7 @@ export function createPaymentLedger({getClient,refresh,getSaving,setSaving,onEdi
   rows.slice().sort((a,b)=>b.purchase_date.localeCompare(a.purchase_date)||a.id.localeCompare(b.id)).forEach(p=>{
    const records=payments.filter(x=>x.purchase_id===p.id).sort((a,b)=>b.payment_date.localeCompare(a.payment_date)||a.id.localeCompare(b.id));
    const card=el('article',undefined,'purchase-account'),head=el('div',undefined,'purchase-account-head'),title=el('div');title.append(el('h4',p.supplier+' · '+name(p)),el('p','Alışveriş Tarihi: '+date(p.purchase_date)));head.append(title,el('span',debt(p)>0?(paid(p)>0?'Kısmen Ödendi':'Ödenmedi'):'Ödendi','stock-tag'));
-   const nums=el('div',undefined,'ledger-amounts');[['Alışveriş Bedeli',money(p.total_cost)],['Ödeme Tarihi',records.length?date(records[0].payment_date):'—'],['Toplam Ödenen',money(paid(p))],['Kalan Borç',money(debt(p))]].forEach(([label,value])=>{const d=el('div');d.append(el('span',label),el('b',value));if(label==='Ödeme Tarihi')d.append(el('small',records.length>1?'Son ödeme · '+records.length+' ödeme':records.length?'':'Henüz ödeme yok'));nums.append(d);});
+   const nums=el('div',undefined,'ledger-amounts');[['Ödeme Tarihi',records.length?date(records[0].payment_date):'—'],['Alışveriş Bedeli',money(p.total_cost)],['Toplam Ödenen',money(paid(p))],['Kalan Borç',money(debt(p))]].forEach(([label,value])=>{const d=el('div');d.append(el('span',label),el('b',value));if(label==='Ödeme Tarihi')d.append(el('small',records.length>1?'Son ödeme · '+records.length+' ödeme':records.length?'':'Henüz ödeme yok'));nums.append(d);});
    const add=button('Ödeme Ekle',()=>open(p));add.disabled=debt(p)<=0;
    const actions=el('div',undefined,'stock-row-actions');actions.append(add,button('Alışverişi Düzenle',()=>onEditPurchase(p)));
    const details=el('details');details.append(el('summary','Ödeme Geçmişi · '+records.length+' kayıt'));const history=el('div',undefined,'stock-rows');
@@ -61,7 +57,7 @@ export function createPaymentLedger({getClient,refresh,getSaving,setSaving,onEdi
    if(!records.length)history.append(el('p','Bu alışveriş için henüz ödeme kaydedilmedi.','payment-help'));details.append(history);card.append(head,nums,actions,details);list.append(card);
   });
  }
- select.addEventListener('change',updateSelection);$('#payment-cancel').addEventListener('click',()=>{reset();message('');});$('#ledger-filter').addEventListener('change',render);
+ $('#payment-cancel').addEventListener('click',()=>{reset();message('');});$('#ledger-filter').addEventListener('change',render);
  form.addEventListener('submit',async event=>{
   event.preventDefault();if(getSaving()||!session||!available)return;
   const p=selected(),amount=parseNumberInput($('#payment-amount').value),old=payments.find(x=>x.id===$('#payment-id').value);

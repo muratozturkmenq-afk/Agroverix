@@ -1,7 +1,7 @@
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
 import {bindNumberInput,parseNumberInput,setNumberInputValue} from './number-input.js?v=groups-v2';
 import {units,fmt,money,converted,loadInventory,readAll,totalsFor,today,stockError} from './inventory-data.js?v=payments-v1';
-import {createPaymentLedger} from './inventory-payments.js?v=dates-v1';
+import {createPaymentLedger} from './inventory-payments.js?v=dates-v2';
 import {showInventoryView} from './inventory-views.js?v=views-v1';
 import {serviceTypes,operationLabels} from './farm-finance.js?v=seasons-v1';
 
