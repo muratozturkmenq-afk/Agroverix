@@ -70,7 +70,7 @@ export function createPaymentLedger({getClient,refresh,getSaving,setSaving,onEdi
  });
  return {
   update(data){const changed=session?.user.id!==data.session?.user.id;session=data.session;purchases=data.purchases||[];items=data.items||[];payments=data.payments||[];available=Boolean(session&&data.available);if(changed){reset();message('');}
-   $('#payment-fields').disabled=!available;$('#payment-availability').textContent=!session?'Ödeme ve borç kayıtlarını görmek için hesabına giriş yap.':available?'Ödemeleri alışveriş bazında kaydet; kalan borç otomatik güncellenir.':'Ödeme kayıtları yüklenemedi. Stok bilgilerini kullanabilirsin; ödeme eklemek için sayfayı yenile.';
+   $('#payment-fields').disabled=!available;$('#payment-availability').textContent=!session?'Ödeme ve borç kayıtlarını görmek için hesabına giriş yap.':available?'Ödemeleri alışveriş bazında kaydet; kalan borç otomatik güncellenir.':'Ödeme kayıtları yüklenemedi. Alışveriş kayıtlarını görüntüleyebilirsin; ödeme eklemek için sayfayı yenile.';
    if($('#payment-id').value&&!payments.some(x=>x.id===$('#payment-id').value)){reset();message('Düzenlenen ödeme artık bulunmuyor. Liste güncellendi.');}options();render();
   },
   selectPurchase(id){options(id);},

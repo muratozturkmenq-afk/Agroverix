@@ -11,7 +11,7 @@ district.addEventListener('change',()=>fill(village,'Köy / mahalle seçin',(adm
 const locations=fetch('assets/administrative-units.json?v=2').then(r=>r.json()).then(data=>{admin=data;fill(province,'İl seçin',data.provinces);}).catch(()=>reset(province,'Yer listesi yüklenemedi'));
 function destination(){
  const next=new URLSearchParams(location.search).get('next');
- if(next){const url=new URL(next,location.href);if(url.origin===location.origin&&['/tarla-bilgileri.html','/uretim-kayitlari.html','/tarla-detay.html','/index.html','/yonetici.html','/alisveris-stok.html'].includes(url.pathname))return url.pathname+url.search+url.hash;}
+ if(next){const url=new URL(next,location.href);if(url.origin===location.origin&&['/tarla-bilgileri.html','/uretim-kayitlari.html','/tarla-detay.html','/index.html','/yonetici.html','/alisveris-stok.html','/stok.html'].includes(url.pathname))return url.pathname+url.search+url.hash;}
  return 'index.html';
 }
 function setMode(next){

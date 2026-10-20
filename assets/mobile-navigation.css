@@ -1,7 +1,7 @@
 .hero .finance-hero-title{font-size:clamp(36px,5vw,72px)!important}
 .nav .nav-links{font-size:16px;font-weight:600;gap:20px}
 .mobile-page-menu{display:none}
-@media(max-width:1350px){
+@media(max-width:1500px){
  .nav .nav-in{position:relative;flex-wrap:wrap;column-gap:14px;row-gap:5px;padding-bottom:10px}
  .nav .home-brand{order:1}.nav .nav-in>.btn{order:2;margin-left:auto}.nav .nav-links{display:none}
  .nav .mobile-page-menu{display:block;position:relative;order:3;flex-basis:100%;width:100%;min-width:0}

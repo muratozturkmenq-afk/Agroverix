@@ -1,13 +1,13 @@
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
 import {bindNumberInput,parseNumberInput,setNumberInputValue} from './number-input.js?v=groups-v2';
-import {units,fmt,money,converted,loadInventory,readAll,totalsFor,today,stockError} from './inventory-data.js?v=payments-v1';
-import {createPaymentLedger} from './inventory-payments.js?v=dates-v2';
+import {units,fmt,money,converted,loadInventory,readAll,today,stockError} from './inventory-data.js?v=payments-v1';
+import {createPaymentLedger} from './inventory-payments.js?v=split-v1';
 import {showInventoryView} from './inventory-views.js?v=views-v1';
-import {serviceTypes,operationLabels} from './farm-finance.js?v=seasons-v1';
 
 const $=s=>document.querySelector(s),form=$('#purchase-form'),cfg=window.AGROVERIX_SUPABASE||{};
-let client=null,session=null,items=[],purchases=[],operations=[],farms=[],loading=false,refreshQueued=false,generation=0,ready=false,saving=false,channel=null;
-let payments=[],paymentsReady=false,purchaseRequestId=crypto.randomUUID();
+let client=null,session=null,items=[],purchases=[],loading=false,refreshQueued=false,generation=0,ready=false,saving=false,channel=null;
+let payments=[],paymentsReady=false,purchaseRequestId=crypto.randomUUID(),requestedEditOpened=false;
+const requestedEdit=new URLSearchParams(location.search).get('edit');
 const ledger=createPaymentLedger({getClient:()=>client,refresh,getSaving:()=>saving,setSaving:value=>saving=value,onEditPurchase:editPurchase});
 ['purchase-quantity','purchase-package'].forEach(id=>bindNumberInput($('#'+id),{maximumFractionDigits:6}));
 bindNumberInput($('#purchase-price'),{maximumFractionDigits:2});
@@ -66,67 +66,44 @@ form.addEventListener('submit',async event=>{
  finally{saving=false;$('#purchase-save').disabled=false;}
 });
 async function removePurchase(p,button){
+ if(saving||!session)return;
  if(Number(p.paid_total||0)>0){ledger.selectPurchase(p.id);showInventoryView('payment',{scroll:true});ledger.notify('Bu alışverişte ödeme kayıtları var. Alışverişi silmeden önce ilgili ödemeleri kontrol et.');return;}
  if(!confirm('Bu alışveriş kaydı silinsin mi? Alınan miktar stoktan çıkarılır. Tarlalarda kullanılmış stok eksiye düşürülemez.'))return;
- button.disabled=true;
+ saving=true;button.disabled=true;
  try{const {error}=await client.from('farmer_inventory_purchases').delete().eq('id',p.id).eq('user_id',session.user.id).select('id').single();if(error)throw error;if($('#purchase-id').value===p.id)resetForm();await refresh();message('Alışveriş silindi, stok güncellendi.');}
- catch(error){message(stockError(error),true);}finally{button.disabled=false;}
+ catch(error){message(stockError(error),true);}finally{saving=false;button.disabled=false;}
 }
-function detail(title){const d=el('details'),s=el('summary',title),body=el('div',undefined,'stock-rows');d.append(s,body);return {d,body};}
-function renderStock(){
- const query=$('#inventory-search').value.trim().toLocaleLowerCase('tr'),list=$('#stock-list');list.replaceChildren();
- const chosen=items.filter(i=>itemLabel(i).toLocaleLowerCase('tr').includes(query));
- for(const item of chosen){
-  const t=totalsFor(item,purchases,operations),card=el('article',undefined,'stock-card'),head=el('div',undefined,'stock-card-head'),title=el('div');title.append(el('h3',item.name),el('p',item.brand||'Marka belirtilmedi'));head.append(title,el('span',t.remaining>0?'Stokta':'Tükendi','stock-tag'));
-  const nums=el('div',undefined,'stock-numbers');[['Alınan',t.purchased],['Kullanılan',t.used],['Kalan Stok',t.remaining]].forEach(([label,value],idx)=>{const n=el('div',undefined,idx===2?'stock-remaining':'');n.append(el('span',label),el('b',fmt(value)+' '+item.base_unit));nums.append(n);});
-  const cost=el('div',undefined,'stock-cost'),costTotal=el('span','Toplam Alışveriş: '),avg=el('span','Ortalama Alış: ');costTotal.append(el('strong',money(t.cost)));avg.append(el('strong',t.average===null?'—':money(t.average)+' / '+item.base_unit));cost.append(costTotal,avg);
-  const uses=detail('Kullanım Dökümü · '+t.uses.length+' uygulama');
-  t.uses.slice().sort((a,b)=>b.operation_date.localeCompare(a.operation_date)).forEach(r=>{
-   const row=el('div',undefined,'stock-row'),info=el('div'),f=farms.find(f=>f.id===r.farm_id);info.append(el('h4',f?.name||'Tarla kaydı bulunamadı'),el('p',r.notes||operationLabels[r.operation_type]||'Amaç belirtilmedi'),el('small',date(r.operation_date)+' · '+r.season_year+' sezonu'));
-   const quantity=el('div',fmt(r.inventory_quantity)+' '+item.base_unit,'row-quantity');const actions=el('div',undefined,'stock-row-actions'),a=el('a','Kullanımı Düzenle','inventory-button');a.href='uretim-kayitlari.html?edit='+encodeURIComponent(r.id);actions.append(a);row.append(info,quantity,actions);uses.body.append(row);
-  });
-  if(!t.uses.length)uses.body.append(el('p','Bu ürün henüz bir tarlada kullanılmadı.','inventory-empty'));
-  const history=detail('Alışveriş Geçmişi · '+t.receipts.length+' kayıt');
-  t.receipts.slice().sort((a,b)=>b.purchase_date.localeCompare(a.purchase_date)).forEach(p=>{
-   const row=el('div',undefined,'stock-row'),info=el('div');info.append(el('h4',p.supplier),el('p',date(p.purchase_date)+' · '+fmt(p.purchased_quantity)+' '+p.purchased_unit+(p.package_quantity?' × '+fmt(p.package_quantity)+' '+p.package_unit:'')),el('small',p.notes||'Alışveriş kaydı'));
-   const value=el('div',money(p.total_cost),'row-quantity'),actions=el('div',undefined,'stock-row-actions'),remove=button('Sil',()=>removePurchase(p,remove));actions.append(button('Düzenle',()=>editPurchase(p)),remove);row.append(info,value,actions);history.body.append(row);
-  });
-  card.append(head,nums,cost,uses.d,history.d);list.append(card);
- }
- $('#stock-empty').hidden=!ready||items.length>0;if(items.length&&!chosen.length)list.append(el('p','Aramana uygun stok ürünü bulunamadı.','inventory-empty'));
-}
-function renderUnlinked(){
- const rows=operations.filter(r=>!r.inventory_item_id&&!serviceTypes.has(r.operation_type)),section=$('#unlinked-section'),list=$('#unlinked-list');section.hidden=!rows.length;list.replaceChildren();
- rows.slice().sort((a,b)=>b.operation_date.localeCompare(a.operation_date)).forEach(r=>{
-  const row=el('div',undefined,'stock-row'),info=el('div'),farm=farms.find(f=>f.id===r.farm_id);info.append(el('h4',(farm?.name||'Tarla')+' · '+(r.product||operationLabels[r.operation_type])),el('p',r.notes||operationLabels[r.operation_type]),el('small',date(r.operation_date)));
-  row.append(info,el('div',r.quantity?fmt(r.quantity)+' '+(r.quantity_unit||''):'Miktar eksik','row-quantity'));
-  const actions=el('div',undefined,'stock-row-actions');
-  if(r.cost_basis==='field_total'&&r.quantity>0&&units[r.quantity_unit]){
-   const select=el('select');select.setAttribute('aria-label',(farm?.name||'Tarla')+' '+r.product+' için stok ürünü');select.add(new Option('Stok ürününü seç',''));items.filter(i=>i.base_unit===units[r.quantity_unit][0]).forEach(i=>select.add(new Option(itemLabel(i)+' · kalan '+fmt(i.stock_quantity)+' '+i.base_unit,i.id)));
-   const save=button('Stokla Eşleştir',async()=>{if(!select.value){message('Önce bu kullanımın ait olduğu stok ürününü seç.',true);return;}save.disabled=true;try{const {error}=await client.from('farmer_operations').update({inventory_item_id:select.value}).eq('id',r.id).eq('user_id',session.user.id).select('id').single();if(error)throw error;await refresh();message('Kullanım stokla eşleştirildi. Kalan miktar güncellendi.');}catch(error){message(stockError(error),true);}finally{save.disabled=false;}});actions.append(select,save);
-  }else{info.append(el('p','Eski kaydı açıp kullanılan toplam miktarı ve birimini kontrol et.'));}
-  const a=el('a','Kaydı Aç','inventory-button');a.href='uretim-kayitlari.html?edit='+encodeURIComponent(r.id);actions.append(a);row.append(actions);list.append(row);
+function renderPurchases(){
+ const query=$('#purchase-search').value.trim().toLocaleLowerCase('tr-TR'),list=$('#purchase-history-list');list.replaceChildren();
+ const rows=purchases.filter(p=>{const item=items.find(i=>i.id===p.item_id);return ((item?itemLabel(item):'Ürün')+' '+p.supplier).toLocaleLowerCase('tr-TR').includes(query);});
+ rows.slice().sort((a,b)=>b.purchase_date.localeCompare(a.purchase_date)||a.id.localeCompare(b.id)).forEach(p=>{
+  const item=items.find(i=>i.id===p.item_id),card=el('article',undefined,'purchase-list-card');card.append(el('h3',item?itemLabel(item):'Ürün bilgisi bulunamadı'),el('p','Bayi Adı: '+p.supplier),el('p','Alışveriş Tarihi: '+date(p.purchase_date)),el('p','Alınan Miktar: '+fmt(p.purchased_quantity)+' '+p.purchased_unit+(p.package_quantity?' × '+fmt(p.package_quantity)+' '+p.package_unit:'')),el('strong',money(p.total_cost)));
+  if(paymentsReady)card.append(el('p','Ödenen: '+money(p.paid_total)+' · Kalan Borç: '+money((Math.round(Number(p.total_cost)*100)-Math.round(Number(p.paid_total)*100))/100)));
+  const actions=el('div',undefined,'stock-row-actions'),remove=button('Sil',()=>removePurchase(p,remove)),pay=button('Ödeme Detayı',()=>{ledger.selectPurchase(p.id);showInventoryView('payment',{scroll:true});});pay.disabled=!paymentsReady;
+  actions.append(button('Alışverişi Düzenle',()=>editPurchase(p)),pay,remove);card.append(actions);list.append(card);
  });
+ $('#purchase-history-empty').hidden=rows.length>0;$('#purchase-history-empty').textContent=purchases.length?'Aramana uygun alışveriş bulunamadı.':'Henüz alışveriş kaydı yok. İlk alışverişini kaydettiğinde burada görünür.';
 }
 async function refresh(){
  if(!session||!client)return;if(loading){refreshQueued=true;return;}loading=true;const run=generation,uid=session.user.id;$('#inventory-refresh').disabled=true;
  try{
-  const [stock,ops,fields,paymentRows]=await Promise.all([loadInventory(client,uid),readAll(client,'farmer_operations',uid),readAll(client,'farmer_farms',uid),readAll(client,'farmer_inventory_payments',uid).catch(()=>null)]);
-  if(run!==generation)return;
-  items=stock.items;purchases=stock.purchases;operations=ops;farms=fields;payments=paymentRows||[];paymentsReady=paymentRows!==null&&purchases.every(p=>'paid_total' in p);ready=true;$('#purchase-fields').disabled=false;
-  populateItems();renderStock();renderUnlinked();$('#inventory-total').textContent=money(purchases.reduce((n,p)=>n+Number(p.total_cost),0));$('#inventory-count').textContent=fmt(items.filter(i=>Number(i.stock_quantity)>0).length);$('#inventory-uses').textContent=fmt(operations.filter(r=>r.inventory_item_id).length);
+  const [stock,paymentRows]=await Promise.all([loadInventory(client,uid),readAll(client,'farmer_inventory_payments',uid).catch(()=>null)]);
+  if(run!==generation||session?.user.id!==uid)return;
+  items=stock.items;purchases=stock.purchases;payments=paymentRows||[];paymentsReady=paymentRows!==null&&purchases.every(p=>'paid_total' in p);ready=true;$('#purchase-fields').disabled=false;
+  populateItems();renderPurchases();$('#inventory-total').textContent=money(purchases.reduce((n,p)=>n+Number(p.total_cost),0));
   $('#inventory-paid').textContent=paymentsReady?money(purchases.reduce((n,p)=>n+Math.round(Number(p.paid_total)*100),0)/100):'—';$('#inventory-debt').textContent=paymentsReady?money(purchases.reduce((n,p)=>n+Math.round(Number(p.total_cost)*100)-Math.round(Number(p.paid_total)*100),0)/100):'—';
   ledger.update({session,purchases,items,payments,available:paymentsReady});
-  message('Güncel stok · '+new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})+' · Tarladaki kullanımlarla birlikte hesaplanır.');
+  message('Güncel alışveriş ve ödeme kayıtları · '+new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}));
+  if(requestedEdit&&!requestedEditOpened){requestedEditOpened=true;const row=purchases.find(p=>p.id===requestedEdit);if(row)editPurchase(row);else message('Düzenlenecek alışveriş bulunamadı veya hesabına ait değil.',true);}
  }catch(error){if(run===generation){ready=false;paymentsReady=false;$('#purchase-fields').disabled=true;updateForm();ledger.update({session,purchases,items,payments,available:false});message(stockError(error),true);}}
  finally{loading=false;$('#inventory-refresh').disabled=false;if(refreshQueued){refreshQueued=false;refresh();}}
 }
-$('#inventory-search').addEventListener('input',renderStock);$('#inventory-refresh').addEventListener('click',refresh);
+$('#purchase-search').addEventListener('input',renderPurchases);$('#inventory-refresh').addEventListener('click',refresh);
 window.addEventListener('focus',()=>{if(session&&!saving)refresh();});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&session&&!saving)refresh();});
 setInterval(()=>{if(!document.hidden&&session&&!saving)refresh();},30000);
-function account(next){generation++;if(channel){client.removeChannel(channel);channel=null;}session=next;ready=false;paymentsReady=false;items=[];purchases=[];operations=[];farms=[];payments=[];resetForm();ledger.update({session,purchases,items,payments,available:false});$('#purchase-fields').disabled=true;$('#stock-list').replaceChildren();$('#unlinked-section').hidden=true;$('#stock-empty').hidden=Boolean(session);['inventory-total','inventory-paid','inventory-debt','inventory-count','inventory-uses'].forEach(id=>$('#'+id).textContent='—');$('#inventory-auth').hidden=Boolean(session);message('',false,$('#purchase-status'));if(session){
- refresh();channel=client.channel('inventory-'+session.user.id);['farmer_inventory_items','farmer_inventory_purchases','farmer_operations','farmer_inventory_payments'].forEach(table=>channel.on('postgres_changes',{event:'*',schema:'public',table,filter:'user_id=eq.'+session.user.id},()=>{if(!saving)refresh();}));channel.subscribe();
- }else message('Giriş yaptıktan sonra alışveriş ekleyebilir ve stoklarını takip edebilirsin.');}
+function account(next){generation++;if(channel){client.removeChannel(channel);channel=null;}session=next;ready=false;paymentsReady=false;items=[];purchases=[];payments=[];requestedEditOpened=false;resetForm();ledger.update({session,purchases,items,payments,available:false});$('#purchase-fields').disabled=true;$('#purchase-history-list').replaceChildren();$('#purchase-history-empty').hidden=false;$('#purchase-history-empty').textContent='Alışverişlerin giriş yaptıktan sonra burada görünür.';['inventory-total','inventory-paid','inventory-debt'].forEach(id=>$('#'+id).textContent='—');$('#inventory-auth').hidden=Boolean(session);message('',false,$('#purchase-status'));if(session){
+ refresh();channel=client.channel('inventory-'+session.user.id);['farmer_inventory_items','farmer_inventory_purchases','farmer_inventory_payments'].forEach(table=>channel.on('postgres_changes',{event:'*',schema:'public',table,filter:'user_id=eq.'+session.user.id},()=>{if(!saving)refresh();}));channel.subscribe();
+ }else message('Giriş yaptıktan sonra alışveriş ve ödemelerini kaydedebilirsin.');}
 if(cfg.url&&cfg.publishableKey){client=createClient(cfg.url,cfg.publishableKey);const {data,error}=await client.auth.getSession();if(error){message('Oturum alınamadı. Lütfen tekrar giriş yap.',true);$('#inventory-auth').hidden=false;}else account(data.session);client.auth.onAuthStateChange((event,next)=>{if(['SIGNED_IN','SIGNED_OUT'].includes(event)&&next?.user.id!==session?.user.id)setTimeout(()=>account(next),0);});}
 else message('Kayıt servisi henüz yapılandırılmadı.',true);

@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Stoklarım · AgroVerix</title><meta name="theme-color" content="#0D100B">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Sans:ital,wght@0,400..700;1,400&family=Martian+Mono:wght@400..600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css"><link rel="stylesheet" href="assets/profile.css"><link rel="stylesheet" href="assets/mobile-reports.css?v=readable-labels-v2"><link rel="stylesheet" href="assets/inventory.css?v=dates-v1"><link rel="stylesheet" href="assets/stock.css?v=split-v1">
+<link rel="icon" href="/favicon.svg?v=square-v1" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png?v=square-v1"><link rel="manifest" href="/site.webmanifest?v=square-v1"><meta name="apple-mobile-web-app-title" content="AgroVerix">
+</head>
+<body class="profile-page inventory-page stock-page">
+<header class="profile-top"><a class="brand" href="index.html"><img class="home-logo" src="assets/images/agroverix-logo-horizontal-light.svg" width="920" height="302" alt="AgroVerix — Cebimdeki Tarlam"></a><span class="profile-step">ÜRÜN <i>·</i> STOK TAKİBİ</span><a class="profile-back" href="index.html">Ana Sayfaya Dön →</a></header>
+<main class="inventory-layout">
+ <section class="inventory-intro"><div><p class="eyebrow">Alınan, kullanılan ve kalan</p><h1>Ürünlerin <em>ve stokların.</em></h1><p>Ürün kartına dokun; hangi tarlada, ne zaman, ne kadar ve hangi tutarda kullanıldığını gör.</p></div><div class="inventory-quick-links"><a class="inventory-link" href="alisveris-stok.html">Alışveriş ve Ödeme →</a><a class="inventory-link" href="uretim-kayitlari.html">Uygulama Girişi →</a></div></section>
+ <div id="inventory-auth" class="inventory-notice" role="status" hidden>Stok bilgilerin hesabına özeldir. Ürünlerini görmek için <a href="ciftci-bilgi.html?next=stok.html">giriş yap</a>.</div>
+ <p id="inventory-status" class="inventory-status" role="status" aria-live="polite">Stokların yükleniyor…</p>
+ <section class="inventory-summary stock-overview" aria-label="Stok özeti"><article><span>Toplam Alışveriş Maliyeti</span><b id="stock-total">—</b><small>Stok ürünleri için kaydedilen alışverişler</small></article><article><span>Stoku Kalan Ürün</span><b id="stock-count">—</b><small>Kalan miktarı sıfırdan büyük ürünler</small></article><article><span>Tarla Uygulaması</span><b id="stock-uses">—</b><small>Stokla bağlantılı kullanım kayıtları</small></article></section>
+ <section class="inventory-stock" aria-labelledby="stock-title"><div class="inventory-section-head stock-head"><div><span class="profile-kicker">ÜRÜN BAZINDA TAKİP</span><h2 id="stock-title">Stoklarım</h2></div><button id="inventory-refresh" class="inventory-button" type="button">Yenile ↻</button></div><div class="profile-field inventory-search"><label for="inventory-search">Ürün, Marka veya Bayi Ara</label><input id="inventory-search" type="search" placeholder="Stokta ara…"></div><div id="stock-list" class="stock-product-list"></div><div id="stock-empty" class="inventory-empty" hidden><span aria-hidden="true">＋</span><h3>Henüz stok ürünü yok</h3><p>Alışverişlerini kaydettiğinde ürünlerin ve kalan miktarları burada görünür.</p><a class="inventory-button stock-empty-link" href="alisveris-stok.html">Alışveriş ve Ödeme →</a></div>
+ <section id="unlinked-section" class="inventory-unlinked" hidden><h3>Stokla Eşleştirilmemiş Kullanımlar</h3><p>Önceki uygulamaları doğru ürünle eşleştir. Eşleştirilen miktar stoktan düşer. Makine ve işçilik bu listeye dahil değildir.</p><div id="unlinked-list"></div></section></section>
+ <p class="inventory-footnote">Toplam maliyet alışveriş bedelleridir; ödeme ve kalan borç bilgileri Alışveriş ve Ödeme sayfasındadır. Kullanım tutarları, tarlaya kaydedilen uygulama maliyetleridir. Aynı ürünün farklı bayilerden yapılan alımları ürün kartında birlikte gösterilir.</p><a class="profile-back inventory-home" href="index.html">Ana Sayfaya Dön →</a>
+</main><script src="assets/supabase-config.js"></script><script type="module" src="assets/stock.js?v=split-v1"></script>
+</body></html>
