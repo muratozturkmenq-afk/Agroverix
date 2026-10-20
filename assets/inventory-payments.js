@@ -1,5 +1,6 @@
 import {bindNumberInput,parseNumberInput,setNumberInputValue} from './number-input.js?v=groups-v2';
 import {money,today,stockError} from './inventory-data.js?v=payments-v1';
+import {showInventoryView} from './inventory-views.js?v=views-v1';
 
 const $=s=>document.querySelector(s);
 const cents=value=>Math.round(Number(value||0)*100);
@@ -27,6 +28,7 @@ export function createPaymentLedger({getClient,refresh,getSaving,setSaving,onEdi
  }
  function reset(){form.reset();$('#payment-id').value='';requestId=crypto.randomUUID();$('#payment-date').value=today();$('#payment-title').textContent='Ödeme Ekle';$('#payment-save').textContent='Ödemeyi Kaydet →';$('#payment-cancel').hidden=true;options();}
  function open(p,record){
+  showInventoryView('payment');
   reset();if(record){$('#payment-id').value=record.id;setNumberInputValue($('#payment-amount'),record.amount);$('#payment-date').value=record.payment_date;$('#payment-note').value=record.notes||'';$('#payment-title').textContent='Ödemeyi Düzenle';$('#payment-save').textContent='Değişiklikleri Kaydet →';$('#payment-cancel').hidden=false;}
   options(p.id);message(record?'Kaydettiğinde kalan borç fark kadar güncellenir.':'Ödenen tutarı ve ödeme tarihini gir.');form.scrollIntoView({behavior:'smooth',block:'center'});
  }
@@ -75,5 +77,6 @@ export function createPaymentLedger({getClient,refresh,getSaving,setSaving,onEdi
    if($('#payment-id').value&&!payments.some(x=>x.id===$('#payment-id').value)){reset();message('Düzenlenen ödeme artık bulunmuyor. Liste güncellendi.');}options();render();
   },
   selectPurchase(id){options(id);},
+  notify(text){message(text,true);},
  };
 }

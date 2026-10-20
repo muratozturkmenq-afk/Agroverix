@@ -1,7 +1,8 @@
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
 import {bindNumberInput,parseNumberInput,setNumberInputValue} from './number-input.js?v=groups-v2';
 import {units,fmt,money,converted,loadInventory,readAll,totalsFor,today,stockError} from './inventory-data.js?v=payments-v1';
-import {createPaymentLedger} from './inventory-payments.js?v=payments-v1';
+import {createPaymentLedger} from './inventory-payments.js?v=views-v1';
+import {showInventoryView} from './inventory-views.js?v=views-v1';
 import {serviceTypes,operationLabels} from './farm-finance.js?v=seasons-v1';
 
 const $=s=>document.querySelector(s),form=$('#purchase-form'),cfg=window.AGROVERIX_SUPABASE||{};
@@ -10,9 +11,7 @@ let payments=[],paymentsReady=false,purchaseRequestId=crypto.randomUUID();
 const ledger=createPaymentLedger({getClient:()=>client,refresh,getSaving:()=>saving,setSaving:value=>saving=value,onEditPurchase:editPurchase});
 ['purchase-quantity','purchase-package'].forEach(id=>bindNumberInput($('#'+id),{maximumFractionDigits:6}));
 bindNumberInput($('#purchase-price'),{maximumFractionDigits:2});
-bindNumberInput($('#purchase-paid'),{maximumFractionDigits:2});
 $('#purchase-date').value=today();
-$('#purchase-payment-date').value=today();
 const numeric=id=>parseNumberInput($('#'+id).value);
 function purchaseTotal(q,p){const value=$('#purchase-price-mode').value==='unit'?q*p:p;return Number.isFinite(value)?Math.round((value+Number.EPSILON)*100)/100:value;}
 const date=value=>new Date(value+'T12:00:00').toLocaleDateString('tr-TR');
@@ -20,52 +19,54 @@ function el(tag,text,className){const n=document.createElement(tag);if(text!==un
 function message(text,error=false,target=$('#inventory-status')){target.textContent=text;target.classList.toggle('is-error',error);}
 function button(text,action){const b=el('button',text,'inventory-button');b.type='button';b.addEventListener('click',action);return b;}
 function itemLabel(item){return item.name+(item.brand?' · '+item.brand:'');}
-function populateItems(){const s=$('#purchase-item'),old=s.value;s.replaceChildren(new Option('Yeni Ürün Ekle',''));items.forEach(i=>s.add(new Option(itemLabel(i)+' · '+i.base_unit,i.id)));if(items.some(i=>i.id===old))s.value=old;updateForm();}
+function matchingItem(){
+ const unit=['torba','şişe'].includes($('#purchase-unit').value)?$('#purchase-package-unit').value:$('#purchase-unit').value;
+ const normalize=value=>String(value||'').trim().toLocaleLowerCase('tr-TR');
+ return items.find(i=>normalize(i.name)===normalize($('#purchase-name').value)&&normalize(i.brand)===normalize($('#purchase-brand').value)&&i.base_unit===units[unit]?.[0]);
+}
+function populateItems(){updateForm();}
 function updateForm(){
- const existing=Boolean($('#purchase-item').value),pack=['torba','şişe'].includes($('#purchase-unit').value);
- $('#new-product-fields').hidden=existing;$('#purchase-name').required=!existing;
- ['purchase-name','purchase-brand','purchase-category'].forEach(id=>$('#'+id).disabled=existing);
+ const pack=['torba','şişe'].includes($('#purchase-unit').value),existing=matchingItem();
+ $('#purchase-category').disabled=Boolean(existing);if(existing)$('#purchase-category').value=existing.category;
  $('#package-fields').hidden=!pack;$('#purchase-package').required=pack;$('#purchase-package').disabled=!pack;$('#purchase-package-unit').disabled=!pack;
  const unitPrice=$('#purchase-price-mode').value==='unit';
  $('#purchase-price-label').textContent=unitPrice?'Bir '+$('#purchase-unit').value+' Alış Fiyatı (TL) *':'Toplam Tutar (TL) *';
  const q=numeric('purchase-quantity'),p=numeric('purchase-price'),factor=pack?numeric('purchase-package'):1,unit=pack?$('#purchase-package-unit').value:$('#purchase-unit').value;
- const amount=converted(q*factor,unit),total=purchaseTotal(q,p),item=items.find(i=>i.id===$('#purchase-item').value);
+ const amount=converted(q*factor,unit),total=purchaseTotal(q,p),item=existing;
  let text='Miktar ve fiyatı girince alışveriş özeti burada görünür.';
  if(q>0&&amount>0&&Number.isFinite(amount))text=fmt(q)+' '+$('#purchase-unit').value+(pack?' × '+fmt(factor)+' '+unit:'')+' = '+fmt(amount)+' '+units[unit][0]+' stok girişi'+(Number.isFinite(total)&&total>=0?' · '+money(total):'');
  if(item&&units[unit]?.[0]!==item.base_unit)text+=' · Bu ürün için '+item.base_unit+' ile uyumlu birim seç.';
- const editing=$('#purchase-id').value,initial=$('#purchase-payment-made').checked&&!editing&&paymentsReady;
- $('#first-payment-section').hidden=Boolean(editing);$('#purchase-payment-made').disabled=!paymentsReady;
- $('#first-payment-fields').hidden=!initial;
- ['purchase-paid','purchase-payment-date'].forEach(id=>{$('#'+id).required=initial;$('#'+id).disabled=!initial;});
- const old=purchases.find(p=>p.id===editing),paid=editing?Number(old?.paid_total||0):initial?numeric('purchase-paid'):0;
+ const old=purchases.find(p=>p.id===$('#purchase-id').value),paid=Number(old?.paid_total||0);
  if(paymentsReady&&Number.isFinite(total)&&total>=0&&Number.isFinite(paid))text+=' · Ödenen: '+money(paid)+' · Kalan Borç: '+money(total-paid);
  $('#purchase-preview').textContent=text;
 }
 form.addEventListener('input',updateForm);form.addEventListener('change',updateForm);
-function resetForm(){form.reset();purchaseRequestId=crypto.randomUUID();$('#purchase-id').value='';$('#purchase-date').value=today();$('#purchase-payment-date').value=today();$('#purchase-title').textContent='Alışveriş Ekle';$('#purchase-save').textContent='Alışverişi Kaydet →';$('#purchase-cancel').hidden=true;updateForm();}
+function resetForm(){form.reset();purchaseRequestId=crypto.randomUUID();$('#purchase-id').value='';$('#purchase-date').value=today();$('#purchase-title').textContent='Alışveriş Ekle';$('#purchase-save').textContent='Alışverişi Kaydet →';$('#purchase-cancel').hidden=true;updateForm();}
 $('#purchase-cancel').addEventListener('click',()=>{resetForm();message('',false,$('#purchase-status'));});
 function editPurchase(p){
- $('#purchase-id').value=p.id;$('#purchase-item').value=p.item_id;$('#purchase-supplier').value=p.supplier;$('#purchase-date').value=p.purchase_date;$('#purchase-unit').value=p.purchased_unit;$('#purchase-package-unit').value=p.package_unit||'kg';$('#purchase-price-mode').value='total';
+ showInventoryView('purchase');
+ const item=items.find(i=>i.id===p.item_id);if(!item){message('Alışverişin ürün bilgileri yüklenemedi. Sayfayı yenile.',true);return;}
+ $('#purchase-id').value=p.id;$('#purchase-name').value=item.name;$('#purchase-brand').value=item.brand;$('#purchase-category').value=item.category;$('#purchase-supplier').value=p.supplier;$('#purchase-date').value=p.purchase_date;$('#purchase-unit').value=p.purchased_unit;$('#purchase-package-unit').value=p.package_unit||'kg';$('#purchase-price-mode').value='total';
  setNumberInputValue($('#purchase-quantity'),p.purchased_quantity);setNumberInputValue($('#purchase-package'),p.package_quantity??'');setNumberInputValue($('#purchase-price'),p.total_cost);$('#purchase-note').value=p.notes||'';
  $('#purchase-title').textContent='Alışverişi Düzenle';$('#purchase-save').textContent='Değişiklikleri Kaydet →';$('#purchase-cancel').hidden=false;updateForm();message('Kaydettiğinde stok fark kadar güncellenir.',false,$('#purchase-status'));form.scrollIntoView({behavior:'smooth',block:'start'});
 }
 form.addEventListener('submit',async event=>{
  event.preventDefault();if(saving||!session||!ready)return;
  const q=numeric('purchase-quantity'),p=numeric('purchase-price'),pack=['torba','şişe'].includes($('#purchase-unit').value),pq=pack?numeric('purchase-package'):null,unit=pack?$('#purchase-package-unit').value:$('#purchase-unit').value;
- const total=purchaseTotal(q,p),item=items.find(i=>i.id===$('#purchase-item').value);
+ const total=purchaseTotal(q,p),item=matchingItem();
+ if(!$('#purchase-name').value.trim()){message('Ürün Adı zorunludur.',true,$('#purchase-status'));return;}
  if(!(q>0&&q<=1e9&&Number.isFinite(q))||!(Number.isFinite(p)&&p>=0)||!(total<=1e12)||pack&&!(pq>0&&pq<=1e9)){message('Miktar sıfırdan büyük, fiyat sıfır veya daha büyük olmalı. Ambalaj içeriğini de kontrol et.',true,$('#purchase-status'));return;}
  if(item&&units[unit]?.[0]!==item.base_unit){message('Seçilen ürünün stok birimi '+item.base_unit+'. Uyumlu bir alışveriş birimi seç.',true,$('#purchase-status'));return;}
- const initial=paymentsReady&&!$('#purchase-id').value&&$('#purchase-payment-made').checked,firstPaid=initial?numeric('purchase-paid'):0,old=purchases.find(p=>p.id===$('#purchase-id').value);
- if(initial&&(!Number.isFinite(firstPaid)||firstPaid<=0||Math.round(firstPaid*100)>Math.round(total*100))){message('Ödenen tutar sıfırdan büyük ve alışveriş bedelinden fazla olmamalı.',true,$('#purchase-status'));return;}
+ const old=purchases.find(p=>p.id===$('#purchase-id').value);
  if(old&&Math.round(total*100)<Math.round(Number(old.paid_total||0)*100)){message('Alışveriş bedeli kaydedilmiş ödemelerden az olamaz. Önce ödeme kayıtlarını kontrol et.',true,$('#purchase-status'));return;}
  const payload={id:$('#purchase-id').value||null,item_id:item?.id||null,name:$('#purchase-name').value.trim(),brand:$('#purchase-brand').value.trim(),category:$('#purchase-category').value,supplier:$('#purchase-supplier').value.trim(),purchase_date:$('#purchase-date').value,purchased_quantity:q,purchased_unit:$('#purchase-unit').value,package_quantity:pq,package_unit:pack?$('#purchase-package-unit').value:null,total_cost:Number(total.toFixed(2)),notes:$('#purchase-note').value.trim()};
  saving=true;$('#purchase-save').disabled=true;message('Alışveriş ve stok kaydediliyor…',false,$('#purchase-status'));
- try{const {data,error}=paymentsReady?await client.rpc('agroverix_save_purchase_and_payment',{p_purchase:payload,p_payment:initial?{amount:Number(firstPaid.toFixed(2)),payment_date:$('#purchase-payment-date').value,notes:'Alışverişle birlikte kaydedilen ilk ödeme'}:null,p_request_id:purchaseRequestId}):await client.rpc('agroverix_save_inventory_purchase',{p_purchase:payload});if(error)throw error;resetForm();message('Alışveriş kaydedildi. Stok ve kalan borç güncellendi.',false,$('#purchase-status'));await refresh();if(data)ledger.selectPurchase(data);}
+ try{const {data,error}=paymentsReady?await client.rpc('agroverix_save_purchase_and_payment',{p_purchase:payload,p_payment:null,p_request_id:purchaseRequestId}):await client.rpc('agroverix_save_inventory_purchase',{p_purchase:payload});if(error)throw error;resetForm();message('Alışveriş kaydedildi. Ödeme girmek için Ödeme Detayı düğmesini seç.',false,$('#purchase-status'));await refresh();if(data)ledger.selectPurchase(data);}
  catch(error){message(stockError(error),true,$('#purchase-status'));}
  finally{saving=false;$('#purchase-save').disabled=false;}
 });
 async function removePurchase(p,button){
- if(Number(p.paid_total||0)>0){message('Bu alışverişte ödeme kayıtları var. Önce Ödeme ve Borç Takibi bölümündeki ödemeleri kontrol et.',true);$('#odeme-borc').scrollIntoView({behavior:'smooth'});return;}
+ if(Number(p.paid_total||0)>0){ledger.selectPurchase(p.id);showInventoryView('payment',{scroll:true});ledger.notify('Bu alışverişte ödeme kayıtları var. Alışverişi silmeden önce ilgili ödemeleri kontrol et.');return;}
  if(!confirm('Bu alışveriş kaydı silinsin mi? Alınan miktar stoktan çıkarılır. Tarlalarda kullanılmış stok eksiye düşürülemez.'))return;
  button.disabled=true;
  try{const {error}=await client.from('farmer_inventory_purchases').delete().eq('id',p.id).eq('user_id',session.user.id).select('id').single();if(error)throw error;if($('#purchase-id').value===p.id)resetForm();await refresh();message('Alışveriş silindi, stok güncellendi.');}
