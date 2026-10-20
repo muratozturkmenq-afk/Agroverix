@@ -10,7 +10,7 @@ export function automaticOperationCost({itemId,quantity,unit,date,purchases,oldR
  let price;
  if(oldRecord?.cost_source==='inventory_average'&&oldRecord.inventory_item_id===itemId&&oldRecord.operation_date===date&&oldRecord.inventory_unit_cost!==null&&oldRecord.inventory_unit_cost!==undefined){price={unitCost:Number(oldRecord.inventory_unit_cost),stored:true};}
  else price=acquisitionPrice(itemId,purchases,date);
- if(!price)return {error:'İşlem tarihine kadar bu ürünün alışveriş kaydı yok. Alışverişi kaydet veya otomatik hesabı kapatıp tutarı elle gir.'};
+ if(!price)return {error:'İşlem tarihine kadar bu ürünün alışveriş kaydı yok. Alışveriş kaydını ve uygulama tarihini kontrol et.'};
  const total=Math.round((amount*price.unitCost+Number.EPSILON)*100)/100;
  if(!Number.isFinite(total)||total<0||total>9999999999.99)return {error:'Hesaplanan maliyet izin verilen aralığı aşıyor.'};
  return {...price,quantity:amount,total};
