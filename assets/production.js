@@ -2,6 +2,7 @@ import { parseNumberInput, bindNumberInput, setNumberInputValue } from './number
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm";
 import { farmFinance, seasonFor, serviceTypes, operationLabels } from "./farm-finance.js?v=seasons-v1";
 import { costPerDecare } from "./operation-cost.js";
+import {loadInventory,compatibleUnits,converted,fmt,stockError} from './inventory-data.js?v=stock-v1';
 
 const $ = (selector) => document.querySelector(selector);
 const cfg = window.AGROVERIX_SUPABASE || {};
@@ -14,13 +15,37 @@ let farms = [];
 let records = [];
 let editingRecords = false;
 let requestedEditOpened = false;
+let inventoryItems=[],inventoryReady=false;
+const allUnitOptions=[...$('#operation-unit').options].map(o=>({value:o.value,label:o.textContent}));
+function updateStockSelection(fill=false){
+ const item=inventoryItems.find(i=>i.id===$('#operation-inventory-item').value),unit=$('#operation-unit'),previous=unit.value;
+ unit.replaceChildren();
+ if(item){compatibleUnits(item.base_unit).forEach(u=>unit.add(new Option(u,u)));unit.value=compatibleUnits(item.base_unit).includes(previous)?previous:item.base_unit;
+  if(fill)$('#operation-product').value=(item.brand||item.name).slice(0,120);
+  const old=records.find(r=>r.id===$('#operation-id').value),available=Number(item.stock_quantity)+(old?.inventory_item_id===item.id?Number(old.inventory_quantity||0):0);
+  $('#operation-stock-hint').textContent=item.name+' · Kullanılabilir: '+fmt(available)+' '+item.base_unit+'. Torba / şişe içeriğini kg veya L cinsinden gir. Kaydettiğinde stok güncellenir.';
+ }else{allUnitOptions.forEach(o=>unit.add(new Option(o.label,o.value)));unit.value=previous;$('#operation-stock-hint').textContent=inventoryReady?'Stoktan ürün seçtiğinde kullanılan toplam miktar stoktan düşer. Stok kullanmadan girilen kayıtlar Alışveriş ve Stok sayfasında sonradan eşleştirilebilir.':'Stok listesi yüklenemedi. Normal masraf girişine devam edebilirsin; stok eşleştirmesi için Alışveriş ve Stok sayfasını aç.';}
+}
+async function loadStock(){
+ const uid=session?.user.id;if(!uid)return;
+ try{const stock=await loadInventory(client,uid);if(session?.user.id!==uid)return;inventoryItems=stock.items;inventoryReady=true;}
+ catch{inventoryItems=[];inventoryReady=false;}
+ const s=$('#operation-inventory-item'),previous=s.value;s.replaceChildren(new Option('Stok kullanmadan giriş',''));inventoryItems.forEach(i=>s.add(new Option(i.name+(i.brand?' · '+i.brand:'')+' · '+fmt(i.stock_quantity)+' '+i.base_unit,i.id)));
+ const linked=records.find(r=>r.id===$('#operation-id').value)?.inventory_item_id;
+ if(linked&&!inventoryReady)s.add(new Option('Kayıtlı stok bağlantısı (yüklenemedi)',linked));
+ s.value=previous;s.disabled=!inventoryReady||$('#expense-category').value==='service';updateStockSelection();
+}
+$('#operation-inventory-item').addEventListener('change',()=>updateStockSelection(true));
 bindNumberInput($('#operation-quantity'));bindNumberInput($('#operation-total-cost'),{maximumFractionDigits:2});
 function selectCategory(type=''){
  const service=$('#expense-category').value==='service';
  const select=$('#operation-type'); select.replaceChildren(new Option('İşlem seç',''));
  Object.entries(labels).filter(([key])=>serviceTypes.has(key)===service).forEach(([key,label])=>select.add(new Option(label,key)));
  if(type && [...select.options].some(o=>o.value===type))select.value=type;
- ['operation-product-field','operation-quantity-field'].forEach(id=>$('#'+id).hidden=service);
+ ['operation-product-field','operation-quantity-field','operation-inventory-field'].forEach(id=>$('#'+id).hidden=service);
+ $('#operation-inventory-item').disabled=service||!inventoryReady;
+ if(service)$('#operation-inventory-item').value='';
+ updateStockSelection();
  ['operation-product','operation-quantity','operation-unit'].forEach(id=>{$('#'+id).required=!service;$('#'+id).disabled=service;});
  $('#service-note').hidden=!service;
 }
@@ -133,6 +158,7 @@ function renderRecords(rows) {
       if (error) { message("Kayıt silinemedi. Kurulum durumunu kontrol et.", true); return; }
       message("Üretim kaydı silindi.");
       await loadRecords();
+      await loadStock();
     });
     actions.append(edit, remove);
     card.append(icon, content, cost, actions);
@@ -163,6 +189,7 @@ async function loadRecords() {
   const { data, error } = await client.from("farmer_operations").select("*").eq("user_id", session.user.id).order("operation_date", { ascending: false }).order("created_at", { ascending: false });
   if (error) { message("İşlem tablosu henüz kurulmamış. Yönetici Supabase kurulum dosyasını güncellemeli.", true); records = []; updateSummary(); return; }
   records = data || [];
+  await loadStock();
   $("#records-edit-toggle").disabled = !records.length;
   updateSummary();
   if (requestedEdit && !requestedEditOpened) {
@@ -184,6 +211,9 @@ function editRecord(record) {
   const legacy = record.cost_basis !== "field_total";
   const per = calculateCostPerDecare(record);
   setNumberInputValue($("#operation-quantity"),legacy && record.quantity && farm ? Number((Number(record.quantity) * Number(seasonFor(farm,Number($("#operation-season").value))?.area_decare||farm.area_decare)).toFixed(3)) : record.quantity ?? "");
+  const stockSelect=$('#operation-inventory-item');
+  if(record.inventory_item_id&&![...stockSelect.options].some(o=>o.value===record.inventory_item_id))stockSelect.add(new Option('Kayıtlı stok bağlantısı',record.inventory_item_id));
+  stockSelect.value=record.inventory_item_id||'';updateStockSelection();
   $("#operation-unit").value = String(record.quantity_unit || "").replace(/\/da$/, "");
   setNumberInputValue($("#operation-total-cost"),per !== null && farm ? Number((per * Number(seasonFor(farm,Number($("#operation-season").value))?.area_decare||farm.area_decare)).toFixed(2)) : "");
   $("#operation-note").value = record.notes || "";
@@ -258,12 +288,19 @@ form.addEventListener("submit", async (event) => {
     updated_at: new Date().toISOString()
   };
   const editingId = $("#operation-id").value;
+  const oldRecord=records.find(r=>r.id===editingId),stockId=service?null:$('#operation-inventory-item').value||null;
+  if(!inventoryReady&&oldRecord?.inventory_item_id){message('Stok bağlantısı yüklenemedi. Stok güncellenmeden bu kayıt değiştirilemez; sayfayı yenile.',true);return;}
+  if(stockId){
+    const item=inventoryItems.find(i=>i.id===stockId),used=converted(quantity,$('#operation-unit').value),available=Number(item?.stock_quantity||0)+(oldRecord?.inventory_item_id===stockId?Number(oldRecord.inventory_quantity||0):0);
+    if(!item||!Number.isFinite(used)||used<=0||used>available+0.0000001){message('Yetersiz stok. Kullanılabilir miktarı veya alışveriş kaydını kontrol et.',true);return;}
+  }
+  if(inventoryReady)record.inventory_item_id=stockId;
   $("#operation-submit").disabled = true;
   message("Üretim kaydı kaydediliyor…");
   const { error } = editingId
     ? await client.from("farmer_operations").update(record).eq("id", editingId).eq("user_id", session.user.id).select("id").single()
     : await client.from("farmer_operations").insert(record);
-  if (error) { $("#operation-submit").disabled = false; message("Kayıt kaydedilemedi. Supabase kurulumunu kontrol edip tekrar dene.", true); return; }
+  if (error) { $("#operation-submit").disabled = false; message(stockError(error), true); return; }
   message("İşlem kaydedildi. Ana sayfadaki maliyet özetine yönlendiriliyorsun…");
   window.location.assign("index.html");
 });
@@ -279,15 +316,16 @@ if (!cfg.url || !cfg.publishableKey) {
   const { data } = await client.auth.getSession();
   session = data.session;
   banner.hidden = Boolean(session);
-  if (session) await loadFarms();
+  if (session) {await loadStock();await loadFarms();}
   client.auth.onAuthStateChange((event, newSession) => {
     if (!["SIGNED_IN","SIGNED_OUT"].includes(event)) return;
     session = newSession;
     banner.hidden = Boolean(session);
-    if (session) setTimeout(() => loadFarms(),0);
+    if (session) setTimeout(async()=>{await loadStock();await loadFarms();},0);
     else {
-      farms = []; records = []; renderFarmOptions(); updateSummary();
+      farms = []; records = [];inventoryItems=[];inventoryReady=false;$('#operation-inventory-item').replaceChildren(new Option('Stok kullanmadan giriş',''));$('#operation-inventory-item').disabled=true;updateStockSelection();renderFarmOptions(); updateSummary();
       message("Giriş yaparak kendi kayıtlarını görüntüleyebilirsin.");
     }
   });
 }
+window.addEventListener('focus',()=>{if(session)loadStock();});

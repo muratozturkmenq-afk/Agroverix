@@ -13,6 +13,7 @@
 <link rel="stylesheet" href="assets/production.css?v=home-return-20261015">
 <link rel="stylesheet" href="assets/farm-finance.css?v=seasons-v1">
 <link rel="stylesheet" href="assets/mobile-reports.css?v=readable-labels-v2">
+<link rel="stylesheet" href="assets/inventory.css?v=stock-v1">
 
 <link rel="icon" href="/favicon.svg?v=square-v1" type="image/svg+xml">
 <link rel="icon" href="/favicon.ico?v=square-v1" sizes="32x32 48x48 64x64">
@@ -33,6 +34,7 @@
     <p class="eyebrow">Sezon boyunca yanında</p>
     <h1>Üretim<br><em>kayıtların.</em></h1>
     <p>Tohum, gübre ve ilaç girdilerini; makine ve işçilik masraflarını ayrı kaydet. Maliyeti tarlanın tamamı için gir.</p>
+    <a class="operation-stock-link" href="alisveris-stok.html">Alışveriş ve Stok →</a>
     <nav class="profile-progress production-progress" aria-label="Kayıt aşamaları">
       <a href="ciftci-bilgi.html"><b>01</b> Profil</a><i></i><a href="tarla-bilgileri.html"><b>02</b> Tarla</a><i></i><span aria-current="step"><b>03</b> Üretim</span>
     </nav>
@@ -58,6 +60,7 @@
           <div class="profile-field wide"><label for="expense-category">Masraf Türünü Seç <b>*</b></label><select id="expense-category" required><option value="input">Malzeme Girdisi · Tohum, Gübre, İlaç</option><option value="service">Makine ve İşçilik · Sürüm, Ekim, Çapalama</option></select></div>
           <div class="profile-field"><label for="operation-date">İşlem tarihi <b>*</b></label><input id="operation-date" type="date" required></div>
           <div class="profile-field"><label for="operation-type">Yapılan İşlem <b>*</b></label><select id="operation-type" required><option value="">İşlem seç</option></select></div>
+          <div class="profile-field wide" id="operation-inventory-field"><label for="operation-inventory-item">Kullanılacak Stok Ürünü</label><select id="operation-inventory-item" disabled><option value="">Stok kullanmadan giriş</option></select><p class="operation-stock-hint" id="operation-stock-hint">Stoktan ürün seçtiğinde kullanılan miktar kalan stoktan düşer. <a href="alisveris-stok.html">Alışveriş ekle →</a></p></div>
           <div class="profile-field" id="operation-product-field"><label for="operation-product">Kullanılan Ürünün Markası <b>*</b></label><input id="operation-product" maxlength="120" placeholder="Kullandığın ürünün markasını yaz" required></div>
           <div class="profile-field" id="operation-quantity-field"><label for="operation-quantity">Bu Uygulamada Kullanılan Toplam Miktar <b>*</b></label><div class="production-quantity-control"><input id="operation-quantity" type="text" pattern="[0-9]+([.,][0-9]+)?" inputmode="decimal" placeholder="Örn. 2,5" required><select id="operation-unit" aria-label="Bu Uygulamada Kullanılan Toplam Miktar birimi" required><option value="">Birim seç</option><option value="kg">kg</option><option value="ton">ton</option><option value="g">g</option><option value="L">L</option><option value="ml">ml</option><option value="m">m</option><option value="adet">adet</option><option value="torba">torba</option><option value="şişe">şişe</option><option value="m³">m³</option><option value="saat">saat</option></select></div></div>
           <div class="wide expense-service-note" id="service-note" hidden>Makine ve işçilik için ürün veya marka adı gerekmez. Tarihi, yapılan işi ve bu tarlaya ait toplam masrafı gir.</div>
@@ -86,6 +89,6 @@
   </section>
 </main>
 <script src="assets/supabase-config.js"></script>
-<script type="module" src="assets/production.js?v=expense-labels-v3"></script>
+<script type="module" src="assets/production.js?v=inventory-v1"></script>
 </body>
 </html>

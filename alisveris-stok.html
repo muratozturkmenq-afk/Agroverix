@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Alışveriş ve Stok · AgroVerix</title><meta name="theme-color" content="#0D100B">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Sans:ital,wght@0,400..700;1,400&family=Martian+Mono:wght@400..600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css"><link rel="stylesheet" href="assets/profile.css"><link rel="stylesheet" href="assets/mobile-reports.css?v=readable-labels-v2"><link rel="stylesheet" href="assets/inventory.css?v=stock-v1">
+<link rel="icon" href="/favicon.svg?v=square-v1" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png?v=square-v1"><link rel="manifest" href="/site.webmanifest?v=square-v1"><meta name="apple-mobile-web-app-title" content="AgroVerix">
+</head>
+<body class="profile-page inventory-page">
+<header class="profile-top"><a class="brand" href="index.html"><img class="home-logo" src="assets/images/agroverix-logo-horizontal-light.svg" width="920" height="302" alt="AgroVerix — Cebimdeki Tarlam"></a><span class="profile-step">ALIŞVERİŞ <i>·</i> STOK TAKİBİ</span><a class="profile-back" href="index.html">Ana Sayfaya Dön →</a></header>
+<main class="inventory-layout">
+ <section class="inventory-intro"><div><p class="eyebrow">Aldığın ürün, kalan stok, tarla kullanımı</p><h1>Alışveriş <em>ve Stok.</em></h1><p>Tedarikçiden aldığını kaydet. Tarlada kullandığını stoktan seç; kalan miktarı ve her tarlanın kullanımını burada gör.</p></div><a class="inventory-link" href="uretim-kayitlari.html">Tarlaya Masraf Gir ↗</a></section>
+ <div id="inventory-auth" class="inventory-notice" role="status" hidden>Kayıtların hesabına özeldir. Alışverişlerini ve stoklarını görmek için <a href="ciftci-bilgi.html?next=alisveris-stok.html">giriş yap</a>.</div>
+ <p id="inventory-status" class="inventory-status" role="status" aria-live="polite">Kayıtların yükleniyor…</p>
+ <section class="inventory-summary" aria-label="Alışveriş özeti"><article><span>Toplam Alışveriş Tutarı</span><b id="inventory-total">—</b><small>Tedarikçilerden alınan ürünler</small></article><article><span>Stoktaki Ürün</span><b id="inventory-count">—</b><small>Kalan miktarı olan ürün çeşidi</small></article><article><span>Tarla Kullanımı</span><b id="inventory-uses">—</b><small>Stokla eşleştirilen uygulama sayısı</small></article></section>
+ <div class="inventory-columns">
+ <section class="inventory-entry" aria-labelledby="purchase-title"><div class="inventory-section-head"><span class="profile-kicker">TEDARİKÇİDEN ALIŞVERİŞ</span><h2 id="purchase-title">Alışveriş Ekle</h2><p>Torba ve şişe alımlarında ambalaj içeriğini de gir.</p></div>
+ <form id="purchase-form"><input id="purchase-id" type="hidden"><fieldset id="purchase-fields" disabled><div class="inventory-form-grid">
+ <div class="profile-field wide"><label for="purchase-item">Stok Ürünü <b>*</b></label><select id="purchase-item"><option value="">Yeni Ürün Ekle</option></select></div>
+ <div id="new-product-fields" class="inventory-form-grid wide">
+ <div class="profile-field wide"><label for="purchase-name">Ürün Adı <b>*</b></label><input id="purchase-name" maxlength="160" placeholder="Örn. DAP gübresi" required></div>
+ <div class="profile-field"><label for="purchase-brand">Marka</label><input id="purchase-brand" maxlength="160" placeholder="Ürünün markası"></div>
+ <div class="profile-field"><label for="purchase-category">Ürün Grubu</label><select id="purchase-category"><option value="fertilizer">Gübre</option><option value="seed">Tohum</option><option value="chemical">İlaç</option><option value="other">Diğer</option></select></div></div>
+ <div class="profile-field wide"><label for="purchase-supplier">Tedarikçi Adı <b>*</b></label><input id="purchase-supplier" maxlength="200" placeholder="Alışveriş yaptığın tedarikçi" required></div>
+ <div class="profile-field wide"><label for="purchase-date">Alışveriş Tarihi <b>*</b></label><input id="purchase-date" type="date" required></div>
+ <div class="profile-field"><label for="purchase-quantity">Alınan Miktar <b>*</b></label><input id="purchase-quantity" inputmode="decimal" placeholder="Örn. 10" required></div>
+ <div class="profile-field"><label for="purchase-unit">Birim <b>*</b></label><select id="purchase-unit" required><option value="kg">kg</option><option value="ton">ton</option><option value="g">g</option><option value="L">L</option><option value="ml">ml</option><option value="adet">adet</option><option value="m">m</option><option value="m³">m³</option><option value="torba">torba</option><option value="şişe">şişe</option></select></div>
+ <div id="package-fields" class="inventory-form-grid wide" hidden><div class="profile-field"><label for="purchase-package">Bir Torba / Şişe İçeriği <b>*</b></label><input id="purchase-package" inputmode="decimal" placeholder="Örn. 50"></div><div class="profile-field"><label for="purchase-package-unit">İçerik Birimi <b>*</b></label><select id="purchase-package-unit"><option value="kg">kg</option><option value="g">g</option><option value="L">L</option><option value="ml">ml</option><option value="adet">adet</option></select></div></div>
+ <div class="profile-field wide"><label for="purchase-price-mode">Fiyatı Nasıl Gireceksin?</label><select id="purchase-price-mode"><option value="total">Alışverişin Toplam Tutarı</option><option value="unit">Seçilen Birimin Alış Fiyatı</option></select></div>
+ <div class="profile-field wide"><label id="purchase-price-label" for="purchase-price">Toplam Tutar (TL) <b>*</b></label><input id="purchase-price" inputmode="decimal" placeholder="Örn. 10.000" required></div>
+ <div class="profile-field wide"><label for="purchase-note">Alışveriş Açıklaması</label><textarea id="purchase-note" rows="2" maxlength="1000" placeholder="İsteğe bağlı fatura veya alışveriş bilgisi"></textarea></div>
+ </div><p id="purchase-preview" class="inventory-preview" aria-live="polite">Miktar ve fiyatı girince alışveriş özeti burada görünür.</p><div class="inventory-actions"><button id="purchase-save" class="profile-submit" type="submit">Alışverişi Kaydet →</button><button id="purchase-cancel" class="inventory-button" type="button" hidden>Vazgeç</button></div></fieldset><p id="purchase-status" role="status" aria-live="polite"></p></form></section>
+ <section class="inventory-stock" aria-labelledby="stock-title"><div class="inventory-section-head stock-head"><div><span class="profile-kicker">DEPO VE KULLANIM</span><h2 id="stock-title">Stoklarım</h2></div><button id="inventory-refresh" class="inventory-button" type="button">Yenile ↻</button></div><div class="profile-field inventory-search"><label for="inventory-search">Ürün veya Marka Ara</label><input id="inventory-search" type="search" placeholder="Stokta ara…"></div><div id="stock-list" class="stock-list"></div><div id="stock-empty" class="inventory-empty" hidden><span aria-hidden="true">＋</span><h3>İlk alışverişini ekle</h3><p>Ürünlerin ve kalan stokların burada görünecek. Tarlaya masraf girerken bu ürünleri seçerek kullanımı kaydedebilirsin.</p></div>
+ <section id="unlinked-section" class="inventory-unlinked" hidden><h3>Stokla Eşleştirilmemiş Kullanımlar</h3><p>Önceki kayıtları doğru ürünle eşleştir. Eşleştirme yapıldığında kullanılan miktar stoktan düşer. Makine ve işçilik bu listeye dahil değildir.</p><div id="unlinked-list"></div></section>
+ </section></div>
+ <p class="inventory-footnote">Alışveriş tutarı depoya alınan ürünlerin toplamıdır. Tarla maliyetine yalnızca o tarlaya kaydettiğin uygulama masrafı eklenir.</p><a class="profile-back inventory-home" href="index.html">Ana Sayfaya Dön →</a>
+</main><script src="assets/supabase-config.js"></script><script type="module" src="assets/inventory.js?v=stock-v1"></script>
+</body></html>
