@@ -1,6 +1,6 @@
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
 import {bindNumberInput,parseNumberInput,setNumberInputValue} from './number-input.js?v=groups-v2';
-import {units,fmt,money,converted,loadInventory,readAll,totalsFor,today,stockError} from './inventory-data.js?v=stock-v1';
+import {units,fmt,money,converted,loadInventory,readAll,totalsFor,today,stockError} from './inventory-data.js?v=stock-v2';
 import {serviceTypes,operationLabels} from './farm-finance.js?v=seasons-v1';
 
 const $=s=>document.querySelector(s),form=$('#purchase-form'),cfg=window.AGROVERIX_SUPABASE||{};
@@ -106,7 +106,7 @@ $('#inventory-search').addEventListener('input',renderStock);$('#inventory-refre
 window.addEventListener('focus',()=>{if(session&&!saving)refresh();});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&session&&!saving)refresh();});
 setInterval(()=>{if(!document.hidden&&session&&!saving)refresh();},30000);
-function account(next){generation++;if(channel){client.removeChannel(channel);channel=null;}session=next;ready=false;items=[];purchases=[];operations=[];farms=[];resetForm();$('#purchase-fields').disabled=true;$('#stock-list').replaceChildren();$('#unlinked-section').hidden=true;$('#stock-empty').hidden=true;['inventory-total','inventory-count','inventory-uses'].forEach(id=>$('#'+id).textContent='—');$('#inventory-auth').hidden=Boolean(session);message('',false,$('#purchase-status'));if(session){
+function account(next){generation++;if(channel){client.removeChannel(channel);channel=null;}session=next;ready=false;items=[];purchases=[];operations=[];farms=[];resetForm();$('#purchase-fields').disabled=true;$('#stock-list').replaceChildren();$('#unlinked-section').hidden=true;$('#stock-empty').hidden=Boolean(session);['inventory-total','inventory-count','inventory-uses'].forEach(id=>$('#'+id).textContent='—');$('#inventory-auth').hidden=Boolean(session);message('',false,$('#purchase-status'));if(session){
  refresh();channel=client.channel('inventory-'+session.user.id);['farmer_inventory_items','farmer_inventory_purchases','farmer_operations'].forEach(table=>channel.on('postgres_changes',{event:'*',schema:'public',table,filter:'user_id=eq.'+session.user.id},()=>{if(!saving)refresh();}));channel.subscribe();
  }else message('Giriş yaptıktan sonra alışveriş ekleyebilir ve stoklarını takip edebilirsin.');}
 if(cfg.url&&cfg.publishableKey){client=createClient(cfg.url,cfg.publishableKey);const {data,error}=await client.auth.getSession();if(error){message('Oturum alınamadı. Lütfen tekrar giriş yap.',true);$('#inventory-auth').hidden=false;}else account(data.session);client.auth.onAuthStateChange((event,next)=>{if(['SIGNED_IN','SIGNED_OUT'].includes(event)&&next?.user.id!==session?.user.id)setTimeout(()=>account(next),0);});}

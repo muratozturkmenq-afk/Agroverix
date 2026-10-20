@@ -2,7 +2,7 @@ import { parseNumberInput, bindNumberInput, setNumberInputValue } from './number
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm";
 import { farmFinance, seasonFor, serviceTypes, operationLabels } from "./farm-finance.js?v=seasons-v1";
 import { costPerDecare } from "./operation-cost.js";
-import {loadInventory,compatibleUnits,converted,fmt,stockError} from './inventory-data.js?v=stock-v1';
+import {loadInventory,compatibleUnits,converted,fmt,stockError} from './inventory-data.js?v=stock-v2';
 
 const $ = (selector) => document.querySelector(selector);
 const cfg = window.AGROVERIX_SUPABASE || {};
