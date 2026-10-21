@@ -1,7 +1,7 @@
 .hero .finance-hero-title{font-size:clamp(36px,5vw,72px)!important}
-.nav .nav-links{font-size:16px;font-weight:600;gap:20px}
+.nav .nav-links{font-size:17px;font-weight:700;gap:18px}
 .mobile-page-menu{display:none}
-@media(max-width:1500px){
+@media(max-width:1800px){
  .nav .nav-in{position:relative;flex-wrap:wrap;column-gap:14px;row-gap:5px;padding-bottom:10px}
  .nav .home-brand{order:1}.nav .nav-in>.btn{order:2;margin-left:auto}.nav .nav-links{display:none}
  .nav .mobile-page-menu{display:block;position:relative;order:3;flex-basis:100%;width:100%;min-width:0}
@@ -9,8 +9,13 @@
  .nav-toggle::-webkit-details-marker{display:none}.nav-toggle::marker{content:''}.nav-toggle-icon{width:19px;color:var(--gold);font-size:19px;line-height:1}.nav-toggle-arrow{margin-left:auto;font-size:19px;color:var(--gold)}
  .mobile-page-menu[open]>.nav-toggle{border-color:var(--gold)}.mobile-page-menu[open] .nav-toggle-arrow{transform:rotate(180deg)}
  .nav .mobile-page-links{position:absolute;z-index:1;top:calc(100% + 8px);left:0;right:0;margin:0;padding:8px;max-height:calc(100vh - 170px);max-height:calc(100dvh - 170px);overflow-y:auto;overscroll-behavior:contain;background:var(--soil);border:1px solid var(--line-d);border-radius:11px;box-shadow:0 16px 35px var(--night)}
- .mobile-page-menu[open]>.mobile-page-links{display:grid;gap:3px}.nav .mobile-page-links a{display:flex;align-items:center;min-height:50px;padding:11px 12px;border-radius:6px;color:var(--cotton);font-size:17px;font-weight:600;line-height:1.4;text-decoration:none;overflow-wrap:anywhere}.nav .mobile-page-links a:hover,.nav .mobile-page-links a:focus-visible{background:var(--moss);color:var(--gold-2)}
+ .mobile-page-menu[open]>.mobile-page-links{display:grid;gap:3px}.nav .mobile-page-links a{display:flex;align-items:center;min-height:50px;padding:11px 12px;border-radius:6px;color:var(--cotton);font-size:18px;font-weight:700;line-height:1.4;text-decoration:none;overflow-wrap:anywhere}.nav .mobile-page-links a:hover,.nav .mobile-page-links a:focus-visible{background:var(--moss);color:var(--gold-2)}
  .hero .hero-inner{padding-top:185px}.hero,.farmer-dashboard,.season,.pests{scroll-margin-top:160px}
 }
 
 @media(max-width:760px){.hero .finance-hero-title{font-size:clamp(32px,7vw,50px)!important}}
+
+
+.nav .nav-links a{color:var(--cotton);font-weight:700;white-space:nowrap}.nav .nav-links a[aria-current="page"],.nav .mobile-page-links a[aria-current="page"]{color:var(--gold-2)}
+.info-site-links{display:flex;flex-wrap:wrap;gap:16px 24px}.info-site-links a{font-size:16px;font-weight:700;color:var(--cotton);text-underline-offset:5px}
+@media(min-width:1801px){.nav>.wrap{max-width:1800px}.nav .nav-in{gap:18px}.nav .nav-links{gap:17px}}
