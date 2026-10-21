@@ -57,7 +57,7 @@
         <div class="production-form-grid">
           <div class="profile-field wide"><label for="operation-farm">Tarla Adı <b>*</b></label><select id="operation-farm" required><option value="">Giriş yaptığında tarlaların yüklenecek</option></select></div>
           <div class="profile-field"><label for="operation-season">Sezon Yılı <b>*</b></label><select id="operation-season" required><option value="">Önce tarla seç</option></select></div>
-          <div class="profile-field wide"><label for="expense-category">Masraf Türünü Seç <b>*</b></label><select id="expense-category" required><option value="input">Malzeme Girdisi · Tohum, Gübre, İlaç</option><option value="service">Makine ve İşçilik · Sürüm, Ekim, Çapalama</option></select></div>
+          <div class="profile-field wide"><label for="expense-category">Masraf Türünü Seç <b>*</b></label><select id="expense-category" required><option value="input">Malzeme Girdisi · Tohum, Gübre, İlaç</option><option value="service">Analiz, Makine ve İşçilik · Toprak Analizi, Sürüm, Ekim</option></select></div>
           <div class="profile-field"><label for="operation-date">İşlem tarihi <b>*</b></label><input id="operation-date" type="date" required></div>
           <div class="profile-field"><label for="operation-type">Yapılan İşlem <b>*</b></label><select id="operation-type" required><option value="">İşlem seç</option></select></div>
           <div class="profile-field" id="operation-product-field"><label for="operation-inventory-item">Kullanılan Ürünün Markasını Seç <b>*</b></label><select id="operation-inventory-item" aria-describedby="operation-stock-hint" required disabled><option value="">Giriş yaptığında alışveriş markaların yüklenecek</option></select><p class="operation-stock-hint" id="operation-stock-hint">Alışveriş yaptığın ürünün markasını seç. Miktarı girdiğinde maliyeti otomatik hesaplanır.</p></div>
@@ -88,6 +88,6 @@
   </section>
 </main>
 <script src="assets/supabase-config.js"></script>
-<script type="module" src="assets/production.js?v=brand-loading-fix-v1"></script>
+<script type="module" src="assets/production.js?v=soil-analysis-v1"></script>
 </body>
 </html>

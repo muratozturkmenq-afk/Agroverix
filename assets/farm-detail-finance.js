@@ -1,5 +1,5 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
-import { farmFinance,seasonFor,fmt,appendMetric,operationLabels,serviceTypes } from './farm-finance.js?v=seasons-v1';
+import { farmFinance,seasonFor,fmt,appendMetric,operationLabels,serviceTypes } from './farm-finance.js?v=soil-analysis-v1';
 import { costPerDecare } from './operation-cost.js';
 import { locationLabels } from './location-labels.js';
 const $=id=>document.getElementById(id),params=new URLSearchParams(location.search),farmId=params.get('farm'),cfg=window.AGROVERIX_SUPABASE||{};

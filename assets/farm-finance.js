@@ -31,5 +31,5 @@ export function appendMetric(parent,label,value,unit='',className='finance-metri
   const number=document.createElement('strong'); number.textContent=value === null || !Number.isFinite(value) ? '—' : fmt(value)+(unit?' '+unit:'');
   el.append(caption,number); parent.append(el); return el;
 }
-export const operationLabels={tillage:'Tarla Sürümü',seed:'Tohum',planting:'Ekim Dikim',fertilizing:'Gübreleme',irrigation:'Sulama',spraying:'İlaç',weeding:'Yabancı Ot Mücadelesi',harvest:'Hasat',other:'Diğer Girdi',hoeing:'Çapalama',machine_spraying:'İlaçlama (Makine)',machine_fertilizing:'Gübreleme (Makine)',labor:'İşçilik',pruning:'Budama',machine_other:'Diğer Makine / Hizmet'};
-export const serviceTypes=new Set(['tillage','planting','hoeing','machine_spraying','machine_fertilizing','labor','pruning','harvest','machine_other']);
+export const operationLabels={soil_analysis:'Toprak Analizi',tillage:'Tarla Sürümü',seed:'Tohum',planting:'Ekim Dikim',fertilizing:'Gübreleme',irrigation:'Sulama',spraying:'İlaç',weeding:'Yabancı Ot Mücadelesi',harvest:'Hasat',other:'Diğer Girdi',hoeing:'Çapalama',machine_spraying:'İlaçlama (Makine)',machine_fertilizing:'Gübreleme (Makine)',labor:'İşçilik',pruning:'Budama',machine_other:'Diğer Makine / Hizmet'};
+export const serviceTypes=new Set(['soil_analysis','tillage','planting','hoeing','machine_spraying','machine_fertilizing','labor','pruning','harvest','machine_other']);

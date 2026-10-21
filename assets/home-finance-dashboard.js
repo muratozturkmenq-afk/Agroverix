@@ -1,4 +1,4 @@
-import { bindReportButtons } from './reports.js?v=cost-line-v2';
+import { bindReportButtons } from './reports.js?v=soil-analysis-v1';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
 import { farmFinance, seasonFor, fmt, appendMetric } from './farm-finance.js?v=seasons-v1';
 import { renderSimulators } from './season-simulator.js?v=first-expense-v1';

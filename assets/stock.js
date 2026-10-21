@@ -1,6 +1,6 @@
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
 import {units,fmt,money,loadInventory,readAll,totalsFor,stockError} from './inventory-data.js?v=payments-v1';
-import {serviceTypes,operationLabels,seasonFor} from './farm-finance.js?v=seasons-v1';
+import {serviceTypes,operationLabels,seasonFor} from './farm-finance.js?v=soil-analysis-v1';
 import {costPerDecare} from './operation-cost.js';
 
 const $=s=>document.querySelector(s),cfg=window.AGROVERIX_SUPABASE||{};

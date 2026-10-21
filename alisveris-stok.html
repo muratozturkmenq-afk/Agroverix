@@ -15,9 +15,9 @@
  <div id="inventory-auth" class="inventory-notice" role="status" hidden>Kayıtların hesabına özeldir. Alışveriş ve ödemelerini görmek için <a href="ciftci-bilgi.html?next=alisveris-stok.html">giriş yap</a>.</div>
  <p id="inventory-status" class="inventory-status" role="status" aria-live="polite">Kayıtların yükleniyor…</p>
  <section class="inventory-summary inventory-summary-payments" aria-label="Alışveriş ve borç özeti"><article><span>Toplam Alışveriş Tutarı</span><b id="inventory-total">—</b><small>Bayilerden alınan ürünler</small></article><article><span>Toplam Ödenen</span><b id="inventory-paid">—</b><small>Kaydedilen ödemeler</small></article><article><span>Kalan Borç</span><b id="inventory-debt">—</b><small>Alışveriş bedeli − ödemeler</small></article></section>
- <div class="inventory-view-tabs" id="inventory-actions" role="tablist" aria-label="Yapmak istediğin işlem"><button id="inventory-tab-purchase" type="button" role="tab" aria-selected="true" aria-controls="alisveris-ekle" tabindex="0">Alışveriş Ekle</button><button id="inventory-tab-payment" type="button" role="tab" aria-selected="false" aria-controls="odeme-borc" tabindex="-1">Ödeme Girişi</button></div>
+ <div class="inventory-view-tabs" id="inventory-actions" role="tablist" aria-label="Yapmak istediğin işlem"><button id="inventory-tab-purchase" type="button" role="tab" aria-selected="true" aria-controls="alisveris-ekle" tabindex="0">Masraf Ekle</button><button id="inventory-tab-payment" type="button" role="tab" aria-selected="false" aria-controls="odeme-borc" tabindex="-1">Ödeme Girişi</button></div>
  <div class="inventory-columns" id="alisveris-ekle" role="tabpanel" aria-labelledby="inventory-tab-purchase">
- <section class="inventory-entry" aria-labelledby="purchase-title"><div class="inventory-section-head"><span class="profile-kicker">TEDARİKÇİDEN ALIŞVERİŞ</span><h2 id="purchase-title">Alışveriş Ekle</h2><p>Torba ve şişe alımlarında ambalaj içeriğini de gir.</p></div>
+ <section class="inventory-entry" aria-labelledby="purchase-title"><div class="inventory-section-head"><span class="profile-kicker">TEDARİKÇİDEN ALIŞVERİŞ</span><h2 id="purchase-title">Masraf Ekle</h2><p>Torba ve şişe alımlarında ambalaj içeriğini de gir.</p></div>
  <form id="purchase-form"><input id="purchase-id" type="hidden"><fieldset id="purchase-fields" disabled><div class="inventory-form-grid">
  <div class="profile-field wide"><label for="purchase-date">Alışveriş Tarihi <b>*</b></label><input id="purchase-date" type="date" required></div>
  <div id="new-product-fields" class="inventory-form-grid wide">
@@ -39,5 +39,5 @@
  <div class="ledger-history-head"><h3>Alışveriş ve Ödeme Geçmişi</h3><div class="profile-field"><label for="ledger-filter">Göster</label><select id="ledger-filter"><option value="all">Tüm Alışverişler</option><option value="unpaid">Borcu Olanlar</option><option value="paid">Ödemesi Tamamlananlar</option></select></div></div><div id="purchase-ledger"></div><p id="ledger-empty" class="payment-help">Kayıtlı alışverişler ve ödeme tarihleri bu bölümde listelenir.</p>
  </section>
  <p class="inventory-footnote">Kalan borç = alışveriş bedeli − kaydedilen ödemeler. Alışveriş tutarı depoya alınan ürünlerin toplamıdır; tarla maliyetine o tarlaya kaydettiğin uygulama masrafı eklenir.</p><a class="profile-back inventory-home" href="index.html">Ana Sayfaya Dön →</a>
-</main><script src="assets/supabase-config.js"></script><script type="module" src="assets/inventory.js?v=stock-views-v2"></script>
+</main><script src="assets/supabase-config.js"></script><script type="module" src="assets/inventory.js?v=soil-analysis-v1"></script>
 </body></html>

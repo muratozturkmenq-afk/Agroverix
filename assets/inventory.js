@@ -41,7 +41,7 @@ function updateForm(){
  $('#purchase-preview').textContent=text;
 }
 form.addEventListener('input',updateForm);form.addEventListener('change',updateForm);
-function resetForm(){form.reset();purchaseRequestId=crypto.randomUUID();$('#purchase-id').value='';$('#purchase-date').value=today();$('#purchase-title').textContent='Alışveriş Ekle';$('#purchase-save').textContent='Alışverişi Kaydet →';$('#purchase-cancel').hidden=true;updateForm();}
+function resetForm(){form.reset();purchaseRequestId=crypto.randomUUID();$('#purchase-id').value='';$('#purchase-date').value=today();$('#purchase-title').textContent='Masraf Ekle';$('#purchase-save').textContent='Alışverişi Kaydet →';$('#purchase-cancel').hidden=true;updateForm();}
 $('#purchase-cancel').addEventListener('click',()=>{resetForm();message('',false,$('#purchase-status'));});
 function editPurchase(p){
  showInventoryView('purchase');

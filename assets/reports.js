@@ -1,6 +1,6 @@
 import { locationLabels } from './location-labels.js';
 import { downloadWorkbook } from './xlsx-report.js?v=cost-line-v2';
-import { farmFinance, operationLabels } from './farm-finance.js?v=seasons-v1';
+import { farmFinance, operationLabels } from './farm-finance.js?v=soil-analysis-v1';
 import { costPerDecare } from './operation-cost.js';
 const tables={profiles:'farmer_profiles',farms:'farmer_farms',seasons:'farmer_seasons',operations:'farmer_operations'};
 export async function reportData(client,user,{administrator=false,userId=null}={}){
