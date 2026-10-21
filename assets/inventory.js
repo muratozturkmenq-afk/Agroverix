@@ -27,7 +27,11 @@ function matchingItem(){
 }
 function purchaseCategories(kind,selected){
  const select=$('#purchase-category');select.replaceChildren();
- Object.entries(expenseCategories).filter(([key])=>categoryKind(key)===kind).forEach(([key,label])=>select.add(new Option(label,key)));
+ [['stock','Ürün Giderleri'],['service','Diğer Giderler']].forEach(([groupKind,label])=>{
+  const group=document.createElement('optgroup');group.label=label;
+  Object.entries(expenseCategories).filter(([key])=>categoryKind(key)===groupKind).forEach(([key,name])=>group.append(new Option(name,key)));
+  select.append(group);
+ });
  if(selected&&[...select.options].some(o=>o.value===selected))select.value=selected;
  else select.value=kind==='service'?'maintenance':'fertilizer';
 }
@@ -37,7 +41,14 @@ function kindChanged(){
  updateForm();
 }
 $('#purchase-kind').addEventListener('change',kindChanged);
-$('#purchase-category').addEventListener('change',()=>{if($('#purchase-category').value==='fuel'&&!$('#purchase-id').value)$('#purchase-unit').value='L';updateForm();});
+$('#purchase-category').addEventListener('change',()=>{
+ const kind=categoryKind($('#purchase-category').value),changed=$('#purchase-kind').value!==kind;
+ $('#purchase-kind').value=kind;
+ if(changed&&kind==='service'){$('#purchase-unit').value='adet';if(!$('#purchase-quantity').value.trim())setNumberInputValue($('#purchase-quantity'),1);}
+ else if(changed&&kind==='stock')$('#purchase-unit').value=$('#purchase-category').value==='fuel'?'L':'kg';
+ else if($('#purchase-category').value==='fuel'&&!$('#purchase-id').value)$('#purchase-unit').value='L';
+ updateForm();
+});
 purchaseCategories('stock','fertilizer');
 function populateItems(){updateForm();}
 function updateForm(){
