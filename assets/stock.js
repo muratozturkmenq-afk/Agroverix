@@ -1,6 +1,7 @@
+import {expenseCategories,categoryLabel,categoryKind} from './expense-categories.js?v=dealer-expenses-v1';
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
-import {units,fmt,money,loadInventory,readAll,totalsFor,stockError} from './inventory-data.js?v=expense-wording-v1';
-import {serviceTypes,operationLabels,seasonFor} from './farm-finance.js?v=soil-analysis-v1';
+import {units,fmt,money,loadInventory,readAll,totalsFor,stockError} from './inventory-data.js?v=dealer-expenses-v1';
+import {serviceTypes,operationLabels,seasonFor} from './farm-finance.js?v=dealer-expenses-v1';
 import {costPerDecare} from './operation-cost.js';
 
 const $=s=>document.querySelector(s),cfg=window.AGROVERIX_SUPABASE||{};
@@ -46,13 +47,13 @@ function jumpTo(mode,key){
 function setMode(mode,{focus=false,writeHash=true}={}){
  stockMode=mode==='supplier'?'supplier':'product';
  ['product','supplier'].forEach(key=>{const selected=stockMode===key,b=$('#stock-tab-'+key);b.setAttribute('aria-selected',String(selected));b.tabIndex=selected?0:-1;$('#stock-panel-'+key).hidden=!selected;});
- $('#inventory-search').placeholder=stockMode==='supplier'?'Bayi veya ürün ara…':'Ürün, marka veya bayi ara…';
+ $('#inventory-search').placeholder=stockMode==='supplier'?'Bayi veya ürün ara…':'Ürün, firma veya bayi ara…';
  if(focus)$('#stock-tab-'+stockMode).focus();
  if(writeHash){const url=new URL(location.href);url.hash=stockMode==='supplier'?'bayiler':'urunler';history.replaceState(null,'',url);}
 }
 function applicationRows(totals,item){
  const uses=el('div',undefined,'stock-usage-list');
- totals.uses.slice().sort((a,b)=>b.operation_date.localeCompare(a.operation_date)||b.id.localeCompare(a.id)).forEach(record=>{
+ totals.uses.slice().sort((a,b)=>a.operation_date.localeCompare(b.operation_date)||a.id.localeCompare(b.id)).forEach(record=>{
   const row=el('article',undefined,'stock-usage'),values=el('dl',undefined,'stock-usage-metrics'),farm=farms.find(f=>f.id===record.farm_id),total=applicationTotal(record);
   const field=el('div');field.append(el('dt','Tarla Adı'));const fieldValue=el('dd');
   if(farm){const link=el('a',farm.name);link.href='tarla-detay.html?farm='+encodeURIComponent(farm.id)+'&year='+encodeURIComponent(record.season_year);fieldValue.append(link);}else fieldValue.textContent='Tarla kaydı bulunamadı';
@@ -73,20 +74,28 @@ function purchaseHistory(receipts,item){
 }
 function renderProducts(tracked,query){
  const list=$('#stock-list');list.replaceChildren();productNodes.clear();
- const selected=tracked.filter(i=>normalize(itemLabel(i)+' '+dealers(purchases.filter(p=>p.item_id===i.id)).join(' ')).includes(query));
+ const selected=tracked.filter(i=>normalize(categoryLabel(i.category)+' '+itemLabel(i)+' '+dealers(purchases.filter(p=>p.item_id===i.id)).join(' ')).includes(query));
+ const categoryNodes=new Map();
+ selected.sort((a,b)=>Object.keys(expenseCategories).indexOf(a.category)-Object.keys(expenseCategories).indexOf(b.category)||a.name.localeCompare(b.name,'tr'));
  selected.forEach(item=>{
+  if(!categoryNodes.has(item.category)){
+   const section=el('section',undefined,'stock-category'),head=el('div',undefined,'stock-category-head'),grid=el('div',undefined,'stock-category-grid');head.append(el('h3',categoryLabel(item.category)),el('span',selected.filter(i=>i.category===item.category).length+' kayıt'));section.append(head);
+   if(categoryKind(item.category)==='service')section.append(el('p','Bu bölümde fiziksel stok yerine tarlalara dağıtılan ve henüz dağıtılmamış gider miktarı gösterilir.','stock-category-note'));
+   section.append(grid);list.append(section);categoryNodes.set(item.category,grid);
+  }
   const totals=totalsFor(item,purchases,operations),card=el('article',undefined,'stock-product'),head=el('div',undefined,'stock-row-heading'),title=el('div'),isOpen=expanded.has(item.id),bodyId='stock-product-detail-'+item.id;
   card.id='stok-'+item.id;productNodes.set(item.id,card);
   const body=el('div',undefined,'stock-product-body');body.id=bodyId;body.hidden=!isOpen;
-  const heading=el('h3'),b=nameButton(item.name,isOpen,bodyId,()=>{const open=body.hidden;body.hidden=!open;b.setAttribute('aria-expanded',String(open));if(open)expanded.add(item.id);else expanded.delete(item.id);});heading.append(b);title.append(heading,el('p',item.brand||'Marka belirtilmemiş'));head.append(title,detailTotal('Toplam Maliyet',money(totals.cost)));
+  const heading=el('h3'),b=nameButton(item.name,isOpen,bodyId,()=>{const open=body.hidden;body.hidden=!open;b.setAttribute('aria-expanded',String(open));if(open)expanded.add(item.id);else expanded.delete(item.id);});heading.append(b);title.append(heading,el('p',item.brand||'Firma belirtilmemiş'));head.append(title,detailTotal('Toplam Maliyet',money(totals.cost)));
   const sellers=el('div',undefined,'stock-row-dealers');sellers.append(el('span','Bayi: '));
   const names=dealers(totals.receipts);if(!names.length)sellers.append(document.createTextNode('Bayi kaydı bulunamadı'));
   names.forEach(name=>{const link=el('button',name,'stock-dealer-link');link.type='button';link.addEventListener('click',()=>jumpTo('supplier',normalize(name)));sellers.append(link);});
-  const numbers=quantityRow([['Alınan Miktar',fmt(totals.purchased)+' '+item.base_unit],['Kullanılan Miktar',fmt(totals.used)+' '+item.base_unit],['Kalan Miktar',fmt(totals.remaining)+' '+item.base_unit]]);
+  const service=categoryKind(item.category)==='service';
+  const numbers=quantityRow([[service?'Kaydedilen Miktar':'Alınan Miktar',fmt(totals.purchased)+' '+item.base_unit],[service?'Tarlalara Dağıtılan':'Kullanılan Miktar',fmt(totals.used)+' '+item.base_unit],[service?'Dağıtılmamış Miktar':'Kalan Miktar',fmt(totals.remaining)+' '+item.base_unit]]);
   const summary=el('div',undefined,'stock-row-summary');summary.append(head,numbers,sellers);
-  body.append(el('h4','Tarla Kullanımları · '+totals.uses.length+' uygulama'),applicationRows(totals,item),purchaseHistory(totals.receipts,item));card.append(summary,body);list.append(card);
+  body.append(el('h4','Tarla Kullanımları · '+totals.uses.length+' uygulama'),applicationRows(totals,item),purchaseHistory(totals.receipts,item));card.append(summary,body);categoryNodes.get(item.category).append(card);
  });
- if(ready&&tracked.length&&!selected.length)list.append(el('p','Aramana uygun ürün, marka veya bayi bulunamadı.','inventory-empty'));
+ if(ready&&tracked.length&&!selected.length)list.append(el('p','Aramana uygun ürün, firma veya bayi bulunamadı.','inventory-empty'));
 }
 function renderSuppliers(groups,query){
  const list=$('#stock-dealer-list');list.replaceChildren();dealerNodes.clear();
@@ -106,10 +115,12 @@ function renderSuppliers(groups,query){
    row.append(quantityRow([['Bu Bayiden Alınan',fmt(amount)+' '+unit],['Kullanılan · Tüm Bayiler',totals?fmt(totals.used)+' '+unit:'—'],['Kalan · Tüm Bayiler',totals?fmt(totals.remaining)+' '+unit:'—']]),detailTotal('Bu Bayideki Toplam Maliyet',money(receipts.reduce((n,p)=>n+Number(p.total_cost),0))),purchaseHistory(receipts,item));body.append(row);
   });
   body.append(el('h4','Bayi Ödeme Geçmişi'));
-  const receiptIds=new Set(group.receipts.map(p=>p.id)),records=payments.filter(p=>receiptIds.has(p.purchase_id)).sort((a,b)=>b.payment_date.localeCompare(a.payment_date)||b.id.localeCompare(a.id));
+  const receiptIds=new Set(group.receipts.map(p=>p.id)),paymentGroups=new Map();
+  payments.filter(p=>receiptIds.has(p.purchase_id)).forEach(p=>{const key=p.payment_group_id||p.id,g=paymentGroups.get(key)||{id:key,payment_date:p.payment_date,amount:0,notes:p.notes,rows:[]};g.amount+=Number(p.amount);g.rows.push(p);paymentGroups.set(key,g);});
+  const records=[...paymentGroups.values()].sort((a,b)=>b.payment_date.localeCompare(a.payment_date)||b.id.localeCompare(a.id));
   if(!paymentsReady)body.append(el('p','Ödeme bilgileri yüklenemedi. Masraf ve Ödeme sayfasından yeniden deneyebilirsin.','payment-help'));
   else if(!records.length)body.append(el('p','Bu bayi için kayıtlı ödeme yok.','payment-help'));
-  records.forEach(p=>{const row=el('div',undefined,'stock-receipt'),receipt=group.receipts.find(r=>r.id===p.purchase_id),item=items.find(i=>i.id===receipt?.item_id);row.append(el('b',date(p.payment_date)+' · '+money(p.amount)),el('p',item?itemLabel(item):'Masraf ödemesi'));if(p.notes)row.append(el('p',p.notes));body.append(row);});
+  records.forEach(p=>{const row=el('div',undefined,'stock-receipt');row.append(el('b',date(p.payment_date)+' · '+money(p.amount)),el('p',p.rows.length+' masrafa dağıtılan bayi ödemesi'));if(p.notes)row.append(el('p',p.notes));body.append(row);});
   const a=el('a','Ödeme Girişi →','inventory-button');a.href='alisveris-stok.html#odeme-borc';body.append(a);card.append(summary,body);list.append(card);
  });
  if(ready&&!selected.length)list.append(el('p',groups.length?'Aramana uygun bayi veya ürün bulunamadı.':'Masraf kaydettiğinde bayilerin burada görünür.','inventory-empty'));
@@ -118,7 +129,7 @@ function render(){
  const tracked=trackItems(),groups=supplierGroups(),query=normalize($('#inventory-search').value);
  renderProducts(tracked,query);renderSuppliers(groups,query);
  $('#stock-empty').hidden=!ready||tracked.length>0||stockMode!=='product';
- $('#stock-total').textContent=money(purchases.reduce((n,p)=>n+Number(p.total_cost),0));$('#stock-count').textContent=fmt(tracked.filter(i=>Number(i.stock_quantity)>0).length);$('#stock-dealers').textContent=fmt(groups.length);
+ $('#stock-total').textContent=money(purchases.reduce((n,p)=>n+Number(p.total_cost),0));$('#stock-count').textContent=fmt(tracked.filter(i=>categoryKind(i.category)==='stock'&&Number(i.stock_quantity)>0).length);$('#stock-dealers').textContent=fmt(groups.length);
  renderUnlinked();
 }
 

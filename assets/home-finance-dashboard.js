@@ -1,6 +1,6 @@
-import { bindReportButtons } from './reports.js?v=soil-analysis-v1';
+import { bindReportButtons } from './reports.js?v=dealer-expenses-v1';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
-import { farmFinance, seasonFor, fmt, appendMetric } from './farm-finance.js?v=seasons-v1';
+import { farmFinance, seasonFor, fmt, appendMetric } from './farm-finance.js?v=dealer-expenses-v1';
 import { renderSimulators } from './season-simulator.js?v=first-expense-v1';
 const cfg=window.AGROVERIX_SUPABASE||{},hero=document.querySelector('#hero-farm-cards'),grid=document.querySelector('#home-crop-grid'),message=document.querySelector('#home-dashboard-message');
 const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text)n.textContent=text;return n;};

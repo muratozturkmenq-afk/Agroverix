@@ -1,79 +1,120 @@
 import {bindNumberInput,parseNumberInput,setNumberInputValue} from './number-input.js?v=groups-v2';
-import {money,today,stockError} from './inventory-data.js?v=expense-wording-v1';
+import {money,today,stockError,fmt} from './inventory-data.js?v=dealer-expenses-v1';
+import {normalizeSupplier,categoryLabel} from './expense-categories.js?v=dealer-expenses-v1';
 import {showInventoryView} from './inventory-views.js?v=views-v1';
 
-const $=s=>document.querySelector(s);
-const cents=value=>Math.round(Number(value||0)*100);
+const $=s=>document.querySelector(s),cents=value=>Math.round(Number(value||0)*100);
 const date=value=>new Date(value+'T12:00:00').toLocaleDateString('tr-TR');
 function el(tag,text,className){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(className)n.className=className;return n;}
 function button(text,action){const b=el('button',text,'inventory-button');b.type='button';b.addEventListener('click',action);return b;}
 function message(text,error=false){$('#payment-status').textContent=text;$('#payment-status').classList.toggle('is-error',error);}
 export function createPaymentLedger({getClient,refresh,getSaving,setSaving,onEditPurchase}){
- let session=null,purchases=[],items=[],payments=[],available=false,requestId=crypto.randomUUID();
+ let session=null,purchases=[],items=[],payments=[],available=false,requestId=crypto.randomUUID(),editing=null;
  const form=$('#payment-form'),select=$('#payment-purchase');
  bindNumberInput($('#payment-amount'),{maximumFractionDigits:2});$('#payment-date').value=today();
- const name=p=>{const i=items.find(i=>i.id===p.item_id);return i?i.name+(i.brand?' · '+i.brand:''):'Ürün';};
- const paid=p=>cents(p.paid_total)/100;
+ const name=p=>{const item=items.find(i=>i.id===p.item_id);return item?item.name+(item.brand?' · '+item.brand:''):'Masraf';};
  const debt=p=>Math.max(0,cents(p.total_cost)-cents(p.paid_total))/100;
- function selected(){return purchases.find(p=>p.id===select.value);}
+ function suppliers(){
+  const groups=new Map();purchases.forEach(p=>{const key=normalizeSupplier(p.supplier),g=groups.get(key)||{key,name:p.supplier,rows:[],total:0,paid:0};g.rows.push(p);g.total+=cents(p.total_cost);g.paid+=cents(p.paid_total);groups.set(key,g);});
+  return [...groups.values()].sort((a,b)=>a.name.localeCompare(b.name,'tr'));
+ }
+ function selected(){return suppliers().find(g=>g.key===select.value);}
  function options(preferred){
-  const previous=preferred??select.value;select.replaceChildren(new Option(purchases.length?'Masraf seç':'Önce masraf kaydet',''));
-  purchases.slice().sort((a,b)=>b.purchase_date.localeCompare(a.purchase_date)||a.id.localeCompare(b.id)).forEach(p=>select.add(new Option(p.supplier+' · '+date(p.purchase_date)+' · '+name(p)+' · kalan '+money(debt(p)),p.id)));
-  if(purchases.some(p=>p.id===previous))select.value=previous;
-  select.disabled=Boolean($('#payment-id').value);
+  const previous=preferred??select.value,groups=suppliers();
+  select.replaceChildren(new Option(groups.length?'Bayi seç':'Önce masraf kaydet',''));
+  groups.forEach(g=>select.add(new Option(g.name+' · Kalan '+money((g.total-g.paid)/100),g.key)));
+  if(groups.some(g=>g.key===previous))select.value=previous;
+  select.disabled=Boolean(editing);
  }
- function reset(){form.reset();$('#payment-id').value='';requestId=crypto.randomUUID();$('#payment-date').value=today();$('#payment-title').textContent='Ödeme Ekle';$('#payment-save').textContent='Ödemeyi Kaydet →';$('#payment-cancel').hidden=true;options();}
- function open(p,record){
-  showInventoryView('payment');
-  reset();if(record){$('#payment-id').value=record.id;setNumberInputValue($('#payment-amount'),record.amount);$('#payment-date').value=record.payment_date;$('#payment-note').value=record.notes||'';$('#payment-title').textContent='Ödemeyi Düzenle';$('#payment-save').textContent='Değişiklikleri Kaydet →';$('#payment-cancel').hidden=false;}
-  options(p.id);message(record?'Kaydettiğinde kalan borç fark kadar güncellenir.':'Ödenen tutarı ve ödeme tarihini gir.');form.scrollIntoView({behavior:'smooth',block:'center'});
+ function reset(preferred=''){
+  form.reset();editing=null;$('#payment-id').value='';requestId=crypto.randomUUID();$('#payment-date').value=today();
+  $('#payment-title').textContent='Ödeme Ekle';$('#payment-save').textContent='Ödemeyi Kaydet →';$('#payment-cancel').hidden=true;options(preferred);
  }
- async function remove(record,b){
+ function paymentGroups(group){
+  const ids=new Set(group.rows.map(p=>p.id)),result=new Map();
+  payments.filter(p=>ids.has(p.purchase_id)).forEach(p=>{
+   const key=p.payment_group_id||p.id,entry=result.get(key)||{id:key,legacy:!p.payment_group_id,purchase_id:p.purchase_id,date:p.payment_date,notes:p.notes||'',amount:0,rows:[]};
+   entry.amount+=cents(p.amount);entry.rows.push(p);result.set(key,entry);
+  });
+  return [...result.values()].sort((a,b)=>b.date.localeCompare(a.date)||a.id.localeCompare(b.id));
+ }
+ function open(group,record){
+  reset(group.key);showInventoryView('payment');
+  if(record){editing=record;$('#payment-id').value=record.id;setNumberInputValue($('#payment-amount'),record.amount/100);$('#payment-date').value=record.date;$('#payment-note').value=record.notes;$('#payment-title').textContent='Ödemeyi Düzenle';$('#payment-save').textContent='Değişiklikleri Kaydet →';$('#payment-cancel').hidden=false;options(group.key);}
+  render();message(record?'Kaydettiğinde ödeme ve bayi borcu birlikte güncellenir.':'Ödenen tutarı ve tarihi gir.');form.scrollIntoView({behavior:'smooth',block:'center'});
+ }
+ async function remove(record,control){
   if(getSaving()||!session)return;
-  if(!confirm('Bu ödeme kaydı silinsin mi? Silinen tutar masrafın kalan borcuna geri eklenir.'))return;
-  setSaving(true);b.disabled=true;
-  try{const {error}=await getClient().rpc('agroverix_delete_inventory_payment',{p_id:record.id});if(error)throw error;if($('#payment-id').value===record.id)reset();await refresh();message('Ödeme kaydı silindi. Kalan borç güncellendi.');}
-  catch(error){message(stockError(error),true);}finally{setSaving(false);b.disabled=false;}
+  if(!confirm('Bu ödeme kaydı silinsin mi? Tutar, ilgili masrafların kalan borcuna geri eklenecek.'))return;
+  setSaving(true);control.disabled=true;const key=select.value;
+  try{
+   const {error}=await getClient().rpc(record.legacy?'agroverix_delete_inventory_payment':'agroverix_delete_dealer_payment',{p_id:record.id});if(error)throw error;
+   if(editing?.id===record.id)reset(key);await refresh();message('Ödeme silindi. Bayi borcu güncellendi.');
+  }catch(error){message(stockError(error),true);}finally{setSaving(false);control.disabled=false;}
  }
+ function metrics(parent,values){const row=el('div',undefined,'ledger-amounts');values.forEach(([label,value])=>{const item=el('div');item.append(el('span',label),el('b',value));row.append(item);});parent.append(row);}
  function render(){
   const supplierList=$('#supplier-balances'),list=$('#purchase-ledger');supplierList.replaceChildren();list.replaceChildren();
+  const groups=suppliers(),group=selected();
+  $('#supplier-title').textContent=group?group.name+' · Bayi Hesabı':'Bayi Hesapları';
+  $('#dealer-detail-title').textContent=group?group.name+' · Masraflar ve Ödemeler':'Bayi Masrafları ve Ödemeleri';
+  $('#payment-dealer-hint').textContent=group?'Kalan borç: '+money((group.total-group.paid)/100)+'. Ödeme, en eski açık masraftan başlayarak dağıtılır.':'Bayi seçtiğinde masrafları sağ tarafta görünür.';
   if(!available){$('#supplier-empty').hidden=false;$('#ledger-empty').hidden=false;return;}
-  const suppliers=new Map();
-  purchases.forEach(p=>{const key=p.supplier.trim().toLocaleLowerCase('tr-TR'),s=suppliers.get(key)||{name:p.supplier,total:0,paid:0,count:0};s.total+=cents(p.total_cost);s.paid+=cents(p.paid_total);s.count++;suppliers.set(key,s);});
-  [...suppliers.values()].sort((a,b)=>(b.total-b.paid)-(a.total-a.paid)||a.name.localeCompare(b.name,'tr')).forEach(s=>{
-   const card=el('article',undefined,'supplier-balance'),head=el('div');head.append(el('h4',s.name),el('small',s.count+' masraf'));
-   const nums=el('div',undefined,'ledger-amounts');[['Masraf',s.total/100],['Ödenen',s.paid/100],['Kalan Borç',(s.total-s.paid)/100]].forEach(([label,value])=>{const d=el('div');d.append(el('span',label),el('b',money(value)));nums.append(d);});card.append(head,nums);supplierList.append(card);
-  });$('#supplier-empty').hidden=purchases.length>0;
-  const filter=$('#ledger-filter').value,rows=purchases.filter(p=>filter==='all'||(filter==='unpaid'?debt(p)>0:debt(p)===0));$('#ledger-empty').hidden=rows.length>0;
-  $('#ledger-empty').textContent=purchases.length?'Bu filtreye uygun masraf bulunamadı.':'Kayıtlı masraflar ve ödeme tarihleri bu bölümde listelenir.';
-  rows.slice().sort((a,b)=>b.purchase_date.localeCompare(a.purchase_date)||a.id.localeCompare(b.id)).forEach(p=>{
-   const records=payments.filter(x=>x.purchase_id===p.id).sort((a,b)=>b.payment_date.localeCompare(a.payment_date)||a.id.localeCompare(b.id));
-   const card=el('article',undefined,'purchase-account'),head=el('div',undefined,'purchase-account-head'),title=el('div');title.append(el('h4',p.supplier+' · '+name(p)),el('p','Masraf Tarihi: '+date(p.purchase_date)));head.append(title,el('span',debt(p)>0?(paid(p)>0?'Kısmen Ödendi':'Ödenmedi'):'Ödendi','stock-tag'));
-   const nums=el('div',undefined,'ledger-amounts');[['Ödeme Tarihi',records.length?date(records[0].payment_date):'—'],['Masraf Bedeli',money(p.total_cost)],['Toplam Ödenen',money(paid(p))],['Kalan Borç',money(debt(p))]].forEach(([label,value])=>{const d=el('div');d.append(el('span',label),el('b',value));if(label==='Ödeme Tarihi')d.append(el('small',records.length>1?'Son ödeme · '+records.length+' ödeme':records.length?'':'Henüz ödeme yok'));nums.append(d);});
-   const add=button('Ödeme Ekle',()=>open(p));add.disabled=debt(p)<=0;
-   const actions=el('div',undefined,'stock-row-actions');actions.append(add,button('Masrafı Düzenle',()=>onEditPurchase(p)));
-   const details=el('details');details.append(el('summary','Ödeme Geçmişi · '+records.length+' kayıt'));const history=el('div',undefined,'stock-rows');
-   records.forEach(record=>{const row=el('div',undefined,'stock-row'),info=el('div');info.append(el('h4','Ödeme Tarihi: '+date(record.payment_date)),el('p',record.notes||'Ödeme kaydı'));const controls=el('div',undefined,'stock-row-actions'),del=button('Sil',()=>remove(record,del));controls.append(button('Düzenle',()=>open(p,record)),del);row.append(info,el('div',money(record.amount),'row-quantity'),controls);history.append(row);});
-   if(!records.length)history.append(el('p','Bu masraf için henüz ödeme kaydedilmedi.','payment-help'));details.append(history);card.append(head,nums,actions,details);list.append(card);
+  (group?[group]:groups).forEach(g=>{
+   const row=button('',()=>{if(editing)return;select.value=g.key;render();});row.classList.add('dealer-balance-row');row.setAttribute('aria-label',g.name+' bayi detayları');row.setAttribute('aria-pressed',String(group?.key===g.key));
+   const label=el('span',undefined,'dealer-name');label.append(el('small','Bayi Adı'),el('strong',g.name));row.append(label);
+   [['Toplam Alışveriş',g.total],['Toplam Ödenen',g.paid],['Kalan',g.total-g.paid]].forEach(([caption,value])=>{const cell=el('span');cell.append(el('small',caption),el('b',money(value/100)));row.append(cell);});supplierList.append(row);
   });
+  $('#supplier-empty').hidden=groups.length>0;
+  $('#ledger-empty').hidden=Boolean(group);$('#ledger-empty').textContent='Bir bayi seçerek o bayiden yapılan masrafları ve ödemelerini görebilirsin.';
+  if(!group)return;
+  const filter=$('#ledger-filter').value,rows=group.rows.filter(p=>filter==='all'||(filter==='unpaid'?debt(p)>0:debt(p)===0)).sort((a,b)=>a.purchase_date.localeCompare(b.purchase_date)||a.id.localeCompare(b.id));
+  rows.forEach(p=>{
+   const card=el('article',undefined,'purchase-account'),item=items.find(i=>i.id===p.item_id),history=payments.filter(x=>x.purchase_id===p.id).sort((a,b)=>b.payment_date.localeCompare(a.payment_date));
+   card.append(el('h4',name(p)),el('p',categoryLabel(item?.category)+' · '+fmt(p.purchased_quantity)+' '+p.purchased_unit+(p.package_quantity?' × '+fmt(p.package_quantity)+' '+p.package_unit:'')));
+   metrics(card,[['Masraf Tarihi',date(p.purchase_date)],['Toplam Alışveriş',money(p.total_cost)],['Toplam Ödenen',money(p.paid_total)],['Kalan',money(debt(p))]]);
+   if(history.length)card.append(el('p','Son Ödeme Tarihi: '+date(history[0].payment_date)));
+   if(p.notes)card.append(el('p',p.notes));const actions=el('div',undefined,'stock-row-actions');actions.append(button('Masrafı Düzenle',()=>onEditPurchase(p)));card.append(actions);list.append(card);
+  });
+  if(!rows.length)list.append(el('p','Bu filtreye uygun masraf bulunamadı.','payment-help'));
+  const history=el('section',undefined,'dealer-payment-history');history.append(el('h4','Ödeme Geçmişi'));
+  const records=paymentGroups(group);
+  records.forEach(record=>{
+   const card=el('article',undefined,'stock-row'),info=el('div');info.append(el('h4',date(record.date)+' · '+money(record.amount/100)),el('p',record.notes||'Bayi ödemesi'));
+   const details=el('details');details.append(el('summary',record.rows.length+' masraftan düşüldü'));
+   record.rows.forEach(row=>{const p=purchases.find(p=>p.id===row.purchase_id);details.append(el('p',(p?date(p.purchase_date)+' · '+name(p):'Masraf')+' · '+money(row.amount)));});
+   info.append(details);const actions=el('div',undefined,'stock-row-actions'),del=button('Sil',()=>remove(record,del));actions.append(button('Düzenle',()=>open(group,record)),del);card.append(info,actions);history.append(card);
+  });
+  if(!records.length)history.append(el('p','Bu bayi için henüz ödeme kaydı yok.','payment-help'));list.append(history);
  }
- $('#payment-cancel').addEventListener('click',()=>{reset();message('');});$('#ledger-filter').addEventListener('change',render);
+ select.addEventListener('change',render);
+ $('#payment-cancel').addEventListener('click',()=>{reset(select.value);render();message('');});
+ $('#ledger-filter').addEventListener('change',render);
  form.addEventListener('submit',async event=>{
   event.preventDefault();if(getSaving()||!session||!available)return;
-  const p=selected(),amount=parseNumberInput($('#payment-amount').value),old=payments.find(x=>x.id===$('#payment-id').value);
-  if(!p){message('Önce ödeme yapılan masrafı seç.',true);return;}
-  if(!Number.isFinite(amount)||amount<=0||cents(amount)>cents(debt(p))+cents(old?.amount)){message('Ödeme tutarı sıfırdan büyük ve kalan borçtan fazla olmamalı.',true);return;}
-  const payload={id:old?.id||requestId,purchase_id:p.id,amount:Number(amount.toFixed(2)),payment_date:$('#payment-date').value,notes:$('#payment-note').value.trim()};
-  setSaving(true);$('#payment-save').disabled=true;message('Ödeme kaydediliyor…');
-  try{const {error}=await getClient().rpc('agroverix_save_inventory_payment',{p_payment:payload});if(error)throw error;reset();await refresh();message('Ödeme kaydedildi. Kalan borç güncellendi.');}
-  catch(error){message(stockError(error),true);}finally{setSaving(false);$('#payment-save').disabled=false;}
+  const group=selected(),amount=parseNumberInput($('#payment-amount').value),paymentDate=$('#payment-date').value;
+  if(!group){message('Önce bayi seç.',true);return;}
+  const eligible=group.rows.filter(p=>p.purchase_date<=paymentDate),oldRows=editing?.rows||[];
+  let max=eligible.reduce((n,p)=>n+cents(debt(p))+oldRows.filter(r=>r.purchase_id===p.id).reduce((n,r)=>n+cents(r.amount),0),0);
+  if(editing?.legacy){const p=purchases.find(p=>p.id===editing.purchase_id);max=cents(debt(p))+editing.amount;}
+  if(!paymentDate||!Number.isFinite(amount)||amount<=0||cents(amount)>max){message('Ödeme tutarı sıfırdan büyük ve ödeme tarihine kadar olan kalan borçtan fazla olmamalı.',true);return;}
+  const key=group.key,payload={id:editing?.id||requestId,supplier:group.name,amount:Number(amount.toFixed(2)),payment_date:paymentDate,notes:$('#payment-note').value.trim(),editing:Boolean(editing)};
+  if(editing?.legacy)payload.purchase_id=editing.purchase_id;
+  setSaving(true);$('#payment-save').disabled=true;message('Bayi ödemesi kaydediliyor…');
+  try{
+   const {error}=await getClient().rpc(editing?.legacy?'agroverix_save_inventory_payment':'agroverix_save_dealer_payment',{p_payment:payload});if(error)throw error;
+   reset(key);await refresh();message('Ödeme kaydedildi. Bayinin kalan borcu güncellendi.');
+  }catch(error){message(stockError(error),true);}finally{setSaving(false);$('#payment-save').disabled=false;}
  });
  return {
-  update(data){const changed=session?.user.id!==data.session?.user.id;session=data.session;purchases=data.purchases||[];items=data.items||[];payments=data.payments||[];available=Boolean(session&&data.available);if(changed){reset();message('');}
-   $('#payment-fields').disabled=!available;$('#payment-availability').textContent=!session?'Ödeme ve borç kayıtlarını görmek için hesabına giriş yap.':available?'Ödemeleri masraf bazında kaydet; kalan borç otomatik güncellenir.':'Ödeme kayıtları yüklenemedi. Masraf kayıtlarını görüntüleyebilirsin; ödeme eklemek için sayfayı yenile.';
-   if($('#payment-id').value&&!payments.some(x=>x.id===$('#payment-id').value)){reset();message('Düzenlenen ödeme artık bulunmuyor. Liste güncellendi.');}options();render();
+  update(data){
+   const changed=session?.user.id!==data.session?.user.id;session=data.session;purchases=data.purchases||[];items=data.items||[];payments=data.payments||[];available=Boolean(session&&data.available);
+   if(changed){reset();message('');}
+   if(editing&&!payments.some(p=>(p.payment_group_id||p.id)===editing.id)){reset(select.value);message('Düzenlenen ödeme artık bulunmuyor. Liste güncellendi.');}
+   $('#payment-fields').disabled=!available;$('#payment-availability').textContent=!session?'Ödeme ve bayi hesaplarını görmek için giriş yap.':available?'Bayi seçerek ödemeni kaydet. Sağ tarafta seçtiğin bayinin masrafları ve ödemeleri görünür.':'Ödeme bilgileri yüklenemedi. Sayfayı yenileyerek tekrar dene.';
+   options();render();
   },
-  selectPurchase(id){options(id);},
-  notify(text){message(text,true);},
+  selectPurchase(id){const p=purchases.find(p=>p.id===id);if(p){if(editing)reset();options(normalizeSupplier(p.supplier));render();}},
+  notify(text){message(text,true);}
  };
 }

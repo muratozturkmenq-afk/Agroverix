@@ -1,5 +1,5 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
-import { farmFinance,seasonFor,fmt,appendMetric,operationLabels,serviceTypes } from './farm-finance.js?v=soil-analysis-v1';
+import { farmFinance,seasonFor,fmt,appendMetric,operationLabels,serviceTypes } from './farm-finance.js?v=dealer-expenses-v1';
 import { costPerDecare } from './operation-cost.js';
 import { locationLabels } from './location-labels.js';
 const $=id=>document.getElementById(id),params=new URLSearchParams(location.search),farmId=params.get('farm'),cfg=window.AGROVERIX_SUPABASE||{};
@@ -22,7 +22,7 @@ function render(){
  c.rows.forEach(r=>{
   const row=element('article','','farm-detail-record'),info=element('div',''),cost=element('div','','farm-detail-record-cost');info.append(element('b',operationLabels[r.operation_type]||r.operation_type));
   const parts=[new Date(r.operation_date+'T12:00:00').toLocaleDateString('tr-TR')];
-  if(!serviceTypes.has(r.operation_type)){if(r.product)parts.push(r.product);if(r.quantity)parts.push((r.cost_basis==='field_total'?'Toplam kullanım: ':'Dekara kullanım: ')+fmt(r.quantity)+' '+r.quantity_unit);}
+  if(!serviceTypes.has(r.operation_type)||r.inventory_item_id){if(r.product)parts.push(r.product);if(r.quantity)parts.push((r.cost_basis==='field_total'?'Toplam kullanım: ':'Dekara kullanım: ')+fmt(r.quantity)+' '+r.quantity_unit+(r.inventory_package_quantity?' × '+fmt(r.inventory_package_quantity)+' '+r.inventory_package_unit:''));}
   if(r.notes)parts.push(r.notes);info.append(element('small',parts.join(' · ')));const per=costPerDecare(r,c.area);cost.append(element('b',per===null?'Hesaplanamadı':fmt(per*c.area)+' TL'),element('small',per===null?'Maliyet bilgisini düzenle':fmt(per)+' TL/da'));
   const edit=element('a','Bu Kaydı Düzenle','auth-back farm-detail-record-edit');edit.href='uretim-kayitlari.html?farm='+farmId+'&edit='+r.id;edit.hidden=!editing;row.append(info,cost,edit);list.append(row);
  });

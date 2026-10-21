@@ -13,7 +13,7 @@
 <link rel="stylesheet" href="assets/production.css?v=application-entry-v1">
 <link rel="stylesheet" href="assets/farm-finance.css?v=seasons-v1">
 <link rel="stylesheet" href="assets/mobile-reports.css?v=readable-labels-v2">
-<link rel="stylesheet" href="assets/inventory.css?v=stock-v2">
+<link rel="stylesheet" href="assets/inventory.css?v=dealer-expenses-v1">
 
 <link rel="icon" href="/favicon.svg?v=square-v1" type="image/svg+xml">
 <link rel="icon" href="/favicon.ico?v=square-v1" sizes="32x32 48x48 64x64">
@@ -33,7 +33,7 @@
   <section class="production-intro">
     <p class="eyebrow">Sezon boyunca yanında</p>
     <h1>Uygulama<br><em>girişin.</em></h1>
-    <p>Tarlana yaptığın uygulamayı kaydet. Kullandığın ürünü seçip toplam miktarı gir; uygulama maliyeti ürünün kayıtlı fiyatından otomatik hesaplansın. Makine ve işçilik uygulamalarının toplam tutarını elle gir.</p>
+    <p>Tarlana yaptığın uygulamayı kaydet. Kullandığın ürünü seçip toplam miktarı gir; uygulama maliyeti ürünün kayıtlı fiyatından otomatik hesaplansın. Mazot, bakım/tamir, elektrik ve nakliye giderlerini de kayıtlarından seçerek tarlana aktar.</p>
     <a class="operation-stock-link" href="stok.html">Stoklarım →</a>
     <nav class="profile-progress production-progress" aria-label="Kayıt aşamaları">
       <a href="ciftci-bilgi.html"><b>01</b> Profil</a><i></i><a href="tarla-bilgileri.html"><b>02</b> Tarla</a><i></i><span aria-current="step"><b>03</b> Uygulama</span>
@@ -57,11 +57,12 @@
         <div class="production-form-grid">
           <div class="profile-field wide"><label for="operation-farm">Tarla Adı <b>*</b></label><select id="operation-farm" required><option value="">Giriş yaptığında tarlaların yüklenecek</option></select></div>
           <div class="profile-field"><label for="operation-season">Sezon Yılı <b>*</b></label><select id="operation-season" required><option value="">Önce tarla seç</option></select></div>
-          <div class="profile-field wide"><label for="expense-category">Masraf Türünü Seç <b>*</b></label><select id="expense-category" required><option value="input">Malzeme Girdisi · Tohum, Gübre, İlaç</option><option value="service">Analiz, Makine ve İşçilik · Toprak Analizi, Sürüm, Ekim</option></select></div>
+          <div class="profile-field wide"><label for="expense-category">Masraf Türünü Seç <b>*</b></label><select id="expense-category" required><option value="input">Ürün Uygulamaları · Tohum, Gübre, İlaçlama, Mazot</option><option value="service">Diğer Uygulamalar · Analiz, Bakım, Elektrik, Nakliye, İşçilik</option></select></div>
           <div class="profile-field"><label for="operation-date">İşlem tarihi <b>*</b></label><input id="operation-date" type="date" required></div>
           <div class="profile-field"><label for="operation-type">Yapılan İşlem <b>*</b></label><select id="operation-type" required><option value="">İşlem seç</option></select></div>
-          <div class="profile-field" id="operation-product-field"><label for="operation-inventory-item">Kullanılan Ürünün Markasını Seç <b>*</b></label><select id="operation-inventory-item" aria-describedby="operation-stock-hint" required disabled><option value="">Giriş yaptığında masraf kayıtlarındaki markaların yüklenecek</option></select><p class="operation-stock-hint" id="operation-stock-hint">Masraf kaydındaki ürünün markasını seç. Miktarı girdiğinde maliyeti otomatik hesaplanır.</p></div>
-          <div class="profile-field" id="operation-quantity-field"><label for="operation-quantity">Bu Uygulamada Kullanılan Toplam Miktar <b>*</b></label><div class="production-quantity-control"><input id="operation-quantity" type="text" pattern="[0-9]+([.,][0-9]+)?" inputmode="decimal" placeholder="Örn. 2,5" required><select id="operation-unit" aria-label="Bu Uygulamada Kullanılan Toplam Miktar birimi" required><option value="">Birim seç</option><option value="kg">kg</option><option value="ton">ton</option><option value="g">g</option><option value="L">L</option><option value="ml">ml</option><option value="m">m</option><option value="adet">adet</option><option value="torba">torba</option><option value="şişe">şişe</option><option value="m³">m³</option><option value="saat">saat</option></select></div></div>
+          <div class="profile-field" id="operation-product-field"><label for="operation-inventory-item">Kullanılan Ürün/Gider Seç <b>*</b></label><select id="operation-inventory-item" aria-describedby="operation-stock-hint" required disabled><option value="">Giriş yaptığında kayıtlı ürün ve giderlerin yüklenecek</option></select><p class="operation-stock-hint" id="operation-stock-hint">Masraf kaydındaki ürünü veya gideri seç. Kullanılan miktarı girdiğinde maliyet hesaplanır.</p></div>
+          <div class="profile-field" id="operation-quantity-field"><label for="operation-quantity">Bu Uygulamada Kullanılan Toplam Miktar <b>*</b></label><div class="production-quantity-control"><input id="operation-quantity" type="text" pattern="[0-9]+([.,][0-9]+)?" inputmode="decimal" placeholder="Örn. 2,5" required><select id="operation-unit" aria-label="Bu Uygulamada Kullanılan Toplam Miktar birimi" required><option value="">Birim seç</option><option value="kg">kg</option><option value="ton">ton</option><option value="g">g</option><option value="L">L</option><option value="ml">ml</option><option value="adet">adet</option><option value="m">m</option><option value="m³">m³</option><option value="torba">torba</option><option value="şişe">şişe</option><option value="saat">saat</option></select></div></div>
+          <div class="operation-package-fields wide" id="operation-package-fields" hidden><div class="profile-field"><label for="operation-package-quantity">Bir Torba/Şişe İçeriği <b>*</b></label><input id="operation-package-quantity" inputmode="decimal" placeholder="Örn. 50" disabled></div><div class="profile-field"><label for="operation-package-unit">İçerik Birimi <b>*</b></label><select id="operation-package-unit" disabled><option value="kg">kg</option><option value="g">g</option><option value="ton">ton</option><option value="L">L</option><option value="ml">ml</option><option value="m³">m³</option><option value="adet">adet</option><option value="m">m</option><option value="saat">saat</option></select></div><p id="operation-package-hint" class="operation-stock-hint wide">Kullandığın torba veya şişenin içeriğini belirt.</p></div>
           <div class="wide expense-service-note" id="service-note" hidden>Makine ve işçilik için ürün veya marka adı gerekmez. Tarihi, yapılan işi ve bu tarlaya ait toplam masrafı gir.</div>
           <div class="profile-field"><label for="operation-total-cost" id="operation-cost-label">Bu Uygulamada Kullanılan Ürünün Maliyeti (TL)</label><input id="operation-total-cost" type="text" pattern="[0-9]+([.,][0-9]{1,2})?" inputmode="decimal" placeholder="Otomatik hesaplanır" aria-describedby="operation-pricing-note" readonly required><small class="operation-pricing-note" id="operation-pricing-note" aria-live="polite">Ürün, işlem tarihi ve kullanılan miktar girildiğinde otomatik hesaplanır.</small></div>
 
@@ -79,7 +80,7 @@
       <p class="profile-result production-status" id="production-status" role="status" aria-live="polite"></p>
     </form>
     <section class="production-records" aria-labelledby="records-title">
-      <div class="production-records-head"><div><h3 id="records-title">Sezon kayıtları</h3><p>Seçtiğin tarlanın işlem geçmişi.</p><button class="auth-back" id="records-edit-toggle" type="button" aria-pressed="false" disabled>Kayıtları Düzenle</button></div><label for="records-filter">Tarla Adı<select id="records-filter"><option value="">Önce giriş yap</option></select></label></div>
+      <div class="production-records-head"><div><h3 id="records-title">Sezon kayıtları</h3><p>Seçtiğin tarlanın işlem geçmişi · En eski tarihten en yeniye.</p><button class="auth-back" id="records-edit-toggle" type="button" aria-pressed="false" disabled>Kayıtları Düzenle</button></div><label for="records-filter">Tarla Adı<select id="records-filter"><option value="">Önce giriş yap</option></select></label></div>
       <div class="production-record-list" id="production-record-list"></div>
       <div class="production-empty" id="production-empty"><span>＋</span><b>Henüz işlem kaydı yok</b><small>Tarladaki ilk işlemi eklediğinde burada göreceksin.</small></div>
     </section>
@@ -88,6 +89,6 @@
   </section>
 </main>
 <script src="assets/supabase-config.js"></script>
-<script type="module" src="assets/production.js?v=expense-wording-v1"></script>
+<script type="module" src="assets/production.js?v=dealer-expenses-v1"></script>
 </body>
 </html>
