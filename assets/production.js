@@ -32,7 +32,7 @@ function addLegacyProductOption(select,record){
 }
 function populateStockOptions(preferred){
  const select=$('#operation-inventory-item'),old=editingRecord(),previous=preferred??select.value;
- select.replaceChildren(new Option(!inventoryReady?'Kayıtlı ürün ve giderler yüklenemedi':'Kayıtlı ürün veya gider seç',''));
+ select.replaceChildren(new Option(!session?'Giriş yaptığında ürün ve giderlerin yüklenecek':!inventoryReady?'Kayıtlı ürün ve giderler yüklenemedi':'Kayıtlı ürün veya gider seç',''));
  if($('#expense-category').value==='service')select.add(new Option('Tutarı Elle Gir · Masraf kaydı olmadan',manualServiceValue));
  const purchasedIds=new Set(inventoryPurchases.map(p=>p.item_id));
  inventoryItems.filter(item=>purchasedIds.has(item.id)||item.id===old?.inventory_item_id).sort((a,b)=>purchasedBrandLabel(a).localeCompare(purchasedBrandLabel(b),'tr')).forEach(item=>select.add(new Option(purchasedBrandLabel(item)+' · Kalan: '+fmt(item.stock_quantity)+' '+item.base_unit,item.id)));
