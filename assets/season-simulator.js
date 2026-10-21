@@ -1,4 +1,4 @@
-import { cropTimeline } from './crop-timeline.js?v=cost-line-v2';
+import { cropTimeline } from './crop-timeline.js?v=first-expense-v1';
 import { parseNumberInput as decimal, bindNumberInput, setNumberInputValue } from './number-input.js?v=groups-v2';
 import { farmFinance, seasonFor, fmt, appendMetric } from './farm-finance.js?v=seasons-v1';
 import { cropVisual } from './crop-visual.js?v=cost-line-v2';
