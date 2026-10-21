@@ -47,3 +47,8 @@
 .info-guide .info-calc-result{padding:10px 12px}
 .info-guide .info-final-metrics>div{padding:8px 10px}
 @media(max-width:700px){.info-guide .info-step:nth-child(-n+3) .info-demo{min-height:195px}}
+
+/* Preserve the brand casing inside uppercase labels and keep the three-line caption readable. */
+.brand-case{text-transform:none!important;letter-spacing:normal}
+.info-about-image figcaption{font-size:clamp(18px,1.8vw,23px);line-height:1.45}
+.info-about-image figcaption span:first-child,.info-about-image figcaption span:last-child{color:var(--cotton)}

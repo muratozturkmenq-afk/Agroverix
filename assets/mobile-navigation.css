@@ -29,3 +29,7 @@
 .nav .nav-links a[aria-current="page"],.nav .mobile-page-links a[aria-current="page"]{background:rgba(237,180,62,.1);border-color:rgba(237,180,62,.6)}
 .nav .mobile-page-menu[open]>.mobile-page-links{gap:7px}
 @media(min-width:1801px){.nav .nav-links{gap:8px}}
+
+/* Match the sign-in control to the page navigation buttons. */
+.nav .nav-in>.btn{min-height:44px;padding:10px 11px;border:1px solid transparent;border-radius:10px;font-size:17px;font-weight:700;line-height:1.55;justify-content:center;white-space:nowrap}
+@media(max-width:1800px){.nav .nav-in>.btn{min-height:50px;padding:11px 12px;font-size:18px;line-height:1.4}}
