@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Sans:ital,wght@0,400..700;1,400&family=Martian+Mono:wght@400..600&display=swap">
 <link rel="stylesheet" href="assets/styles.css">
-<link rel="stylesheet" href="assets/home-dashboard.css?v=seasons-v1">
+<link rel="stylesheet" href="assets/home-dashboard.css?v=home-actions-v1">
 <link rel="stylesheet" href="assets/farm-finance.css?v=logo-groups-v2">
 <link rel="stylesheet" href="assets/mobile-reports.css?v=first-expense-v1">
 <link rel="stylesheet" href="assets/hero-report.css?v=drone-heading-v4">
@@ -94,7 +94,7 @@
   <div class="wrap">
     <div class="farmer-dashboard-head">
       <div><p class="eyebrow">TARLA VE BİTKİ ÖZETİ</p><h2>Tarlalarım ve Maliyetlerim</h2><p class="farmer-dashboard-lede">Tarla adı ve bitkisine göre maliyetlerini gör. Detaylar için kartına dokun.</p></div>
-      <div class="finance-header-actions"><a class="btn btn-ghost" href="alisveris-stok.html">Masraf ve Ödeme →</a><a class="btn btn-gold" href="uretim-kayitlari.html">Uygulama Girişi <span class="arr">→</span></a><a class="btn btn-ghost" href="stok.html">Stoklarım →</a><a class="btn btn-ghost" href="tarla-bilgileri.html">Tarla Ekle →</a></div>
+      <nav class="finance-header-actions" aria-label="Tarla işlemleri"><a class="btn btn-gold" href="alisveris-stok.html"><span>Masraf ve Ödeme</span><span aria-hidden="true">→</span></a><a class="btn btn-gold" href="uretim-kayitlari.html"><span>Uygulama Girişi</span><span aria-hidden="true">→</span></a><a class="btn btn-gold" href="stok.html"><span>Stoklarım</span><span aria-hidden="true">→</span></a><a class="btn btn-gold" href="tarla-bilgileri.html"><span>Tarla Ekle</span><span aria-hidden="true">→</span></a></nav>
     </div>
     <p class="farmer-dashboard-message" id="home-dashboard-message" role="status" aria-live="polite">Kişisel maliyet özetini görmek için giriş yap.</p>
     <div class="farmer-crop-grid" id="home-crop-grid"></div><a class="farmer-dashboard-login" id="admin-link" href="yonetici.html" hidden>Yönetici Alanı →</a>
@@ -109,7 +109,7 @@
 
 <!-- SEASON SIMULATOR -->
 <section class="sec light season" id="ciftci">
- <div class="wrap"><div class="sec-head"><p class="eyebrow">Sezon sonu tahmini · Her tarla ayrı</p><h2>Verim ve fiyat tahminini gir<br>kârlılığını anlık tahmin et.</h2><p class="lede">Her tarla için tahminini gir. Değişiklikler hesaplamaya anında yansır; Tahminleri Kaydet ile hesabında saklanır.</p></div>
+ <div class="wrap"><nav class="season-home-nav" aria-label="Ana sayfaya dönüş"><a class="btn btn-gold season-home-link" href="#top">Ana Sayfaya Dön <span aria-hidden="true">→</span></a></nav><div class="sec-head"><p class="eyebrow">Sezon sonu tahmini · Her tarla ayrı</p><h2>Verim ve fiyat tahminini gir<br>kârlılığını anlık tahmin et.</h2><p class="lede">Her tarla için tahminini gir. Değişiklikler hesaplamaya anında yansır; Tahminleri Kaydet ile hesabında saklanır.</p></div>
  <p id="sim-message" role="status">Tarlaların yükleniyor…</p><div id="farm-simulators" class="farm-simulators"></div>
  </div>
 </section>
