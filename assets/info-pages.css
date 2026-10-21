@@ -34,3 +34,16 @@
 @media(max-width:700px){.info-hero-grid,.info-story-grid{grid-template-columns:1fr}.info-page .home-logo{width:190px}.info-page .nav-in{min-height:74px}.info-hero{padding-top:35px;padding-bottom:32px}.info-hero-copy{gap:20px}.info-hero h1{font-size:clamp(34px,8.8vw,49px)}.info-hero-art{padding:19px;margin-top:5px}.info-hero-art>svg{max-height:185px}.info-jumps{gap:7px;padding-block:20px}.info-jumps a{font-size:13px;padding:7px 9px}.info-guide{padding-block:38px 42px}.info-steps{grid-template-columns:1fr;gap:20px}.info-step:last-child{grid-column:auto}.info-demo{min-height:215px}.info-step-copy{padding:20px 10px 14px}.info-step-copy h3{font-size:22px}.info-calc-fields input{font-size:19px}.info-cta{flex-direction:column;align-items:flex-start;padding-block:38px;gap:23px}.info-cta>.btn{width:100%;justify-content:center}.info-about-image{min-height:285px}.info-story,.info-values,.info-statement{padding-block:42px}.info-story-grid{gap:26px}.info-values-grid{grid-template-columns:1fr}.info-value{gap:10px;grid-template-columns:30px 1fr}.info-story-text p{font-size:18px}.info-footer .wrap{align-items:flex-start}.info-footer nav{gap:14px 20px}.info-footer a{font-size:15px}}
 @media(prefers-reduced-motion:no-preference){.info-page{scroll-behavior:smooth}.info-signal{animation:info-signal 4s ease-in-out infinite}.info-flow-line{stroke-dasharray:7 10;animation:info-flow 8s linear infinite}@keyframes info-signal{50%{opacity:.4}}@keyframes info-flow{to{stroke-dashoffset:-136}}}
 @media(prefers-reduced-motion:reduce){.info-page *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* Compact examples and clearer step descriptions on the usage guide. */
+.info-guide .info-step-copy p{font-size:17px;color:var(--ink)}
+.info-guide .info-demo{width:calc(100% - 8px);margin:4px auto 0;min-height:0;padding:31px 12px 12px;gap:7px}
+.info-guide .info-step:nth-child(-n+3) .info-demo{min-height:215px}
+.info-guide .info-demo-row{padding:8px 10px;gap:8px}
+.info-guide .info-demo-caption{font-size:13px;color:var(--ink)}
+.info-guide .info-stock-quantities{padding:8px 6px}
+.info-guide .info-stock-quantities b{font-size:23px;line-height:1.35}
+.info-guide .info-calc-fields input{padding:8px 10px}
+.info-guide .info-calc-result{padding:10px 12px}
+.info-guide .info-final-metrics>div{padding:8px 10px}
+@media(max-width:700px){.info-guide .info-step:nth-child(-n+3) .info-demo{min-height:195px}}
