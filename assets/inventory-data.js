@@ -5,10 +5,18 @@ export const money = value => Number(value || 0).toLocaleString('tr-TR',{minimum
 export function converted(quantity,unit){const u=units[unit];return u&&Number.isFinite(Number(quantity))?Number(quantity)*u[1]:null;}
 export function compatibleUnits(base){return Object.keys(units).filter(k=>units[k][0]===base);}
 export function today(){const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10);}
+// Database validation messages use the same wording as the visible forms.
+function expenseMessage(value){
+ return value.replace(/(alışveriş|Alışveriş|ALIŞVERİŞ)([\p{L}]*)/gu,(_,prefix,suffix)=>{
+  const base=prefix==='ALIŞVERİŞ'?'MASRAF':prefix==='Alışveriş'?'Masraf':'masraf';
+  const ending=suffix.toLocaleLowerCase('tr-TR').replaceAll('e','a').replaceAll('i','ı');
+  return base+(prefix==='ALIŞVERİŞ'?ending.toLocaleUpperCase('tr-TR'):ending);
+ });
+}
 export function stockError(error){
- const text=error?.message||'';
- if(/Yetersiz stok|birimi|miktar|hesabına|bulunamadı|eski kaydı|Makine ve işçilik|sahibi|[Öö]deme|[Bb]orç|Alışveriş bedeli|Kayıt isteği|[Oo]tomatik maliyet|İşlem tarihine|Hesaplanan maliyet/.test(text))return text;
- if(['42P01','PGRST205','PGRST202','42703'].includes(error?.code))return 'Alışveriş ve Stok kurulumu henüz etkin değil. Lütfen daha sonra tekrar dene.';
+ const text=expenseMessage(error?.message||'');
+ if(/Yetersiz stok|birimi|miktar|hesabına|bulunamadı|eski kaydı|Makine ve işçilik|sahibi|[Öö]deme|[Bb]orç|Masraf bedeli|Kayıt isteği|[Oo]tomatik maliyet|İşlem tarihine|Hesaplanan maliyet/.test(text))return text;
+ if(['42P01','PGRST205','PGRST202','42703'].includes(error?.code))return 'Masraf ve Stok kurulumu henüz etkin değil. Lütfen daha sonra tekrar dene.';
  return 'Kayıt tamamlanamadı. Bağlantını kontrol edip tekrar dene.';
 }
 export async function readAll(client,table,userId,columns='*'){

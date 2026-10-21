@@ -2,8 +2,8 @@ import { parseNumberInput, bindNumberInput, setNumberInputValue } from './number
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm";
 import { farmFinance, seasonFor, serviceTypes, operationLabels } from "./farm-finance.js?v=soil-analysis-v1";
 import { costPerDecare } from "./operation-cost.js";
-import {loadInventory,compatibleUnits,converted,fmt,stockError} from './inventory-data.js?v=auto-cost-v1';
-import {automaticOperationCost} from './operation-pricing.js?v=application-entry-v1';
+import {loadInventory,compatibleUnits,converted,fmt,stockError} from './inventory-data.js?v=expense-wording-v1';
+import {automaticOperationCost} from './operation-pricing.js?v=expense-wording-v1';
 
 const $ = (selector) => document.querySelector(selector);
 const cfg = window.AGROVERIX_SUPABASE || {};
@@ -26,7 +26,7 @@ function purchasedBrandLabel(item){
  return brand?brand+(name&&brand.toLocaleLowerCase('tr-TR')!==name.toLocaleLowerCase('tr-TR')?' · '+name:''):name+' · Marka belirtilmemiş';
 }
 function addLegacyProductOption(select,record){
- if(record&&!record.inventory_item_id&&!serviceTypes.has(record.operation_type))select.add(new Option((record.product||'Eski ürün')+' · Önceki kayıt (alışverişe bağlı değil)',legacyProductValue));
+ if(record&&!record.inventory_item_id&&!serviceTypes.has(record.operation_type))select.add(new Option((record.product||'Eski ürün')+' · Önceki kayıt (masrafa bağlı değil)',legacyProductValue));
 }
 function updateStockSelection(fill=false){
  const item=selectedProduct(),unit=$('#operation-unit'),previous=unit.value;
@@ -34,7 +34,7 @@ function updateStockSelection(fill=false){
  if(item){compatibleUnits(item.base_unit).forEach(u=>unit.add(new Option(u,u)));unit.value=compatibleUnits(item.base_unit).includes(previous)?previous:item.base_unit;
   const old=records.find(r=>r.id===$('#operation-id').value),available=Number(item.stock_quantity)+(old?.inventory_item_id===item.id?Number(old.inventory_quantity||0):0);
   $('#operation-stock-hint').textContent=purchasedBrandLabel(item)+' · Kullanılabilir: '+fmt(available)+' '+item.base_unit+'. Torba / şişe içeriğini kg veya L cinsinden gir. Kaydettiğinde stok güncellenir.';
- }else{allUnitOptions.forEach(o=>unit.add(new Option(o.label,o.value)));unit.value=previous;$('#operation-stock-hint').textContent=$('#operation-inventory-item').value===legacyProductValue?'Bu eski kayıt alışverişe bağlı değil; mevcut maliyeti elle düzenleyebilirsin. Otomatik hesap için listeden satın aldığın ürünü seç.':!session?'Alışverişlerine kaydettiğin ürünler hesabına giriş yaptıktan sonra burada listelenir.':!inventoryReady?'Alışveriş ürünleri yüklenemedi. Sayfayı yenileyerek tekrar dene.':!inventoryPurchases.length?'Önce Masraf Ekle bölümünde aldığın ürünü, miktarını ve bedelini kaydet.':'Alışveriş yaptığın ürünü listeden seç; kullanılan miktarı girince maliyet otomatik dolacak.';}
+ }else{allUnitOptions.forEach(o=>unit.add(new Option(o.label,o.value)));unit.value=previous;$('#operation-stock-hint').textContent=$('#operation-inventory-item').value===legacyProductValue?'Bu eski kayıt masrafa bağlı değil; mevcut maliyeti elle düzenleyebilirsin. Otomatik hesap için listeden satın aldığın ürünü seç.':!session?'Masraflarına kaydettiğin ürünler hesabına giriş yaptıktan sonra burada listelenir.':!inventoryReady?'Masraf kayıtlarındaki ürünler yüklenemedi. Sayfayı yenileyerek tekrar dene.':!inventoryPurchases.length?'Önce Masraf Ekle bölümünde aldığın ürünü, miktarını ve bedelini kaydet.':'Masraf kaydındaki ürünü listeden seç; kullanılan miktarı girince maliyet otomatik dolacak.';}
  if(fill&&!item&&$('#operation-total-cost').readOnly)$('#operation-total-cost').value='';
  updateCostPreview();
 }
@@ -51,7 +51,7 @@ async function loadStock(){
  }else{inventoryItems=[];inventoryPurchases=[];inventoryReady=false;}
  autoCostReady=capabilityResult.status==='fulfilled'&&!capabilityResult.value.error&&capabilityResult.value.data===true;
  const s=$('#operation-inventory-item'),previous=s.value,old=editingRecord();
- s.replaceChildren(new Option(!inventoryReady?'Alışveriş markaları yüklenemedi':inventoryPurchases.length?'Alışveriş yapılan ürünün markasını seç':'Henüz alışveriş kaydı yok',''));
+ s.replaceChildren(new Option(!inventoryReady?'Masraf kayıtlarındaki markalar yüklenemedi':inventoryPurchases.length?'Masraf kaydındaki ürünün markasını seç':'Henüz masraf kaydı yok',''));
  const purchasedIds=new Set(inventoryPurchases.map(p=>p.item_id));
  inventoryItems.filter(i=>purchasedIds.has(i.id)||i.id===old?.inventory_item_id).sort((a,b)=>purchasedBrandLabel(a).localeCompare(purchasedBrandLabel(b),'tr')).forEach(i=>s.add(new Option(purchasedBrandLabel(i)+' · Kalan: '+fmt(i.stock_quantity)+' '+i.base_unit,i.id)));
  addLegacyProductOption(s,old);
@@ -167,7 +167,7 @@ function renderRecords(rows) {
     const quantity = record.quantity ? formatMoney(record.quantity) + " " + (record.quantity_unit || "") : "";
     const productAndBrand = serviceTypes.has(record.operation_type) ? '' : [record.product, record.package_size ? "Ambalaj: " + record.package_size : ""].filter(Boolean).join(" · ");
     detail.textContent = (farm ? farm.name + " · " : "") + new Date(record.operation_date + "T12:00:00").toLocaleDateString("tr-TR") + (productAndBrand ? " · " + productAndBrand : "") + (quantity ? (record.cost_basis === "field_total" ? " · Tarlada kullanım: " : " · Dekara kullanım: ") + quantity : "");
-    if(record.cost_source==='inventory_average')detail.textContent+=' · Maliyet alışverişten hesaplandı';
+    if(record.cost_source==='inventory_average')detail.textContent+=' · Maliyet masraf kayıtlarından hesaplandı';
     const cost = document.createElement("div");
     cost.className = "production-record-cost";
     const costValue = document.createElement("b");
@@ -287,10 +287,10 @@ function updateCostPreview() {
    const result=currentAutomaticCost();
    if(result.error){field.value='';note.textContent=result.error;note.classList.add('is-error');preview.textContent='Ürünü, işlem tarihini ve kullanılan toplam miktarı kontrol et.';return;}
    setNumberInputValue(field,result.total);
-   note.textContent=fmt(result.quantity)+' '+item.base_unit+' × '+fmt(result.unitCost)+' TL/'+item.base_unit+' = '+formatMoney(result.total)+' TL · '+(result.stored?'Bu işlemde kayıtlı birim alış fiyatı.':'İşlem tarihine kadar olan alışverişlerin ağırlıklı ortalaması.');
+   note.textContent=fmt(result.quantity)+' '+item.base_unit+' × '+fmt(result.unitCost)+' TL/'+item.base_unit+' = '+formatMoney(result.total)+' TL · '+(result.stored?'Bu işlemde kayıtlı birim alış fiyatı.':'İşlem tarihine kadar olan masraf kayıtlarındaki birim fiyatların ağırlıklı ortalaması.');
   }else{
    if(!service&&!legacy)field.value='';
-   note.textContent=service?(soilAnalysis?'Bu tarlaya ait toprak analizinin toplam tutarını gir.':'Bu tarlaya ait makine veya işçilik uygulamasının toplam tutarını gir.'):item?'Otomatik hesap servisi yüklenemedi. Sayfayı yenileyerek tekrar dene.':legacy?'Önceki kaydın maliyetini elle düzenleyebilir veya alışveriş ürünü seçerek otomatik hesaplatabilirsin.':'Ürün, işlem tarihi ve kullanılan miktar girildiğinde maliyet otomatik hesaplanır.';
+   note.textContent=service?(soilAnalysis?'Bu tarlaya ait toprak analizinin toplam tutarını gir.':'Bu tarlaya ait makine veya işçilik uygulamasının toplam tutarını gir.'):item?'Otomatik hesap servisi yüklenemedi. Sayfayı yenileyerek tekrar dene.':legacy?'Önceki kaydın maliyetini elle düzenleyebilir veya masraf kaydındaki ürünü seçerek otomatik hesaplatabilirsin.':'Ürün, işlem tarihi ve kullanılan miktar girildiğinde maliyet otomatik hesaplanır.';
    if(item&&!autoCostReady)note.classList.add('is-error');
   }
   const raw = $("#operation-total-cost").value.trim();
@@ -321,8 +321,8 @@ form.addEventListener("submit", async (event) => {
   const service=$("#expense-category").value === "service";
   const product=selectedProduct(),previousRecord=editingRecord();
   const keepLegacyProduct=Boolean(previousRecord&&!previousRecord.inventory_item_id&&!serviceTypes.has(previousRecord.operation_type)&&$('#operation-inventory-item').value===legacyProductValue);
-  if (!service && !product && !keepLegacyProduct) { message("Alışveriş yapılan ürünler listesinden kullanılan ürünü seç.", true); return; }
-  if (!service && !inventoryReady) { message("Alışveriş ürünleri yüklenemedi. Kaydetmeden önce sayfayı yenile.", true); return; }
+  if (!service && !product && !keepLegacyProduct) { message("Masraf kaydındaki ürünler listesinden kullanılan ürünü seç.", true); return; }
+  if (!service && !inventoryReady) { message("Masraf kayıtlarındaki ürünler yüklenemedi. Kaydetmeden önce sayfayı yenile.", true); return; }
   if (!service && product && !autoCostReady) { message("Otomatik hesap servisi yüklenemedi. Sayfayı yenileyerek tekrar dene.", true); return; }
   const farm = activeFarm();
   if (!farm) { message("İşlem kaydı için önce bir tarla seç veya ekle.", true); return; }
@@ -356,7 +356,7 @@ form.addEventListener("submit", async (event) => {
   if(!inventoryReady&&oldRecord?.inventory_item_id){message('Stok bağlantısı yüklenemedi. Stok güncellenmeden bu kayıt değiştirilemez; sayfayı yenile.',true);return;}
   if(stockId){
     const item=inventoryItems.find(i=>i.id===stockId),used=converted(quantity,$('#operation-unit').value),available=Number(item?.stock_quantity||0)+(oldRecord?.inventory_item_id===stockId?Number(oldRecord.inventory_quantity||0):0);
-    if(!item||!Number.isFinite(used)||used<=0||used>available+0.0000001){message('Yetersiz stok. Kullanılabilir miktarı veya alışveriş kaydını kontrol et.',true);return;}
+    if(!item||!Number.isFinite(used)||used<=0||used>available+0.0000001){message('Yetersiz stok. Kullanılabilir miktarı veya masraf kaydını kontrol et.',true);return;}
   }
   if(inventoryReady)record.inventory_item_id=stockId;
   if(autoCostReady)record.cost_source=autoSelected?'inventory_average':'manual';
@@ -388,7 +388,7 @@ if (!cfg.url || !cfg.publishableKey) {
     banner.hidden = Boolean(session);
     if (session) setTimeout(async()=>{await loadStock();await loadFarms();},0);
     else {
-      farms = []; records = [];inventoryItems=[];inventoryPurchases=[];inventoryReady=false;autoCostReady=false;$('#operation-inventory-item').replaceChildren(new Option('Giriş yaptığında alışveriş markaların yüklenecek',''));$('#operation-inventory-item').disabled=true;updateStockSelection();renderFarmOptions(); updateSummary();
+      farms = []; records = [];inventoryItems=[];inventoryPurchases=[];inventoryReady=false;autoCostReady=false;$('#operation-inventory-item').replaceChildren(new Option('Giriş yaptığında masraf kayıtlarındaki markaların yüklenecek',''));$('#operation-inventory-item').disabled=true;updateStockSelection();renderFarmOptions(); updateSummary();
       message("Giriş yaparak kendi kayıtlarını görüntüleyebilirsin.");
     }
   });
