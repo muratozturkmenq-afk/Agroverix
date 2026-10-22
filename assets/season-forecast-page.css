@@ -1,0 +1,13 @@
+.forecast-page{background:var(--cotton);color:var(--ink)}
+.forecast-page .nav{background:var(--night,#0D100B)}
+.forecast-main{padding-top:172px;min-height:calc(100svh - 120px)}
+.forecast-page .season{padding-top:24px;padding-bottom:64px}
+.forecast-page .sec-head{margin-bottom:28px}
+.forecast-page .sec-head h1{font-family:'Archivo',sans-serif;font-size:clamp(32px,4.3vw,54px);font-weight:850;line-height:1.08;letter-spacing:-.035em;max-width:950px;margin:14px 0 20px}
+.forecast-page .sec-head .lede{max-width:720px}
+.forecast-page .season-home-nav{display:flex;justify-content:flex-end;margin-bottom:22px}
+.forecast-page .season-home-link{min-height:44px;padding:9px 13px;border:2px solid var(--gold);border-radius:7px;font-size:13px;font-weight:800;line-height:1.3}
+.forecast-page #sim-message{font-size:15px;line-height:1.6;margin:16px 0;color:#526447}
+.forecast-page .foot{background:var(--night,#0D100B)}
+@media(min-width:1801px){.forecast-main{padding-top:112px}}
+@media(max-width:760px){.forecast-main{padding-top:154px}.forecast-page .season{padding-top:20px;padding-bottom:36px}.forecast-page .season-home-nav{justify-content:flex-start;margin-bottom:22px}.forecast-page .sec-head h1{font-size:clamp(30px,7.8vw,44px)}.forecast-page .sec-head .lede{font-size:16px}}

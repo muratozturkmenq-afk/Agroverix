@@ -16,7 +16,7 @@ function render(){
  $('new-season').href='tarla-bilgileri.html?edit='+farm.id+'&year='+(Math.max(...farm.farmer_seasons.map(s=>s.season_year))+1);
  const actual=$('actual-report'),expected=$('expected-report');actual.replaceChildren();expected.replaceChildren();report(actual,c.actual);report(expected,c.expected);
  $('actual-report-note').textContent=season?.actual_yield==null?'Hasattan sonra Kayıtları Düzenle → Tarla Bilgilerini Düzenle sayfasının Sezon Sonu bölümüne gerçek verim, satış fiyatı ve gerçekleşen desteklemeyi gir.':'Gerçek verim: '+fmt(season.actual_yield)+' kg/da · Gerçek satış fiyatı: '+fmt(season.actual_price)+' TL/kg';
- $('expected-report-note').textContent=season?.expected_yield==null?'Ana sayfadaki Sezon Sonu Tahmini bölümüne bu tarla için verim veya fiyat gir.':'Tahmini verim: '+fmt(season.expected_yield)+' kg/da · Tahmini satış fiyatı: '+(season.expected_price==null?'—':fmt(season.expected_price))+' TL/kg. Sonuçlar kayıtlı masraflara göre değişir.';
+ $('expected-report-note').textContent=season?.expected_yield==null?'Sezon Sonu Tahmini sayfasına bu tarla için verim veya fiyat gir.':'Tahmini verim: '+fmt(season.expected_yield)+' kg/da · Tahmini satış fiyatı: '+(season.expected_price==null?'—':fmt(season.expected_price))+' TL/kg. Sonuçlar kayıtlı masraflara göre değişir.';
  $('actual-support-edit').href='tarla-bilgileri.html?edit='+encodeURIComponent(farm.id)+'&year='+year+'#season-end';
  const list=$('farm-records');list.replaceChildren();$('farm-empty').hidden=c.rows.length>0;
  if(c.rent>0){const row=element('article','','farm-detail-record');row.append(element('b','Sezonluk Kira'),element('b',fmt(c.rent)+' TL'));list.append(row);}

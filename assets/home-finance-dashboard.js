@@ -1,7 +1,6 @@
 import { bindReportButtons } from './reports.js?v=support-simple-v1';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
 import { farmFinance, seasonFor, fmt, appendMetric } from './farm-finance.js?v=support-simple-v1';
-import { renderSimulators } from './season-simulator.js?v=support-simple-v1';
 const cfg=window.AGROVERIX_SUPABASE||{},hero=document.querySelector('#hero-farm-cards'),grid=document.querySelector('#home-crop-grid'),message=document.querySelector('#home-dashboard-message');
 const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text)n.textContent=text;return n;};
 function notice(copy){const card=el('div','hero-farm-card');card.append(el('b','hero-farm-name','Tarla Maliyet Özeti'),el('p','hero-farm-note',copy));hero.replaceChildren(card);}
@@ -9,7 +8,7 @@ function renderHero(farms,records){
  hero.replaceChildren();if(!farms.length){notice('İlk tarlanı eklediğinde maliyetlerin burada görünecek.');return;}
  farms.forEach(farm=>{const c=farmFinance(farm,records),wrap=el('article','hero-farm-card'),card=el('a','hero-farm-open');card.href='tarla-detay.html?farm='+encodeURIComponent(farm.id);card.append(el('b','hero-farm-name',farm.name),el('strong','hero-farm-crop',c.season.crop||farm.crop),el('small','hero-farm-note',String(farm.season_year)+' sezonu'));
  appendMetric(card,'Toplam Maliyet',c.total,'TL','hero-farm-metric');appendMetric(card,'Dekara Maliyet',c.perDecare,'TL/da','hero-farm-metric');appendMetric(card,'Kg Başına Maliyet',c.costKg,'TL/kg','hero-farm-metric');
- card.append(el('small','hero-farm-note',c.missing?'Eski masraf bilgileri eksik; detaydan düzenle.':c.costKg===null?'Kg maliyeti için Sezon Sonu Tahmini bölümüne verim gir.':c.kgBasis));wrap.append(card);hero.append(wrap);});
+ card.append(el('small','hero-farm-note',c.missing?'Eski masraf bilgileri eksik; detaydan düzenle.':c.costKg===null?'Kg maliyeti için Sezon Sonu Tahmini sayfasına verim gir.':c.kgBasis));wrap.append(card);hero.append(wrap);});
 }
 function renderCrops(farms,records){
  grid.replaceChildren();const groups=new Map();farms.forEach(f=>{const crop=seasonFor(f)?.crop||f.crop,key=f.id;if(!groups.has(key))groups.set(key,{crop,farms:[]});groups.get(key).farms.push(f);});
@@ -26,13 +25,13 @@ function renderCrops(farms,records){
   button.addEventListener('click',()=>{list.hidden=!list.hidden;button.setAttribute('aria-expanded',String(!list.hidden));button.querySelector('.farmer-crop-arrow').textContent=list.hidden?'＋':'−';});wrap.append(button,list);grid.append(wrap);
  });
 }
-function guest(){notice('Kendi tarlalarını ve maliyetlerini görmek için giriş yap.');grid.replaceChildren();message.textContent='Özetler sadece kendi hesabına giriş yaptığında görünür.';document.querySelector('#farm-simulators').replaceChildren();document.querySelector('#sim-message').textContent='Kişisel sezon sonu tahminini kullanmak için giriş yap.';}
+function guest(){notice('Kendi tarlalarını ve maliyetlerini görmek için giriş yap.');grid.replaceChildren();message.textContent='Özetler sadece kendi hesabına giriş yaptığında görünür.';}
 if(!cfg.url||!cfg.publishableKey)guest();else{
  const client=createClient(cfg.url,cfg.publishableKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});let generation=0,activeSession=null,signature=null,channel=null,refreshTimer=0,pendingLoad=null;
  async function load(session,{quiet=false}={}){activeSession=session;if(!quiet)bindReportButtons(client,session);const request=++generation;if(!session){signature=null;guest();return;}
   const [f,r]=await Promise.all([client.from('farmer_farms').select('*,farmer_seasons(*)').eq('user_id',session.user.id).order('created_at'),client.from('farmer_operations').select('*').eq('user_id',session.user.id)]);
-  if(request!==generation)return;if(f.error||r.error){notice('Tarla özeti yüklenemedi. Sayfayı yenileyerek tekrar dene.');message.textContent='Kayıtlar yüklenemedi.';document.querySelector('#sim-message').textContent='Sezon bilgileri yüklenemedi.';return;}
-  const farms=f.data||[],records=r.data||[],nextSignature=JSON.stringify([session.user.id,farms,records]);if(quiet&&nextSignature===signature)return;signature=nextSignature;message.textContent='Tarla kartından maliyet detaylarını açabilir, sezon yılını seçerek eski kayıtlarını görebilirsin.';renderHero(farms,records);renderCrops(farms,records);renderSimulators(farms,records,client,session.user,()=>{renderHero(farms,records);renderCrops(farms,records);bindReportButtons(client,session);});bindReportButtons(client,session);
+  if(request!==generation)return;if(f.error||r.error){notice('Tarla özeti yüklenemedi. Sayfayı yenileyerek tekrar dene.');message.textContent='Kayıtlar yüklenemedi.';return;}
+  const farms=f.data||[],records=r.data||[],nextSignature=JSON.stringify([session.user.id,farms,records]);if(quiet&&nextSignature===signature)return;signature=nextSignature;message.textContent='Tarla kartından maliyet detaylarını açabilir, sezon yılını seçerek eski kayıtlarını görebilirsin.';renderHero(farms,records);renderCrops(farms,records);bindReportButtons(client,session);
   const navLogin=document.querySelector('.nav-in > a.btn');if(navLogin){navLogin.textContent='Çıkış yap';navLogin.onclick=async e=>{e.preventDefault();await client.auth.signOut();location.assign('index.html');};}
  }
  async function refresh(){if(!activeSession||document.hidden||pendingLoad)return;pendingLoad=load(activeSession,{quiet:true});try{await pendingLoad;}finally{pendingLoad=null;}}

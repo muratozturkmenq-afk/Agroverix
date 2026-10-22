@@ -23,6 +23,7 @@
 <meta name="apple-mobile-web-app-title" content="AgroVerix">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
+<script>if(location.hash==='#ciftci')location.replace('sezon-sonu-tahmini.html');</script>
 </head>
 <body>
 
@@ -46,7 +47,7 @@
       <a href="alisveris-stok.html">Masraf ve Ödeme</a>
       <a href="uretim-kayitlari.html">Uygulama Girişi</a>
       <a href="stok.html">Stoklarım</a>
-      <a href="#ciftci">Sezon Sonu Tahmini</a>
+      <a href="sezon-sonu-tahmini.html">Sezon Sonu Tahmini</a>
       <a href="tarla-bilgileri.html">Tarla Ekle</a>
       <a href="ciftci-bilgi.html?profile=edit">Profil Bilgileri</a>
     </nav></details>
@@ -57,7 +58,7 @@
       <a href="alisveris-stok.html">Masraf ve Ödeme</a>
       <a href="uretim-kayitlari.html">Uygulama Girişi</a>
       <a href="stok.html">Stoklarım</a>
-      <a href="#ciftci">Sezon Sonu Tahmini</a>
+      <a href="sezon-sonu-tahmini.html">Sezon Sonu Tahmini</a>
       <a href="tarla-bilgileri.html">Tarla Ekle</a>
       <a href="ciftci-bilgi.html?profile=edit">Profil Bilgileri</a>
     </nav>
@@ -107,12 +108,7 @@
 <!-- STORY (pinned) -->
 
 
-<!-- SEASON SIMULATOR -->
-<section class="sec light season" id="ciftci">
- <div class="wrap"><nav class="season-home-nav" aria-label="Ana sayfaya dönüş"><a class="btn btn-gold season-home-link" href="#top">Ana Sayfaya Dön <span aria-hidden="true">→</span></a></nav><div class="sec-head"><p class="eyebrow">Sezon sonu tahmini · Her tarla ayrı</p><h2>Verim ve fiyat tahminini gir<br>kârlılığını anlık tahmin et.</h2><p class="lede">Her tarla için tahminini gir. Değişiklikler hesaplamaya anında yansır; Tahminleri Kaydet ile hesabında saklanır.</p></div>
- <p id="sim-message" role="status">Tarlaların yükleniyor…</p><div id="farm-simulators" class="farm-simulators"></div>
- </div>
-</section>
+
 
 <!-- INSIGHT MAP -->
 
@@ -145,7 +141,7 @@
 <script src="assets/main.js?v=seasons-v1"></script>
 <script src="assets/mobile-navigation.js?v=mobile-native-v3" defer></script>
 <script src="assets/supabase-config.js"></script>
-<script type="module" src="assets/home-finance-dashboard.js?v=support-simple-v1"></script>
+<script type="module" src="assets/home-finance-dashboard.js?v=forecast-page-v1"></script>
 </body>
 </html>
 
