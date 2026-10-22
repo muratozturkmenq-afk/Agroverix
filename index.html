@@ -15,6 +15,7 @@
 <link rel="stylesheet" href="assets/mobile-reports.css?v=first-expense-v1">
 <link rel="stylesheet" href="assets/hero-report.css?v=drone-heading-v4">
 <link rel="stylesheet" href="assets/mobile-navigation.css?v=brand-copy-v1">
+<link rel="stylesheet" href="assets/home-fields-panel.css?v=unified-fields-v1">
 
 <link rel="icon" href="/favicon.svg?v=square-v1" type="image/svg+xml">
 <link rel="icon" href="/favicon.ico?v=square-v1" sizes="32x32 48x48 64x64">
@@ -25,7 +26,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <script>if(location.hash==='#ciftci')location.replace('sezon-sonu-tahmini.html');</script>
 </head>
-<body>
+<body class="home-fields-page">
 
 <div class="progress" aria-hidden="true"><i></i></div>
 
@@ -75,7 +76,11 @@
   </picture>
   <div class="hero-shade"></div>
 
-  <aside class="hero-farm-summary" aria-label="Tarlalarım ve maliyetlerim" data-lenis-prevent><div class="hero-farm-cards" id="hero-farm-cards" aria-live="polite"><div class="hero-farm-card"><b class="hero-farm-name">Tarla maliyet özetin</b><p class="hero-farm-note">Kişisel tarla maliyetlerin yükleniyor…</p></div></div><div class="hero-report-footer" aria-label="Kişisel Excel raporu"><button class="btn btn-gold" type="button" data-excel-export disabled>Excel Raporu İndir</button><p id="excel-status" role="status" aria-live="polite"></p></div></aside>
+  <aside class="hero-farm-summary" id="ciftci-ozet" aria-labelledby="hero-fields-title" data-lenis-prevent>
+    <h2 class="hero-fields-title" id="hero-fields-title">Tarlalarım ve Maliyetlerim</h2>
+    <div class="hero-farm-cards" id="hero-farm-cards" aria-live="polite"><div class="hero-farm-card"><b class="hero-farm-name">Tarla maliyet özetin</b><p class="hero-farm-note">Kişisel maliyet özetin yükleniyor…</p></div></div>
+    <div class="hero-report-footer" aria-label="Kişisel Excel raporu"><button class="btn btn-gold" type="button" data-excel-export disabled>Excel Raporu İndir</button><p id="excel-status" role="status" aria-live="polite"></p><a id="admin-link" href="yonetici.html" hidden>Yönetici Alanı →</a></div>
+  </aside>
 
   <div class="wrap hero-inner">
     <p class="kicker"><span class="live-dot"></span>Çiftçiler için tarla ve üretim takip programı</p>
@@ -86,21 +91,13 @@
       <span class="ln"><span class="w b"><span>bazında takip et</span></span></span>
     </h1>
     <p class="hero-sub">Masraflarını ve kiranı kaydet. Her tarlanın dekara ve kg başına maliyetini, sezon sonundaki kârını tek ekranda gör.</p>
+    <nav class="finance-header-actions hero-field-actions" aria-label="Tarla işlemleri"><a class="btn btn-gold" href="alisveris-stok.html"><span>Masraf ve Ödeme</span><span aria-hidden="true">→</span></a><a class="btn btn-gold" href="uretim-kayitlari.html"><span>Uygulama Girişi</span><span aria-hidden="true">→</span></a><a class="btn btn-gold" href="stok.html"><span>Stoklarım</span><span aria-hidden="true">→</span></a><a class="btn btn-gold" href="tarla-bilgileri.html"><span>Tarla Ekle</span><span aria-hidden="true">→</span></a></nav>
 
   </div>
   <div class="scroll-cue" aria-hidden="true">Kaydır<i></i></div>
 </section>
 
-<section class="farmer-dashboard" id="ciftci-ozet">
-  <div class="wrap">
-    <div class="farmer-dashboard-head">
-      <div><p class="eyebrow">TARLA VE BİTKİ ÖZETİ</p><h2>Tarlalarım ve Maliyetlerim</h2><p class="farmer-dashboard-lede">Tarla adı ve bitkisine göre maliyetlerini gör. Detaylar için kartına dokun.</p></div>
-      <nav class="finance-header-actions" aria-label="Tarla işlemleri"><a class="btn btn-gold" href="alisveris-stok.html"><span>Masraf ve Ödeme</span><span aria-hidden="true">→</span></a><a class="btn btn-gold" href="uretim-kayitlari.html"><span>Uygulama Girişi</span><span aria-hidden="true">→</span></a><a class="btn btn-gold" href="stok.html"><span>Stoklarım</span><span aria-hidden="true">→</span></a><a class="btn btn-gold" href="tarla-bilgileri.html"><span>Tarla Ekle</span><span aria-hidden="true">→</span></a></nav>
-    </div>
-    <p class="farmer-dashboard-message" id="home-dashboard-message" role="status" aria-live="polite">Kişisel maliyet özetini görmek için giriş yap.</p>
-    <div class="farmer-crop-grid" id="home-crop-grid"></div><a class="farmer-dashboard-login" id="admin-link" href="yonetici.html" hidden>Yönetici Alanı →</a>
-  </div>
-</section>
+
 
 <!-- TICKER -->
 
@@ -141,7 +138,7 @@
 <script src="assets/main.js?v=seasons-v1"></script>
 <script src="assets/mobile-navigation.js?v=mobile-native-v3" defer></script>
 <script src="assets/supabase-config.js"></script>
-<script type="module" src="assets/home-finance-dashboard.js?v=forecast-page-v1"></script>
+<script type="module" src="assets/home-finance-dashboard.js?v=unified-fields-v1"></script>
 </body>
 </html>
 
