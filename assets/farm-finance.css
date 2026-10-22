@@ -17,3 +17,6 @@
 .home-brand{flex-shrink:0}.home-logo{display:block;width:clamp(180px,20vw,240px);height:auto;max-width:100%}.footer-brand .home-logo{width:200px}
 @media(max-width:1100px){.nav-links{display:none}.nav-in>.btn{margin-left:auto}}
 @media(max-width:390px){.nav-in{gap:12px}.home-logo{width:170px}}
+
+/* The optional support input uses the same compact forecast layout. */
+.sim-forecast-form>.sim-assumption{grid-column:1/-1;margin:0;font-size:12px;line-height:1.55}
