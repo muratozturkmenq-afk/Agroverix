@@ -7,13 +7,13 @@ function notice(copy){const card=el('div','hero-farm-card');card.append(el('b','
 function renderHero(farms,records){
  hero.replaceChildren();if(!farms.length){notice('İlk tarlanı eklediğinde maliyetlerin burada görünecek.');return;}
  farms.forEach(farm=>{const c=farmFinance(farm,records),wrap=el('article','hero-farm-card'),card=el('a','hero-farm-open');card.href='tarla-detay.html?farm='+encodeURIComponent(farm.id);card.append(el('b','hero-farm-name',farm.name),el('strong','hero-farm-crop',c.season.crop||farm.crop),el('small','hero-farm-note',String(farm.season_year)+' sezonu'));
- const actual=c.actual.revenue!==null,result=actual?c.actual:c.expected;
- appendMetric(card,'Toplam Maliyet',c.total,'TL','hero-farm-metric');appendMetric(card,'Dekara Maliyet',c.perDecare,'TL/da','hero-farm-metric');appendMetric(card,'Kg Başına Maliyet',c.costKg,'TL/kg','hero-farm-metric');
- appendMetric(card,'Toplam Alan',c.area,'da','hero-farm-metric');
- appendMetric(card,(actual?'Gerçek':'Tahmini')+' Kâr / Zarar',result.profit,'TL','hero-farm-metric');
- appendMetric(card,'Kâr / Zarar Oranı',result.percent,'%','hero-farm-metric');
- appendMetric(card,(actual?'Gerçekleşen':'Tahmini')+' Destekleme',result.support,'TL','hero-farm-metric');
- card.append(el('small','hero-farm-note',c.missing?'Eski masraf bilgileri eksik; detaydan düzenle.':c.costKg===null?'Kg maliyeti için Sezon Sonu Tahmini sayfasına verim gir.':c.kgBasis));card.append(el('span','hero-farm-action','Tarla ve Sezon Detayı →'));wrap.append(card);hero.append(wrap);});
+ const actual=c.actual.revenue!==null,result=actual?c.actual:c.expected,metrics=el('div','hero-farm-values');
+ appendMetric(metrics,'Toplam Maliyet',c.total,'TL','hero-farm-metric');appendMetric(metrics,'Dekara Maliyet',c.perDecare,'TL/da','hero-farm-metric');appendMetric(metrics,'Kg Başına Maliyet',c.costKg,'TL/kg','hero-farm-metric');
+ appendMetric(metrics,'Toplam Alan',c.area,'da','hero-farm-metric');
+ appendMetric(metrics,(actual?'Gerçek':'Tahmini')+' Kâr / Zarar',result.profit,'TL','hero-farm-metric');
+ appendMetric(metrics,'Kâr / Zarar Oranı',result.percent,'%','hero-farm-metric');
+ appendMetric(metrics,(actual?'Gerçekleşen':'Tahmini')+' Destekleme',result.support,'TL','hero-farm-metric');
+ card.append(metrics);card.append(el('small','hero-farm-note',c.missing?'Eski masraf bilgileri eksik; detaydan düzenle.':c.costKg===null?'Kg maliyeti için Sezon Sonu Tahmini sayfasına verim gir.':c.kgBasis));card.append(el('span','hero-farm-action','Tarla ve Sezon Detayı →'));wrap.append(card);hero.append(wrap);});
 }
 function guest(){notice('Kendi tarlalarını ve maliyetlerini görmek için giriş yap.');}
 if(!cfg.url||!cfg.publishableKey)guest();else{
