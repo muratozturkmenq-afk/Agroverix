@@ -18,11 +18,11 @@ export function farmFinance(farm, records, year = farm.season_year, overrides = 
     const kg=y !== null && Number.isFinite(y) && y >= 0 ? y*area : null;
     const revenue=kg !== null && p !== null && Number.isFinite(p) && p >= 0 ? kg*p : null;
     const costKg=total !== null && kg > 0 ? total/kg : null;
-    const profit=total !== null && revenue !== null ? revenue-total : null;
-    const enteredSupport=decimal(supportAmount),support=enteredSupport!==null&&Number.isFinite(enteredSupport)&&enteredSupport>=0?enteredSupport:null;
-    const incomeWithSupport=revenue!==null&&support!==null?revenue+support:null;
-    const profitWithSupport=total!==null&&incomeWithSupport!==null?incomeWithSupport-total:null;
-    return {support,supportPerDecare:support!==null&&area>0?support/area:null,supportPerKg:support!==null&&kg>0?support/kg:null,incomeWithSupport,profitWithSupport,percentWithSupport:profitWithSupport!==null&&total>0?profitWithSupport/total*100:null,unitProfitWithSupport:profitWithSupport!==null&&kg>0?profitWithSupport/kg:null,perDecareProfitWithSupport:profitWithSupport!==null&&area>0?profitWithSupport/area:null,kg,revenue,costKg,profit,percent:profit !== null && total > 0 ? profit/total*100 : null,unitProfit:costKg !== null && p !== null && Number.isFinite(p) && p >= 0 ? p-costKg : null};
+    const enteredSupport=decimal(supportAmount);
+    const support=enteredSupport!==null&&Number.isFinite(enteredSupport)&&enteredSupport>=0?enteredSupport:0;
+    const profit=total !== null && revenue !== null ? revenue+support-total : null;
+    return {support,supportPerDecare:area>0?support/area:null,supportPerKg:kg>0?support/kg:null,kg,revenue,costKg,profit,percent:profit!==null&&total>0?profit/total*100:null,unitProfit:profit!==null&&kg>0?profit/kg:null};
+
   }
   const expected=result(season.expected_yield,season.expected_price,season.expected_support),actual=result(season.actual_yield,season.actual_price,season.actual_support);
   return {season,area,rows,missing,operations,rent,total,perDecare:total !== null && area>0 ? total/area : null,expected,actual,
@@ -42,8 +42,4 @@ export function appendSupportMetrics(parent,result){
   appendMetric(parent,'Toplam Destekleme',result.support,'TL');
   appendMetric(parent,'Dekara Destekleme',result.supportPerDecare,'TL/da');
   appendMetric(parent,'Kg Başına Destekleme',result.supportPerKg,'TL/kg');
-  appendMetric(parent,'Destek Dahil Toplam Kâr / Zarar',result.profitWithSupport,'TL').classList.toggle('is-loss',result.profitWithSupport<0);
-  appendMetric(parent,'Destek Dahil Kâr / Zarar Oranı',result.percentWithSupport,'%').classList.toggle('is-loss',result.percentWithSupport<0);
-  appendMetric(parent,'Destek Dahil Dekara Kâr / Zarar',result.perDecareProfitWithSupport,'TL/da').classList.toggle('is-loss',result.perDecareProfitWithSupport<0);
-  appendMetric(parent,'Destek Dahil Kg Başına Kâr / Zarar',result.unitProfitWithSupport,'TL/kg').classList.toggle('is-loss',result.unitProfitWithSupport<0);
 }

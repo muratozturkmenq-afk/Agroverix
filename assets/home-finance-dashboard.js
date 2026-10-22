@@ -1,7 +1,7 @@
-import { bindReportButtons } from './reports.js?v=support-v1';
+import { bindReportButtons } from './reports.js?v=support-simple-v1';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
-import { farmFinance, seasonFor, fmt, appendMetric } from './farm-finance.js?v=support-v1';
-import { renderSimulators } from './season-simulator.js?v=support-v1';
+import { farmFinance, seasonFor, fmt, appendMetric } from './farm-finance.js?v=support-simple-v1';
+import { renderSimulators } from './season-simulator.js?v=support-simple-v1';
 const cfg=window.AGROVERIX_SUPABASE||{},hero=document.querySelector('#hero-farm-cards'),grid=document.querySelector('#home-crop-grid'),message=document.querySelector('#home-dashboard-message');
 const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text)n.textContent=text;return n;};
 function notice(copy){const card=el('div','hero-farm-card');card.append(el('b','hero-farm-name','Tarla Maliyet Özeti'),el('p','hero-farm-note',copy));hero.replaceChildren(card);}
@@ -17,10 +17,10 @@ function renderCrops(farms,records){
   const wrap=el('div','farmer-crop-wrap'),button=el('button','farmer-crop-card');button.type='button';button.setAttribute('aria-expanded','false');const top=el('span','farmer-crop-top');top.append(el('b','farmer-crop-name',group.farms[0].name+' - '+group.crop),el('span','farmer-crop-arrow','＋'));
   const finance=group.farms.map(f=>farmFinance(f,records)),complete=finance.every(c=>c.total!==null),total=complete?finance.reduce((n,c)=>n+c.total,0):null,area=finance.reduce((n,c)=>n+c.area,0),metrics=el('span','farmer-crop-metrics');
   appendMetric(metrics,'Toplam Maliyet',total,'TL','farmer-crop-metric');appendMetric(metrics,'Dekara Maliyet',total!==null?total/area:null,'TL/da','farmer-crop-metric');appendMetric(metrics,'Toplam Alan',area,'da','farmer-crop-metric');
-  const actual=finance.every(c=>c.actual.revenue!==null),results=finance.map(c=>actual?c.actual:c.expected),allRevenue=results.every(r=>r.revenue!==null),revenue=allRevenue?results.reduce((n,r)=>n+r.revenue,0):null,profit=revenue!==null&&total!==null?revenue-total:null,kg=results.every(r=>r.kg!==null)?results.reduce((n,r)=>n+r.kg,0):null;
-  appendMetric(metrics,(actual?'Gerçek':'Tahmini')+' Kg Maliyeti',total!==null&&kg>0?total/kg:null,'TL/kg','farmer-crop-metric');appendMetric(metrics,(actual?'Gerçek':'Tahmini')+' Destek Hariç Kâr / Zarar',profit,'TL','farmer-crop-metric');appendMetric(metrics,'Destek Hariç Kâr / Zarar Oranı',profit!==null&&total>0?profit/total*100:null,'%','farmer-crop-metric');
-  const support=results.every(r=>r.support!==null)?results.reduce((n,r)=>n+r.support,0):null,withSupport=profit!==null&&support!==null?profit+support:null;
-  appendMetric(metrics,(actual?'Gerçekleşen':'Tahmini')+' Destekleme',support,'TL','farmer-crop-metric');appendMetric(metrics,'Destek Dahil Kâr / Zarar',withSupport,'TL','farmer-crop-metric');appendMetric(metrics,'Destek Dahil Kâr / Zarar Oranı',withSupport!==null&&total>0?withSupport/total*100:null,'%','farmer-crop-metric');
+  const actual=finance.every(c=>c.actual.revenue!==null),results=finance.map(c=>actual?c.actual:c.expected),allRevenue=results.every(r=>r.revenue!==null),revenue=allRevenue?results.reduce((n,r)=>n+r.revenue,0):null,profit=revenue!==null&&total!==null?revenue+results.reduce((n,r)=>n+r.support,0)-total:null,kg=results.every(r=>r.kg!==null)?results.reduce((n,r)=>n+r.kg,0):null;
+  appendMetric(metrics,(actual?'Gerçek':'Tahmini')+' Kg Maliyeti',total!==null&&kg>0?total/kg:null,'TL/kg','farmer-crop-metric');appendMetric(metrics,(actual?'Gerçek':'Tahmini')+' Kâr / Zarar',profit,'TL','farmer-crop-metric');appendMetric(metrics,'Kâr / Zarar Oranı',profit!==null&&total>0?profit/total*100:null,'%','farmer-crop-metric');
+  const support=results.reduce((n,r)=>n+r.support,0);
+  appendMetric(metrics,(actual?'Gerçekleşen':'Tahmini')+' Destekleme',support,'TL','farmer-crop-metric');
   button.append(top,metrics);const list=el('div','farmer-crop-farms');list.hidden=true;
   group.farms.forEach(f=>{const c=farmFinance(f,records),a=el('a','farmer-farm-card'),info=el('span','farmer-farm-info'),numbers=el('span','farmer-farm-cost');a.href='tarla-detay.html?farm='+encodeURIComponent(f.id);info.append(el('b','',f.name+' - '+c.season.crop),el('small','',f.season_year+' · '+fmt(c.area)+' da'));numbers.append(el('b','',c.total===null?'—':fmt(c.total)+' TL'),el('small','',c.perDecare===null?'Hesaplama bilgisi eksik':fmt(c.perDecare)+' TL/da'));a.append(info,numbers,el('span','farmer-farm-arrow','→'));list.append(a);});
   button.addEventListener('click',()=>{list.hidden=!list.hidden;button.setAttribute('aria-expanded',String(!list.hidden));button.querySelector('.farmer-crop-arrow').textContent=list.hidden?'＋':'−';});wrap.append(button,list);grid.append(wrap);
