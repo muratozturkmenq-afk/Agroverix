@@ -15,7 +15,7 @@
 <link rel="stylesheet" href="assets/mobile-reports.css?v=first-expense-v1">
 <link rel="stylesheet" href="assets/hero-report.css?v=drone-heading-v4">
 <link rel="stylesheet" href="assets/mobile-navigation.css?v=brand-copy-v1">
-<link rel="stylesheet" href="assets/home-fields-panel.css?v=compact-fields-v1">
+<link rel="stylesheet" href="assets/home-fields-panel.css?v=footer-report-v1">
 
 <link rel="icon" href="/favicon.svg?v=square-v1" type="image/svg+xml">
 <link rel="icon" href="/favicon.ico?v=square-v1" sizes="32x32 48x48 64x64">
@@ -79,7 +79,7 @@
   <aside class="hero-farm-summary" id="ciftci-ozet" aria-labelledby="hero-fields-title" data-lenis-prevent>
     <h2 class="hero-fields-title" id="hero-fields-title">Tarlalarım ve Maliyetlerim</h2>
     <div class="hero-farm-cards" id="hero-farm-cards" aria-live="polite"><div class="hero-farm-card"><b class="hero-farm-name">Tarla maliyet özetin</b><p class="hero-farm-note">Kişisel maliyet özetin yükleniyor…</p></div></div>
-    <div class="hero-report-footer" aria-label="Kişisel Excel raporu"><button class="btn btn-gold" type="button" data-excel-export disabled>Excel Raporu İndir</button><p id="excel-status" role="status" aria-live="polite"></p><a id="admin-link" href="yonetici.html" hidden>Yönetici Alanı →</a></div>
+    <a id="admin-link" href="yonetici.html" hidden>Yönetici Alanı →</a>
   </aside>
 
   <div class="wrap hero-inner">
@@ -122,6 +122,11 @@
 
 
 
+<section class="home-report-footer" aria-label="Kişisel Excel raporu">
+  <button class="btn btn-gold" type="button" data-excel-export disabled>Excel Raporu İndir</button>
+  <p id="excel-status" role="status" aria-live="polite"></p>
+</section>
+
 </main>
 
 <footer class="foot">
@@ -138,7 +143,7 @@
 <script src="assets/main.js?v=seasons-v1"></script>
 <script src="assets/mobile-navigation.js?v=mobile-native-v3" defer></script>
 <script src="assets/supabase-config.js"></script>
-<script type="module" src="assets/home-finance-dashboard.js?v=compact-fields-v1"></script>
+<script type="module" src="assets/home-finance-dashboard.js?v=footer-report-v1"></script>
 </body>
 </html>
 

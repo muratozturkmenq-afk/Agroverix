@@ -1,15 +1,14 @@
 import { bindReportButtons } from './reports.js?v=support-simple-v1';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
-import { farmFinance, appendMetric } from './farm-finance.js?v=support-simple-v1';
+import { farmFinance, appendMetric, fmt } from './farm-finance.js?v=support-simple-v1';
 const cfg=window.AGROVERIX_SUPABASE||{},hero=document.querySelector('#hero-farm-cards');
 const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text)n.textContent=text;return n;};
 function notice(copy){const card=el('div','hero-farm-card');card.append(el('b','hero-farm-name','Tarla Maliyet Özeti'),el('p','hero-farm-note',copy));hero.replaceChildren(card);}
 function renderHero(farms,records){
  hero.replaceChildren();if(!farms.length){notice('İlk tarlanı eklediğinde maliyetlerin burada görünecek.');return;}
- farms.forEach(farm=>{const c=farmFinance(farm,records),wrap=el('article','hero-farm-card'),card=el('a','hero-farm-open');card.href='tarla-detay.html?farm='+encodeURIComponent(farm.id);card.append(el('b','hero-farm-name',farm.name),el('strong','hero-farm-crop',c.season.crop||farm.crop),el('small','hero-farm-note',String(farm.season_year)+' sezonu'));
+ farms.forEach(farm=>{const c=farmFinance(farm,records),wrap=el('article','hero-farm-card'),card=el('a','hero-farm-open');card.href='tarla-detay.html?farm='+encodeURIComponent(farm.id);card.append(el('b','hero-farm-name hero-farm-title',farm.name+' - '+(c.season.crop||farm.crop)+' ('+fmt(c.area)+'da)'),el('small','hero-farm-note',String(farm.season_year)+' sezonu'));
  const actual=c.actual.revenue!==null,result=actual?c.actual:c.expected,metrics=el('div','hero-farm-values');
  appendMetric(metrics,'Toplam Maliyet',c.total,'TL','hero-farm-metric');appendMetric(metrics,'Dekara Maliyet',c.perDecare,'TL/da','hero-farm-metric');appendMetric(metrics,'Kg Başına Maliyet',c.costKg,'TL/kg','hero-farm-metric');
- appendMetric(metrics,'Toplam Alan',c.area,'da','hero-farm-metric');
  appendMetric(metrics,(actual?'Gerçek':'Tahmini')+' Kâr / Zarar',result.profit,'TL','hero-farm-metric');
  appendMetric(metrics,'Kâr / Zarar Oranı',result.percent,'%','hero-farm-metric');
  appendMetric(metrics,(actual?'Gerçekleşen':'Tahmini')+' Destekleme',result.support,'TL','hero-farm-metric');
