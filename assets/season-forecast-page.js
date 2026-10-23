@@ -1,5 +1,5 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
-import { renderSimulators } from './season-simulator.js?v=support-simple-v1';
+import { renderSimulators } from './season-simulator.js?v=harvest-v1';
 const cfg=window.AGROVERIX_SUPABASE||{},container=document.querySelector('#farm-simulators'),message=document.querySelector('#sim-message'),login=document.querySelector('.nav-in > a.btn');
 function clearSimulators(){container.querySelectorAll('.crop-timeline-visual').forEach(v=>v.dispose?.());container.replaceChildren();}
 function guest(){clearSimulators();message.textContent='Kendi tarlaların için sezon sonu tahmini yapmak ve tahminlerini saklamak için hesabına giriş yap.';}

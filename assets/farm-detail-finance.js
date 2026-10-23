@@ -1,6 +1,6 @@
 import {bindNumberInput,parseNumberInput,setNumberInputValue} from './number-input.js?v=groups-v2';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
-import { farmFinance,seasonFor,fmt,appendMetric,appendSupportMetrics,operationLabels,serviceTypes } from './farm-finance.js?v=support-simple-v1';
+import { farmFinance,seasonFor,fmt,appendMetric,appendSupportMetrics,operationLabels,serviceTypes } from './farm-finance.js?v=harvest-v1';
 import { costPerDecare } from './operation-cost.js';
 import { locationLabels } from './location-labels.js';
 const $=id=>document.getElementById(id),params=new URLSearchParams(location.search),farmId=params.get('farm'),cfg=window.AGROVERIX_SUPABASE||{};
@@ -16,12 +16,14 @@ function render(){
  $('edit-records-toggle').disabled=false;$('edit-records-toggle').textContent=editing?'Düzenlemeyi Kapat':'Kayıtları Düzenle';$('edit-farm').hidden=!editing;$('edit-farm').href='tarla-bilgileri.html?edit='+farm.id+'&year='+year;
  $('add-operation').href='uretim-kayitlari.html?farm='+farm.id+'&year='+year;
  $('new-season').href='tarla-bilgileri.html?edit='+farm.id+'&year='+(Math.max(...farm.farmer_seasons.map(s=>s.season_year))+1);
- if(actualFormYear!==year){['yield','price','support'].forEach(key=>setNumberInputValue($('actual-'+key),season?.['actual_'+key]));actualFormYear=year;$('actual-save-status').textContent='';}
+ if(actualFormYear!==year){['yield','price','support'].forEach(key=>setNumberInputValue($('actual-'+key),key==='yield'?c.actualYield:key==='price'?c.actualPrice:season?.actual_support));actualFormYear=year;$('actual-save-status').textContent='';}
  const draft={};['yield','price','support'].forEach(key=>draft['actual_'+key]=parseNumberInput($('actual-'+key).value));
  const actual=$('actual-report'),expected=$('expected-report');actual.replaceChildren();expected.replaceChildren();report(actual,farmFinance(farm,records,year,draft).actual);report(expected,c.expected);
- $('actual-report-note').textContent=season?.actual_yield==null?'Hasattan sonra bu tarla ve seçili sezon için gerçek verim, satış fiyatı ve gerçekleşen desteklemeyi gir. Sıfır değer de kaydedilebilir.':'Gerçek verim: '+fmt(season.actual_yield)+' kg/da · Gerçek satış fiyatı: '+(season.actual_price==null?'—':fmt(season.actual_price))+' TL/kg';
+ $('actual-report-note').textContent=c.actualFromSales?fmt(season.harvest_sale_count)+' satış / araç kaydından '+fmt(c.actual.kg)+' kg hasat ve '+fmt(c.actualPrice)+' TL/kg ağırlıklı ortalama fiyat hesaplandı. Verim ve satış değişikliklerini Hasat & Satış sayfasından yap.':season?.actual_yield==null?'Hasattan sonra bu tarla ve seçili sezon için gerçek verim, satış fiyatı ve gerçekleşen desteklemeyi gir. Sıfır değer de kaydedilebilir.':'Gerçek verim: '+fmt(season.actual_yield)+' kg/da · Gerçek satış fiyatı: '+(season.actual_price==null?'—':fmt(season.actual_price))+' TL/kg';
  $('actual-season-fields').disabled=!season||!session||savingActual;
+ $('actual-yield').disabled=c.actualFromSales;$('actual-price').disabled=c.actualFromSales;
  $('expected-report-note').textContent=season?.expected_yield==null?'Sezon Sonu Tahmini sayfasına bu tarla için verim veya fiyat gir.':'Tahmini verim: '+fmt(season.expected_yield)+' kg/da · Tahmini satış fiyatı: '+(season.expected_price==null?'—':fmt(season.expected_price))+' TL/kg. Sonuçlar kayıtlı masraflara göre değişir.';
+ $('harvest-sales-link').href='hasat-satis.html?farm='+encodeURIComponent(farm.id)+'&year='+year;
  const list=$('farm-records');list.replaceChildren();$('farm-empty').hidden=c.rows.length>0;
  if(c.rent>0){const row=element('article','','farm-detail-record');row.append(element('b','Sezonluk Kira'),element('b',fmt(c.rent)+' TL'));list.append(row);}
  c.rows.forEach(r=>{
@@ -48,14 +50,15 @@ $('actual-season-form').addEventListener('submit',async event=>{
  if(!season){actualMessage('Kaydedilecek sezon bulunamadı. Sayfayı yenile.',true);return;}
  const values={};['yield','price','support'].forEach(key=>values['actual_'+key]=parseNumberInput($('actual-'+key).value));
  if(Object.values(values).some(v=>v!==null&&(!Number.isFinite(v)||v<0))){actualMessage('Verim, fiyat ve destekleme sıfır veya daha büyük olmalı.',true);return;}
- if((values.actual_yield===null)!==(values.actual_price===null)){actualMessage('Gerçek verim ve satış fiyatını birlikte gir veya ikisini de boş bırak.',true);return;}
+ if(!Number(season.harvest_sale_count||0)&&(values.actual_yield===null)!==(values.actual_price===null)){actualMessage('Gerçek verim ve satış fiyatını birlikte gir veya ikisini de boş bırak.',true);return;}
+ if(Number(season.harvest_sale_count||0)>0){delete values.actual_yield;delete values.actual_price;}
  savingActual=true;$('actual-season-fields').disabled=true;$('farm-season-select').disabled=true;actualMessage('Gerçekleşen bilgiler kaydediliyor…');
  try{
   const {data,error}=await client.from('farmer_seasons').update({...values,updated_at:new Date().toISOString()}).eq('farm_id',farm.id).eq('season_year',year).eq('user_id',session.user.id).select('actual_yield,actual_price,actual_support,updated_at').single();
   if(error)throw error;
   Object.assign(season,data);actualFormYear=null;render();actualMessage('Sezon Sonu Gerçekleşen bilgileri kaydedildi. Tarla özeti ve Excel raporun bu değerlerle güncellenir.');
  }catch(error){actualMessage('Bilgiler kaydedilemedi. Girdiklerin burada duruyor; tekrar dene.',true);}
- finally{savingActual=false;$('actual-season-fields').disabled=false;$('farm-season-select').disabled=false;}
+ finally{savingActual=false;$('actual-season-fields').disabled=false;const fromSales=Number(season.harvest_sale_count||0)>0;$('actual-yield').disabled=fromSales;$('actual-price').disabled=fromSales;$('farm-season-select').disabled=false;}
 });
 
 $('edit-records-toggle').addEventListener('click',()=>{editing=!editing;$('edit-records-toggle').setAttribute('aria-pressed',String(editing));render();});$('farm-season-select').addEventListener('change',render);
@@ -69,3 +72,5 @@ else{
   else{farm=f.data;records=r.data||[];admin=a;const select=$('farm-season-select');select.replaceChildren();farm.farmer_seasons.slice().sort((a,b)=>b.season_year-a.season_year).forEach(s=>select.add(new Option(s.season_year+' · '+s.crop,s.season_year)));select.value=String(Number(params.get('year'))||farm.season_year);if(!select.value)select.value=String(farm.season_year);render();}
  }
 }
+
+window.addEventListener('pageshow',event=>{if(event.persisted)location.reload();});

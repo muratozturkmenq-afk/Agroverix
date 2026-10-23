@@ -1,6 +1,6 @@
 import { cropTimeline } from './crop-timeline.js?v=first-expense-v1';
 import { parseNumberInput as decimal, bindNumberInput, setNumberInputValue } from './number-input.js?v=groups-v2';
-import { farmFinance, seasonFor, fmt, appendMetric, appendSupportMetrics } from './farm-finance.js?v=support-simple-v1';
+import { farmFinance, seasonFor, fmt, appendMetric, appendSupportMetrics } from './farm-finance.js?v=harvest-v1';
 import { cropVisual } from './crop-visual.js?v=cost-line-v2';
 const node=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text)n.textContent=text;return n;};
 export function renderSimulators(farms,records,client,user,onSaved){

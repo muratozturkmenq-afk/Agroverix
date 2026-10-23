@@ -1,6 +1,6 @@
-import { bindReportButtons } from './reports.js?v=support-simple-v1';
+import { bindReportButtons } from './reports.js?v=harvest-v1';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
-import { farmFinance, appendMetric, fmt } from './farm-finance.js?v=support-simple-v1';
+import { farmFinance, appendMetric, fmt } from './farm-finance.js?v=harvest-v1';
 const cfg=window.AGROVERIX_SUPABASE||{},hero=document.querySelector('#hero-farm-cards');
 const homeNav=document.querySelector('#nav');
 function updateNavSpace(){if(homeNav)document.documentElement.style.setProperty('--home-nav-height',homeNav.offsetHeight+'px');}
@@ -28,6 +28,7 @@ if(!cfg.url||!cfg.publishableKey)guest();else{
  }
  async function refresh(){if(!activeSession||document.hidden||pendingLoad)return;pendingLoad=load(activeSession,{quiet:true});try{await pendingLoad;}finally{pendingLoad=null;}}
  function subscribe(session){if(channel){client.removeChannel(channel);channel=null;}if(!session)return;channel=client.channel('farm-cost-'+session.user.id);['farmer_operations','farmer_seasons','farmer_farms'].forEach(table=>channel.on('postgres_changes',{event:'*',schema:'public',table,filter:'user_id=eq.'+session.user.id},()=>{clearTimeout(refreshTimer);refreshTimer=setTimeout(refresh,350);}));channel.subscribe();}
- window.addEventListener('focus',refresh);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});const poll=setInterval(refresh,30000);window.addEventListener('pagehide',()=>{clearInterval(poll);clearTimeout(refreshTimer);if(channel)client.removeChannel(channel);});
+ window.addEventListener('focus',refresh);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh();});let poll=setInterval(refresh,30000);window.addEventListener('pagehide',()=>{clearInterval(poll);clearTimeout(refreshTimer);if(channel)client.removeChannel(channel);});
+ window.addEventListener('pageshow',event=>{if(event.persisted){clearInterval(poll);poll=setInterval(refresh,30000);subscribe(activeSession);refresh();updateNavSpace();}});
  const {data}=await client.auth.getSession();await load(data.session);subscribe(data.session);client.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_IN'||event==='SIGNED_OUT')setTimeout(()=>{load(session);subscribe(session);},0);});
 }

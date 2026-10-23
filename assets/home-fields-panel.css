@@ -33,3 +33,5 @@
 .home-fields-page .hero-farm-season-link:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 @media(max-width:1100px){.home-fields-page .hero .hero-inner{padding-top:calc(var(--home-nav-height,146px) + 18px);padding-bottom:24px}.home-fields-page .hero-farm-summary{margin-bottom:28px}}
 @media(max-width:600px){.home-fields-page .hero .hero-inner{padding-top:calc(var(--home-nav-height,142px) + 18px);gap:16px}.home-fields-page .hero-farm-summary{margin-bottom:22px}}
+
+.home-fields-page .hero-field-actions>a:last-child:nth-child(odd){grid-column:1/-1}

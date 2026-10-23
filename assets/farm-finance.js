@@ -13,10 +13,10 @@ export function farmFinance(farm, records, year = farm.season_year, overrides = 
   const operations = values.reduce((sum,v) => sum + (v ?? 0)*area,0);
   const rent = season.tenure === 'rented' ? Number(season.rent_total || 0) : 0;
   const total = missing ? null : operations + rent;
-  function result(yieldPerDecare, price, supportAmount) {
+  function result(yieldPerDecare, price, supportAmount, saleTotals=null) {
     const y=decimal(yieldPerDecare), p=decimal(price);
-    const kg=y !== null && Number.isFinite(y) && y >= 0 ? y*area : null;
-    const revenue=kg !== null && p !== null && Number.isFinite(p) && p >= 0 ? kg*p : null;
+    const kg=saleTotals?Number(saleTotals.kg):y !== null && Number.isFinite(y) && y >= 0 ? y*area : null;
+    const revenue=saleTotals?Number(saleTotals.total):kg !== null && p !== null && Number.isFinite(p) && p >= 0 ? kg*p : null;
     const costKg=total !== null && kg > 0 ? total/kg : null;
     const enteredSupport=decimal(supportAmount);
     const support=enteredSupport!==null&&Number.isFinite(enteredSupport)&&enteredSupport>=0?enteredSupport:0;
@@ -24,8 +24,10 @@ export function farmFinance(farm, records, year = farm.season_year, overrides = 
     return {support,supportPerDecare:area>0?support/area:null,supportPerKg:kg>0?support/kg:null,kg,revenue,costKg,profit,percent:profit!==null&&total>0?profit/total*100:null,unitProfit:profit!==null&&kg>0?profit/kg:null};
 
   }
-  const expected=result(season.expected_yield,season.expected_price,season.expected_support),actual=result(season.actual_yield,season.actual_price,season.actual_support);
-  return {season,area,rows,missing,operations,rent,total,perDecare:total !== null && area>0 ? total/area : null,expected,actual,
+  const actualFromSales=Number(season.harvest_sale_count||0)>0;
+  const actualYield=actualFromSales?Number(season.harvest_sale_kg)/area:season.actual_yield,actualPrice=actualFromSales?Number(season.harvest_sale_total)/Number(season.harvest_sale_kg):season.actual_price;
+  const expected=result(season.expected_yield,season.expected_price,season.expected_support),actual=result(actualYield,actualPrice,season.actual_support,actualFromSales?{kg:season.harvest_sale_kg,total:season.harvest_sale_total}:null);
+  return {season,area,actualFromSales,actualYield,actualPrice,rows,missing,operations,rent,total,perDecare:total !== null && area>0 ? total/area : null,expected,actual,
     costKg:actual.kg !== null ? actual.costKg : expected.costKg,kgBasis:actual.kg !== null ? 'Gerçek verimle' : 'Tahmini verimle'};
 }
 export function appendMetric(parent,label,value,unit='',className='finance-metric') {

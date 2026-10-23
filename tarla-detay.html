@@ -51,7 +51,7 @@
     <p id="farm-empty" class="farm-detail-empty" hidden>Bu tarlada henüz kayıt yok. İlk işlemi ekleyerek maliyet takibini başlat.</p>
   </section>
   <section class="farm-detail-card season-end-report"><p class="profile-kicker">TAHMİNLERE GÖRE</p><h2>Sezon İçi Tahmini Sonuç</h2><p id="expected-report-note"></p><a class="auth-back" href="sezon-sonu-tahmini.html">Sezon Sonu Tahminine Git →</a><div class="finance-grid" id="expected-report"></div></section>
-  <section class="farm-detail-card season-end-report" id="season-end"><p class="profile-kicker">HASAT SONRASI GERÇEK SONUÇ</p><h2>Sezon Sonu Gerçekleşen</h2><p id="actual-report-note"></p><form id="actual-season-form">
+  <section class="farm-detail-card season-end-report" id="season-end"><p class="profile-kicker">HASAT SONRASI GERÇEK SONUÇ</p><h2>Sezon Sonu Gerçekleşen</h2><a class="auth-back" id="harvest-sales-link" href="hasat-satis.html">Hasat &amp; Satış Kayıtlarına Git →</a><p id="actual-report-note"></p><form id="actual-season-form">
     <fieldset id="actual-season-fields" disabled><div class="actual-season-inputs">
       <div class="profile-field"><label for="actual-yield">Gerçek Verim (kg/da)</label><input id="actual-yield" type="text" inputmode="decimal" placeholder="Hasattan sonra gir"></div>
       <div class="profile-field"><label for="actual-price">Gerçek Satış Fiyatı (TL/kg)</label><input id="actual-price" type="text" inputmode="decimal" placeholder="Gerçekleşen kg satış fiyatı"></div>
@@ -63,6 +63,6 @@
   <p class="farm-detail-status" id="farm-status" role="status" aria-live="polite"></p>
 </main>
 <script src="assets/supabase-config.js"></script>
-<script type="module" src="assets/farm-detail-finance.js?v=season-actual-v1"></script>
+<script type="module" src="assets/farm-detail-finance.js?v=harvest-v1"></script>
 </body>
 </html>
