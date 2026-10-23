@@ -2,6 +2,9 @@ import { bindReportButtons } from './reports.js?v=support-simple-v1';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
 import { farmFinance, appendMetric, fmt } from './farm-finance.js?v=support-simple-v1';
 const cfg=window.AGROVERIX_SUPABASE||{},hero=document.querySelector('#hero-farm-cards');
+const homeNav=document.querySelector('#nav');
+function updateNavSpace(){if(homeNav)document.documentElement.style.setProperty('--home-nav-height',homeNav.offsetHeight+'px');}
+updateNavSpace();if(homeNav&&'ResizeObserver' in window)new ResizeObserver(updateNavSpace).observe(homeNav);else window.addEventListener('resize',updateNavSpace);
 const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text)n.textContent=text;return n;};
 function notice(copy){const card=el('div','hero-farm-card');card.append(el('b','hero-farm-name','Tarla Maliyet Özeti'),el('p','hero-farm-note',copy));hero.replaceChildren(card);}
 function renderHero(farms,records){
