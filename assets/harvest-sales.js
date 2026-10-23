@@ -116,20 +116,18 @@ function renderSales(){
  $('harvest-sale-empty').textContent=session?'Bu görünümde satış kaydı yok. Yeni satış ekleyebilirsin.':'Kayıtlarını görmek için giriş yap.';
 }
 function renderCompanies(){
- const buyers=groups(),group=buyers.find(g=>g.key===$('receipt-buyer').value),list=$('harvest-company-list'),details=$('harvest-company-detail');list.replaceChildren();details.replaceChildren();$('harvest-all-buyers').hidden=!group;$('harvest-companies-empty').hidden=buyers.length>0;$('harvest-companies-title').textContent=group?group.name+' · Firma Hesabı':'Firma Hesapları';
- $('receipt-buyer-hint').textContent=group?'Kalan alacak: '+money((group.total-group.paid)/100)+'. Tahsilat tarihine kadar olan satış bedeli kadar kayıt yapabilirsin.':'Firma seçtiğinde satış ve tahsilat detayları sağ tarafta görünür.';
- (group?[group]:buyers).forEach(g=>{
+ const buyers=groups(),group=buyers.find(g=>g.key===$('receipt-buyer').value),list=$('harvest-company-list'),details=$('harvest-company-detail');list.replaceChildren();details.replaceChildren();$('harvest-all-buyers').hidden=!group;$('harvest-companies-empty').hidden=buyers.length>0;$('harvest-companies-title').textContent='Firma Hesapları';
+ $('receipt-buyer-hint').textContent=group?'Kalan alacak: '+money((group.total-group.paid)/100)+'. Tahsilat tarihine kadar olan satış bedeli kadar kayıt yapabilirsin.':'Firma seçtiğinde tahsilat detayları sağ tarafta görünür.';
+ buyers.forEach(g=>{
   const row=button('',()=>{if(editingReceipt)resetReceipt(g.key);else $('receipt-buyer').value=g.key;renderCompanies();});row.classList.add('dealer-balance-row');row.setAttribute('aria-label',g.name+' firma detayları');row.setAttribute('aria-pressed',String(g.key===group?.key));
   const name=node('span',undefined,'dealer-name');name.append(node('small','Satılan Firma'),node('strong',g.name));row.append(name);
   [['Toplam Satış',g.total],['Tahsil Edilen',g.paid],['Kalan Alacak',g.total-g.paid]].forEach(([label,value])=>{const cell=node('span');cell.append(node('small',label),node('b',money(value/100)));row.append(cell);});list.append(row);
  });
- if(!group)return;
- details.append(node('h3','Satış Detayları','harvest-detail-title'));
- const show=$('harvest-show-void').checked,rows=group.sales.filter(s=>show||!s.is_void).slice().sort((a,b)=>a.sale_date.localeCompare(b.sale_date)||a.id.localeCompare(b.id));
- rows.forEach(s=>details.append(saleCard(s,{company:true})));if(!rows.length)details.append(node('p','Etkin satış kaydı yok.','payment-help'));
- details.append(node('h3','Tahsilat Geçmişi','harvest-detail-title'));
+ if(!group){if(buyers.length)details.append(node('p','Tahsilat detayları için açılır listeden bir firma seç.','payment-help'));return;}
+ details.append(node('h3',group.name+' · Tahsilat Geçmişi','harvest-detail-title'));
+ const show=$('harvest-show-void').checked;
  const history=group.receipts.filter(r=>show||!r.is_void).slice().sort((a,b)=>b.receipt_date.localeCompare(a.receipt_date)||a.id.localeCompare(b.id));
- history.forEach(r=>{const card=node('article',undefined,'purchase-list-card'+(r.is_void?' is-void':''));metrics(card,[['Tahsilat Tarihi',day(r.receipt_date)],['Tahsil Edilen',money(r.amount)]]);if(r.notes)card.append(node('p',r.notes));if(r.is_void)card.append(node('b','İptal edilmiş kayıt'));const actions=node('div',undefined,'stock-row-actions');if(!r.is_void)actions.append(button('Düzenle',()=>editReceipt(r)));actions.append(button(r.is_void?'Yeniden Etkinleştir':'Kaydı İptal Et',()=>toggleRecord(r,'receipt')));card.append(actions);details.append(card);});
+ history.forEach(r=>{const card=node('article',undefined,'purchase-list-card'+(r.is_void?' is-void':''));metrics(card,[['Tahsilat Tarihi',day(r.receipt_date)],['Tutar',money(r.amount)]]);if(r.notes)card.append(node('p',r.notes));if(r.is_void)card.append(node('b','İptal edilmiş kayıt'));const actions=node('div',undefined,'stock-row-actions');if(!r.is_void)actions.append(button('Düzenle',()=>editReceipt(r)));actions.append(button(r.is_void?'Yeniden Etkinleştir':'Kaydı İptal Et',()=>toggleRecord(r,'receipt')));card.append(actions);details.append(card);});
  if(!history.length)details.append(node('p','Bu firmadan henüz tahsilat kaydı yok.','payment-help'));
 }
 function render(){
