@@ -1,6 +1,6 @@
 import { parseNumberInput as decimal, bindNumberInput, setNumberInputValue } from './number-input.js?v=groups-v2';
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm";
-import { farmFinance, seasonFor, appendMetric, appendSupportMetrics, fmt } from "./farm-finance.js?v=support-simple-v1";
+import { seasonFor } from "./farm-finance.js?v=support-simple-v1";
 import { locationLabels } from "./location-labels.js";
 
 const $ = (selector) => document.querySelector(selector);
@@ -13,29 +13,19 @@ let client = null;
 let session = null;
 let admin = null;
 let requestedEditOpened = false;
-let editingFarm = null, operationRows = [];
-['farm-entry-area','farm-rent','farm-actual-yield','farm-actual-price','farm-actual-support'].forEach(id=>bindNumberInput($('#'+id),{maximumFractionDigits:['farm-rent','farm-actual-price','farm-actual-support'].includes(id)?2:20}));
+let editingFarm = null;
+['farm-entry-area','farm-rent'].forEach(id=>bindNumberInput($('#'+id),{maximumFractionDigits:id==='farm-rent'?2:20}));
 $("#farm-season-year").value = new Date().getFullYear();
-function tenureChanged(){ const rented=$("#farm-tenure").value==='rented'; $("#farm-rent-field").hidden=!rented; $("#farm-rent").required=rented; $("#farm-rent").disabled=!rented; updateSeasonPreview(); }
-function updateSeasonPreview(){
- const el=$("#farm-season-preview"); el.replaceChildren();
- const year=Number($("#farm-season-year").value), area=decimal($("#farm-entry-area").value);
- ['actual'].forEach(kind=>{const value=decimal($('#farm-'+kind+'-support').value);$('#farm-'+kind+'-support-note').textContent=value!==null&&Number.isFinite(value)&&value>=0&&area>0?'Dekara destekleme: '+fmt(value/area)+' TL/da':'Bu tarlanın sezonluk toplam tutarını gir. Destek yoksa 0 yaz; belli değilse boş bırak.';});
- if(!editingFarm || !area || area<=0){$("#farm-season-note").textContent='Tarla kaydı ve masraflar eklendikçe hesaplama burada görünür.';return;}
- const c=farmFinance(editingFarm,operationRows,year,{area_decare:area,tenure:$("#farm-tenure").value,rent_total:decimal($("#farm-rent").value)||0,actual_yield:decimal($("#farm-actual-yield").value),actual_price:decimal($("#farm-actual-price").value),actual_support:decimal($("#farm-actual-support").value)});
- appendMetric(el,'Toplam Maliyet',c.total,'TL');appendMetric(el,'Dekara Maliyet',c.perDecare,'TL/da');appendMetric(el,'Gerçek Kg Başına Maliyet',c.actual.costKg,'TL/kg');appendMetric(el,'Toplam Satış Geliri',c.actual.revenue,'TL');appendMetric(el,'Toplam Kâr / Zarar',c.actual.profit,'TL');appendMetric(el,'Kâr / Zarar Oranı',c.actual.percent,'%');
- appendSupportMetrics(el,c.actual);
- $("#farm-season-note").textContent=c.missing?'Hesaplanamayan eski masraf var. Tarla detayından kaydı düzenle.':'Kâr/zarar = satış geliri + girilen destekleme − (masraflar + kira). Destek boşsa veya 0 ise hesaba eklenmez. Yüzde = kâr/zarar ÷ toplam maliyet × 100. Sıfır maliyette yüzde hesaplanmaz.';
-}
+function tenureChanged(){ const rented=$("#farm-tenure").value==='rented'; $("#farm-rent-field").hidden=!rented; $("#farm-rent").required=rented; $("#farm-rent").disabled=!rented; }
 function seasonFields(year){
  const s=editingFarm ? seasonFor(editingFarm,year) : null;
- $("#farm-tenure").value=s?.tenure||'';setNumberInputValue($('#farm-rent'),s?.rent_total);setNumberInputValue($('#farm-actual-yield'),s?.actual_yield);setNumberInputValue($('#farm-actual-price'),s?.actual_price);setNumberInputValue($('#farm-actual-support'),s?.actual_support);
+ $("#farm-tenure").value=s?.tenure||'';setNumberInputValue($('#farm-rent'),s?.rent_total);
  if(s){$("#farm-entry-crop").value=s.crop;setNumberInputValue($("#farm-entry-area"),s.area_decare);}
  tenureChanged();
 }
 $("#farm-tenure").addEventListener('change',tenureChanged);
 $("#farm-season-year").addEventListener('change',()=>seasonFields(Number($("#farm-season-year").value)));
-['farm-rent','farm-actual-yield','farm-actual-price','farm-entry-area','farm-actual-support'].forEach(id=>$('#'+id).addEventListener('input',updateSeasonPreview));
+
 
 function message(text, error = false) {
   status.textContent = text;
@@ -112,9 +102,8 @@ async function loadFarms() {
     requestedEditOpened = true;
     const farm = (data || []).find(row => row.id === requestedEdit);
     if (farm) {
-      const result=await client.from('farmer_operations').select('*').eq('farm_id',farm.id).eq('user_id',session.user.id);
-      if(result.error){message('Masraflar yüklenemedi. Sayfayı yenile.',true);return;}
-      operationRows=result.data||[];editFarm(farm);
+      if(location.hash==='#season-end'){location.replace('tarla-detay.html?farm='+encodeURIComponent(farm.id)+'&year='+(Number(new URLSearchParams(location.search).get('year'))||farm.season_year)+'#season-end');return;}
+      editFarm(farm);
     }
     else message("Düzenlenecek tarla bulunamadı veya hesabına ait değil.", true);
   }
@@ -141,8 +130,7 @@ function editFarm(farm) {
   $("#farm-entry-cancel").hidden = false;
   const year=Number(new URLSearchParams(location.search).get('year'))||farm.season_year;
   $("#farm-season-year").value=year;seasonFields(year);
-  const section=location.hash==='#season-end'?$('#season-end'):form;
-  section.scrollIntoView({ behavior: "smooth", block: "start" });
+  form.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 $("#farm-entry-cancel").addEventListener("click", () => {
   form.reset();
@@ -192,14 +180,12 @@ form.addEventListener("submit", async (event) => {
     updated_at: new Date().toISOString()
   };
   const editingId = $("#farm-entry-id").value;
-  const year=Number($("#farm-season-year").value),rent=decimal($("#farm-rent").value), actualYield=decimal($("#farm-actual-yield").value),actualPrice=decimal($("#farm-actual-price").value),actualSupport=decimal($("#farm-actual-support").value);
+  const year=Number($("#farm-season-year").value),rent=decimal($("#farm-rent").value);
   if(!Number.isInteger(year)||year<2000||year>2200){message('Geçerli sezon yılı gir.',true);return;}
   if(!['owned','rented'].includes($("#farm-tenure").value)){message('Mülk veya kiralık seç.',true);return;}
   if($("#farm-tenure").value==='rented'&&(rent===null||!Number.isFinite(rent)||rent<0)){message('Sezonluk toplam kira tutarını gir.',true);return;}
-  if((actualYield===null)!==(actualPrice===null)||[actualYield,actualPrice].some(v=>v!==null&&(!Number.isFinite(v)||v<0))){message('Sezon sonunda gerçek verim ve satış fiyatını birlikte, sıfır veya daha büyük gir.',true);return;}
-  if([actualSupport].some(v=>v!==null&&(!Number.isFinite(v)||v<0))){message('Destekleme tutarlarını sıfır veya daha büyük gir; tutar belli değilse boş bırak.',true);return;}
   const prior=editingFarm?seasonFor(editingFarm,year):null;
-  const season={season_year:year,crop:record.crop,area_decare:area,tenure:$("#farm-tenure").value,rent_total:$("#farm-tenure").value==='rented'?rent:0,expected_yield:prior?.expected_yield??null,expected_price:prior?.expected_price??null,actual_yield:actualYield,actual_price:actualPrice,actual_support:actualSupport};
+  const season={season_year:year,crop:record.crop,area_decare:area,tenure:$("#farm-tenure").value,rent_total:$("#farm-tenure").value==='rented'?rent:0,expected_yield:prior?.expected_yield??null,expected_price:prior?.expected_price??null,actual_yield:prior?.actual_yield??null,actual_price:prior?.actual_price??null};
   $("#farm-entry-submit").disabled = true;
   message("Tarla kaydı kaydediliyor…");
   const { error, data:savedId } = await client.rpc('save_farmer_farm_season',{p_farm:{...record,id:editingId||null},p_season:season});

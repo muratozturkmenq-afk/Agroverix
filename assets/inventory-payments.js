@@ -21,7 +21,7 @@ export function createPaymentLedger({getClient,refresh,getSaving,setSaving,onEdi
  function selected(){return suppliers().find(g=>g.key===select.value);}
  function options(preferred){
   const previous=preferred??select.value,groups=suppliers();
-  select.replaceChildren(new Option(groups.length?'Bayi seç':'Önce masraf kaydet',''));
+  select.replaceChildren(new Option(groups.length?'Bayi/firma seç':'Önce masraf kaydet',''));
   groups.forEach(g=>select.add(new Option(g.name+' · Kalan '+money((g.total-g.paid)/100),g.key)));
   if(groups.some(g=>g.key===previous))select.value=previous;
   select.disabled=Boolean(editing);
@@ -58,7 +58,7 @@ export function createPaymentLedger({getClient,refresh,getSaving,setSaving,onEdi
   const groups=suppliers(),group=selected();
   $('#supplier-title').textContent=group?group.name+' · Bayi Hesabı':'Bayi Hesapları';
   $('#dealer-detail-title').textContent=group?group.name+' · Masraflar ve Ödemeler':'Bayi Masrafları ve Ödemeleri';
-  $('#payment-dealer-hint').textContent=group?'Kalan borç: '+money((group.total-group.paid)/100)+'. Ödeme, en eski açık masraftan başlayarak dağıtılır.':'Bayi seçtiğinde masrafları sağ tarafta görünür.';
+  $('#payment-dealer-hint').textContent=group?'Kalan borç: '+money((group.total-group.paid)/100)+'. Ödeme, en eski açık masraftan başlayarak dağıtılır.':'Bayi/firma seçtiğinde masrafları sağ tarafta görünür.';
   if(!available){$('#supplier-empty').hidden=false;$('#ledger-empty').hidden=false;return;}
   (group?[group]:groups).forEach(g=>{
    const row=button('',()=>{if(editing)return;select.value=g.key;render();});row.classList.add('dealer-balance-row');row.setAttribute('aria-label',g.name+' bayi detayları');row.setAttribute('aria-pressed',String(group?.key===g.key));
@@ -66,7 +66,7 @@ export function createPaymentLedger({getClient,refresh,getSaving,setSaving,onEdi
    [['Toplam Alışveriş',g.total],['Toplam Ödenen',g.paid],['Kalan',g.total-g.paid]].forEach(([caption,value])=>{const cell=el('span');cell.append(el('small',caption),el('b',money(value/100)));row.append(cell);});supplierList.append(row);
   });
   $('#supplier-empty').hidden=groups.length>0;
-  $('#ledger-empty').hidden=Boolean(group);$('#ledger-empty').textContent='Bir bayi seçerek o bayiden yapılan masrafları ve ödemelerini görebilirsin.';
+  $('#ledger-empty').hidden=Boolean(group);$('#ledger-empty').textContent='Bir bayi/firma seçerek o bayiden yapılan masrafları ve ödemelerini görebilirsin.';
   if(!group)return;
   const filter=$('#ledger-filter').value,rows=group.rows.filter(p=>filter==='all'||(filter==='unpaid'?debt(p)>0:debt(p)===0)).sort((a,b)=>a.purchase_date.localeCompare(b.purchase_date)||a.id.localeCompare(b.id));
   rows.forEach(p=>{
@@ -93,7 +93,7 @@ export function createPaymentLedger({getClient,refresh,getSaving,setSaving,onEdi
  form.addEventListener('submit',async event=>{
   event.preventDefault();if(getSaving()||!session||!available)return;
   const group=selected(),amount=parseNumberInput($('#payment-amount').value),paymentDate=$('#payment-date').value;
-  if(!group){message('Önce bayi seç.',true);return;}
+  if(!group){message('Önce bayi/firma seç.',true);return;}
   const eligible=group.rows.filter(p=>p.purchase_date<=paymentDate),oldRows=editing?.rows||[];
   let max=eligible.reduce((n,p)=>n+cents(debt(p))+oldRows.filter(r=>r.purchase_id===p.id).reduce((n,r)=>n+cents(r.amount),0),0);
   if(editing?.legacy){const p=purchases.find(p=>p.id===editing.purchase_id);max=cents(debt(p))+editing.amount;}
@@ -111,7 +111,7 @@ export function createPaymentLedger({getClient,refresh,getSaving,setSaving,onEdi
    const changed=session?.user.id!==data.session?.user.id;session=data.session;purchases=data.purchases||[];items=data.items||[];payments=data.payments||[];available=Boolean(session&&data.available);
    if(changed){reset();message('');}
    if(editing&&!payments.some(p=>(p.payment_group_id||p.id)===editing.id)){reset(select.value);message('Düzenlenen ödeme artık bulunmuyor. Liste güncellendi.');}
-   $('#payment-fields').disabled=!available;$('#payment-availability').textContent=!session?'Ödeme ve bayi hesaplarını görmek için giriş yap.':available?'Bayi seçerek ödemeni kaydet. Sağ tarafta seçtiğin bayinin masrafları ve ödemeleri görünür.':'Ödeme bilgileri yüklenemedi. Sayfayı yenileyerek tekrar dene.';
+   $('#payment-fields').disabled=!available;$('#payment-availability').textContent=!session?'Ödeme ve bayi hesaplarını görmek için giriş yap.':available?'Bayi/firma seçerek ödemeni kaydet. Sağ tarafta seçtiğin bayinin masrafları ve ödemeleri görünür.':'Ödeme bilgileri yüklenemedi. Sayfayı yenileyerek tekrar dene.';
    options();render();
   },
   selectPurchase(id){const p=purchases.find(p=>p.id===id);if(p){if(editing)reset();options(normalizeSupplier(p.supplier));render();}},

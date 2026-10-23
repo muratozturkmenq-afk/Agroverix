@@ -15,7 +15,7 @@
 <link rel="stylesheet" href="assets/mobile-reports.css?v=first-expense-v1">
 <link rel="stylesheet" href="assets/hero-report.css?v=drone-heading-v4">
 <link rel="stylesheet" href="assets/mobile-navigation.css?v=brand-copy-v1">
-<link rel="stylesheet" href="assets/home-fields-panel.css?v=footer-report-v1">
+<link rel="stylesheet" href="assets/home-fields-panel.css?v=season-actual-v1">
 
 <link rel="icon" href="/favicon.svg?v=square-v1" type="image/svg+xml">
 <link rel="icon" href="/favicon.ico?v=square-v1" sizes="32x32 48x48 64x64">
@@ -92,6 +92,10 @@
     </h1>
     <p class="hero-sub">Masraflarını ve kiranı kaydet. Her tarlanın dekara ve kg başına maliyetini, sezon sonundaki kârını tek ekranda gör.</p>
     <nav class="finance-header-actions hero-field-actions" aria-label="Tarla işlemleri"><a class="btn btn-gold" href="alisveris-stok.html"><span>Masraf ve Ödeme</span><span aria-hidden="true">→</span></a><a class="btn btn-gold" href="uretim-kayitlari.html"><span>Uygulama Girişi</span><span aria-hidden="true">→</span></a><a class="btn btn-gold" href="stok.html"><span>Stoklarım</span><span aria-hidden="true">→</span></a><a class="btn btn-gold" href="tarla-bilgileri.html"><span>Tarla Ekle</span><span aria-hidden="true">→</span></a></nav>
+    <section class="home-report-footer" aria-label="Kişisel Excel raporu">
+  <button class="btn btn-gold" type="button" data-excel-export disabled>Excel Raporu İndir</button>
+  <p id="excel-status" role="status" aria-live="polite"></p>
+</section>
 
   </div>
   <div class="scroll-cue" aria-hidden="true">Kaydır<i></i></div>
@@ -122,10 +126,7 @@
 
 
 
-<section class="home-report-footer" aria-label="Kişisel Excel raporu">
-  <button class="btn btn-gold" type="button" data-excel-export disabled>Excel Raporu İndir</button>
-  <p id="excel-status" role="status" aria-live="polite"></p>
-</section>
+
 
 </main>
 
@@ -143,7 +144,7 @@
 <script src="assets/main.js?v=seasons-v1"></script>
 <script src="assets/mobile-navigation.js?v=mobile-native-v3" defer></script>
 <script src="assets/supabase-config.js"></script>
-<script type="module" src="assets/home-finance-dashboard.js?v=footer-report-v1"></script>
+<script type="module" src="assets/home-finance-dashboard.js?v=season-actual-v1"></script>
 </body>
 </html>
 

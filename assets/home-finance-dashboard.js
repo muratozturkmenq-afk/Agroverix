@@ -12,7 +12,7 @@ function renderHero(farms,records){
  appendMetric(metrics,(actual?'Gerçek':'Tahmini')+' Kâr / Zarar',result.profit,'TL','hero-farm-metric');
  appendMetric(metrics,'Kâr / Zarar Oranı',result.percent,'%','hero-farm-metric');
  appendMetric(metrics,(actual?'Gerçekleşen':'Tahmini')+' Destekleme',result.support,'TL','hero-farm-metric');
- card.append(metrics);card.append(el('small','hero-farm-note',c.missing?'Eski masraf bilgileri eksik; detaydan düzenle.':c.costKg===null?'Kg maliyeti için Sezon Sonu Tahmini sayfasına verim gir.':c.kgBasis));card.append(el('span','hero-farm-action','Tarla ve Sezon Detayı →'));wrap.append(card);hero.append(wrap);});
+ card.append(metrics);card.append(el('small','hero-farm-note',c.missing?'Eski masraf bilgileri eksik; detaydan düzenle.':c.costKg===null?'Kg maliyeti için Sezon Sonu Tahmini sayfasına verim gir.':c.kgBasis));card.append(el('span','hero-farm-action','Tarla ve Sezon Detayı →'));wrap.append(card);const actualLink=el('a','hero-farm-season-link','Sezon Sonu Gerçekleşen →');actualLink.href=card.href+'&year='+encodeURIComponent(farm.season_year)+'#season-end';wrap.append(actualLink);hero.append(wrap);});
 }
 function guest(){notice('Kendi tarlalarını ve maliyetlerini görmek için giriş yap.');}
 if(!cfg.url||!cfg.publishableKey)guest();else{

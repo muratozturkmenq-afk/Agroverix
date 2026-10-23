@@ -96,11 +96,7 @@
         <div class="profile-field"><label for="farm-tenure">Tarla Durumu <b>*</b></label><select id="farm-tenure" required><option value="">Seçin</option><option value="owned">Mülk</option><option value="rented">Kiralık</option></select></div>
         <div class="profile-field" id="farm-rent-field" hidden><label for="farm-rent">Sezonluk Toplam Kira (TL) <b>*</b></label><input id="farm-rent" type="text" inputmode="decimal" pattern="[0-9]+([.,][0-9]{1,2})?" placeholder="Tarlanın tamamının sezonluk kirası"><small>Bu tutar masraflara bir kez eklenir.</small></div>
       </div></fieldset>
-      <fieldset class="profile-section" id="season-end"><legend><span>04</span> Sezon Sonu</legend><p class="profile-help">Bu bölümü hasattan sonra doldur. Sezon devam ediyorsa boş bırak. Sıfır verim ve sıfır satış fiyatı da kaydedilebilir.</p><div class="farm-entry-grid">
-        <div class="profile-field"><label for="farm-actual-yield">Gerçek Verim (kg/da)</label><input id="farm-actual-yield" type="text" inputmode="decimal" pattern="[0-9]+([.,][0-9]+)?" placeholder="Hasattan sonra gir"></div>
-        <div class="profile-field"><label for="farm-actual-price">Gerçek Satış Fiyatı (TL/kg)</label><input id="farm-actual-price" type="text" inputmode="decimal" pattern="[0-9]+([.,][0-9]{1,2})?" placeholder="Gerçekleşen kg satış fiyatı"></div>
-      <div class="profile-field wide"><label for="farm-actual-support">Gerçekleşen Toplam Destekleme (TL)</label><input id="farm-actual-support" type="text" inputmode="decimal" placeholder="Bu sezon için gerçekleşen toplam destek" aria-describedby="farm-actual-support-note"><small id="farm-actual-support-note">Sezon sonunda bu tarla için gerçekleşen toplam desteği gir. Destek yoksa 0 yaz; belli değilse boş bırak.</small></div>
-      </div><div id="farm-season-preview" class="finance-grid" aria-live="polite"></div><p id="farm-season-note" class="profile-help"></p></fieldset>
+
       <div class="farm-page-note"><b>Hesabına özel kayıt</b>Kaydedilen tarla bilgileri yalnızca giriş yapan hesabınla ilişkilendirilir. KVKK aydınlatma metnini incelemeden gerçek kişisel bilgi ekleme.</div>
       <div class="farm-page-actions"><button class="profile-submit" type="submit" id="farm-entry-submit">Tarlayı kaydet <span>→</span></button><button class="auth-back" type="button" id="farm-entry-cancel" hidden>Vazgeç</button></div>
       <p class="profile-result farm-page-alert" id="farm-entry-status" role="status" aria-live="polite"></p>
@@ -110,6 +106,6 @@
   </section>
 </main>
 <script src="assets/supabase-config.js"></script>
-<script type="module" src="assets/farm-entry-page.js?v=support-simple-v1"></script>
+<script type="module" src="assets/farm-entry-page.js?v=season-actual-v1"></script>
 </body>
 </html>
