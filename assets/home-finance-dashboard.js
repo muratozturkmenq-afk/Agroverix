@@ -1,4 +1,4 @@
-import { bindReportButtons } from './reports.js?v=harvest-v1';
+import { bindReportButtons } from './reports.js?v=harvest-v2';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
 import { farmFinance, appendMetric, fmt } from './farm-finance.js?v=harvest-v1';
 const cfg=window.AGROVERIX_SUPABASE||{},hero=document.querySelector('#hero-farm-cards');
