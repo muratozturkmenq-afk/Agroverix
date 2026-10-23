@@ -19,3 +19,20 @@
 .harvest-page .inventory-summary article{min-width:0}.harvest-page .inventory-summary b{min-width:0;overflow-wrap:anywhere}
 .harvest-total-preview output{min-width:0}
 @media(max-width:760px){.harvest-section-heading{display:grid;grid-template-columns:minmax(0,1fr) 120px;gap:12px}.harvest-section-heading h2{font-size:18px;line-height:1.25;letter-spacing:-.25px}.harvest-section-heading .profile-field{width:120px}}
+
+.harvest-history-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:5px;border:1px solid #cbd3bf;border-radius:10px;background:#e9eddf;margin:0 0 18px}
+.harvest-history-tabs button{font:750 15px/1.4 var(--f-body);min-height:46px;padding:9px;border:0;border-radius:7px;color:#35482a;background:transparent;cursor:pointer}
+.harvest-history-tabs button[aria-selected="true"]{background:var(--gold);color:var(--ink)}
+.harvest-sale-group{border:1px solid var(--line-l);border-radius:11px;background:#fffef9;overflow:hidden}
+.harvest-sale-group>summary{display:block;cursor:pointer;list-style:none;padding:16px}
+.harvest-sale-group>summary::-webkit-details-marker{display:none}
+.harvest-group-heading{display:flex;justify-content:space-between;gap:12px;align-items:start;color:var(--ink)}
+.harvest-group-heading>b{font-size:19px;line-height:1.35;overflow-wrap:anywhere}
+.harvest-group-arrow{flex:none;color:var(--gold-ink);font-size:21px}
+.harvest-sale-group[open] .harvest-group-arrow{transform:rotate(180deg)}
+.harvest-sale-group>summary>small{display:block;margin-top:5px;color:var(--muted-l);font-size:12px}
+.harvest-group-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px}
+.harvest-group-metrics>div{min-width:0}.harvest-group-metrics span{display:block;color:var(--muted-l);font-size:12px;line-height:1.4}
+.harvest-group-metrics strong{display:block;margin-top:5px;font-size:18px;line-height:1.3;color:var(--ink);overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.harvest-group-records{display:grid;gap:12px;padding:14px;border-top:1px solid var(--line-l);background:#edf0e4}
+@media(max-width:760px){.harvest-history-tabs button{font-size:14px}.harvest-group-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.harvest-group-metrics>div:last-child{grid-column:1/-1}.harvest-group-records{padding:10px}.harvest-group-heading>b{font-size:18px}}
