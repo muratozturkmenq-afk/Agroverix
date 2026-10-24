@@ -100,7 +100,8 @@ function renderSales(){
  const rows=[...grouped.values()].sort((a,b)=>a.name.localeCompare(b.name,'tr'));
  rows.forEach(group=>{
   const active=group.rows.filter(s=>!s.is_void),kg=active.reduce((n,s)=>n+Number(s.quantity_kg),0),total=active.reduce((n,s)=>n+cents(s.total_amount),0)/100;
-  const details=node('details',undefined,'harvest-sale-group'),summary=node('summary'),title=node('div',undefined,'harvest-group-heading');title.append(node('b',group.name),node('span','⌄','harvest-group-arrow'));summary.append(title,node('small',active.length+' etkin kayıt'+(group.rows.length>active.length?' · '+(group.rows.length-active.length)+' iptal':'')));
+  const details=node('details',undefined,'harvest-sale-group'),summary=node('summary'),title=node('div',undefined,'harvest-group-heading'),count=node('small',active.length+' etkin kayıt'+(group.rows.length>active.length?' · '+(group.rows.length-active.length)+' iptal':''));
+  if(historyMode==='company'){const label=node('div',undefined,'harvest-group-label');label.append(node('b',group.name),count);title.append(label,node('span','⌄','harvest-group-arrow'));summary.append(title);}else{title.append(node('b',group.name),node('span','⌄','harvest-group-arrow'));summary.append(title,count);}
   const totals=node('div',undefined,'harvest-group-metrics');
   [['Toplam Miktar',fmt(kg)+' kg'],['Ortalama Fiyat',kg>0?fmt(total/kg)+' TL/kg':'—'],['Toplam Satış',money(total)]].forEach(([label,value])=>{const cell=node('div');cell.append(node('span',label),node('strong',value));totals.append(cell);});
   summary.append(totals);details.append(summary);const records=node('div',undefined,'harvest-group-records');

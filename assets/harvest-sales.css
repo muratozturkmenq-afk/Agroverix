@@ -39,3 +39,9 @@
 
 .harvest-page .harvest-company-row{border:1px solid var(--line-l);border-radius:8px;cursor:default}
 .harvest-page .harvest-detail-title{overflow-wrap:anywhere}
+
+/* Keep company record counts next to their company name. */
+.harvest-group-label{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 12px;min-width:0}
+.harvest-group-label>b{font-size:19px;line-height:1.35;overflow-wrap:anywhere;min-width:0}
+.harvest-group-label>small{color:var(--muted-l);font-size:12px;line-height:1.4}
+@media(max-width:760px){.harvest-group-label>b{font-size:18px}}
