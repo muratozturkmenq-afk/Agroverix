@@ -79,3 +79,19 @@
  .profile-section-head h3{font-size:23px}
  .farm-empty{padding:25px 15px}
 }
+
+/* Compact record actions; keep their existing height and text size. */
+:root .stock-row-actions > .inventory-button,
+:root .production-record-actions > button,
+:root .farm-item-actions > .auth-back,
+:root .farm-detail-record-edit,
+:root :is(#records-edit-toggle,#edit-records-toggle,#edit-farm,#operation-cancel,#farm-entry-cancel,#purchase-cancel,#payment-cancel,#sale-cancel,#receipt-cancel){
+  flex:0 1 auto;
+  width:auto;
+  min-width:0;
+  max-width:100%;
+  padding-inline:8px;
+  justify-self:start;
+}
+:root .production-record-actions{flex-wrap:wrap}
+:root .production-record-actions > button{padding-inline:6px}
