@@ -35,3 +35,6 @@
 @media(max-width:600px){.home-fields-page .hero .hero-inner{padding-top:calc(var(--home-nav-height,142px) + 18px);gap:16px}.home-fields-page .hero-farm-summary{margin-bottom:22px}}
 
 .home-fields-page .hero-field-actions>a:last-child:nth-child(odd){grid-column:1/-1}
+
+/* Reduce the home footer height without resizing its content. */
+.home-fields-page .foot{padding-block:10px 12px}
