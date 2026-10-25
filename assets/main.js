@@ -1,3 +1,6 @@
+import {t,locale,areaDisplay,areaStored,perAreaDisplay,perAreaStored} from './regional-format.js?v=international-v1';
+const I=window.AgroIntl;
+const __avt=s=>I.t(s);
 /* Tarla Nabzı v2 · interactions */
 (function () {
   "use strict";
@@ -8,7 +11,7 @@
 
   function $(s, r) { return (r || document).querySelector(s); }
   function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
-  function fmt(n, d) { d = d || 0; return Number(n).toLocaleString("tr-TR", { minimumFractionDigits: d, maximumFractionDigits: d }); }
+  function fmt(n, d) { d = d || 0; return Number(n).toLocaleString(I.locale, { minimumFractionDigits: d, maximumFractionDigits: d }); }
   function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
   function lerp(a, b, t) { return a + (b - a) * t; }
   function ease(t) { return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
@@ -153,7 +156,7 @@
       return response.json();
     }).then(function (data) {
       admin = data;
-      fillSelect(province, "İl seçin", admin.provinces);
+      fillSelect(province, __avt("İl seçin"), admin.provinces);
       addressStatus.textContent = "";
     }).catch(function () {
       addressStatus.textContent = "Yer listesi yüklenemedi. Sayfayı yenileyip tekrar deneyin.";
@@ -161,14 +164,14 @@
 
     province.addEventListener("change", function () {
       var rows = (admin && admin.districts[province.value]) || [];
-      fillSelect(district, "İlçe seçin", rows);
-      resetSelect(village, "Önce ilçe seçin");
+      fillSelect(district, __avt("İlçe seçin"), rows);
+      resetSelect(village, __avt("Önce ilçe seçin"));
     });
     district.addEventListener("change", function () {
       var rows = (admin && admin.settlements[district.value] || []).map(function (name) {
         return { id: name, name: name };
       });
-      fillSelect(village, "Köy / mahalle seçin", rows);
+      fillSelect(village, __avt("Köy / mahalle seçin"), rows);
       if (!rows.length) village.options[0].textContent = "Bu ilçede kayıt bulunamadı";
     });
 
@@ -182,7 +185,7 @@
         return;
       }
       geoButton.disabled = true;
-      geoStatus.textContent = "Konum izni bekleniyor…";
+      geoStatus.textContent = __avt("Konum izni bekleniyor…");
       navigator.geolocation.getCurrentPosition(function (position) {
         coordinates = { latitude: position.coords.latitude, longitude: position.coords.longitude };
         geoStatus.textContent = "Tarla konumu eklendi (yaklaşık " + Math.round(position.coords.accuracy) + " m doğruluk).";

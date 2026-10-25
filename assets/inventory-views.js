@@ -1,3 +1,6 @@
+import {t,locale,areaDisplay,areaStored,perAreaDisplay,perAreaStored} from './regional-format.js?v=international-v1';
+const I=window.AgroIntl;
+const __avt=s=>I.t(s);
 const views={purchase:{button:document.querySelector('#inventory-tab-purchase'),panel:document.querySelector('#alisveris-ekle')},payment:{button:document.querySelector('#inventory-tab-payment'),panel:document.querySelector('#odeme-borc')}};
 export function showInventoryView(mode,{focus=false,scroll=false,writeHash=true}={}){
  if(!views[mode])return;

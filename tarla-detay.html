@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Tarla Detayı · AgroVerix</title>
+<title data-i18n="Tarla Detayı · AgroVerix">Tarla Detayı · AgroVerix</title>
 <meta name="theme-color" content="#0D100B">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,47 +22,50 @@
 <meta name="apple-mobile-web-app-title" content="AgroVerix">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
+<link rel="stylesheet" href="assets/regional.css?v=international-v1">
+<script src="assets/i18n-en.js?v=international-v1"></script><script src="assets/i18n.js?v=international-v1"></script>
 </head>
 <body class="profile-page production-page farm-detail-page">
 <header class="profile-top">
-  <a class="brand" href="index.html" aria-label="AgroVerix ana sayfa"><img class="home-logo" src="assets/images/agroverix-logo-horizontal-light.svg" width="920" height="302" alt="AgroVerix — Cebimdeki Tarlam"></a>
-  <span class="profile-step">TARLA VE SEZON DETAYI</span>
-  <a class="profile-back" href="index.html">← Ana Sayfaya Dön</a>
+  <a class="brand" href="index.html" aria-label="AgroVerix ana sayfa" data-i18n-label="AgroVerix ana sayfa"><img class="home-logo" src="assets/images/agroverix-logo-horizontal-light.svg" width="920" height="302" alt="AgroVerix — Cebimdeki Tarlam" data-i18n-alt="AgroVerix — Cebimdeki Tarlam"></a>
+  <span class="profile-step" data-i18n="TARLA VE SEZON DETAYI">TARLA VE SEZON DETAYI</span>
+  <a class="profile-back" href="index.html" data-i18n="← Ana Sayfaya Dön">← Ana Sayfaya Dön</a>
 </header>
 <main class="farm-detail-layout">
   <section class="farm-detail-card">
     <div class="farm-detail-head">
-      <div><p class="profile-kicker">KİŞİSEL TARLA BİLGİSİ</p><h1 id="farm-title">Tarla yükleniyor…</h1><p id="farm-location"></p></div>
-      <div class="farm-detail-actions"><a class="profile-submit" id="add-operation" href="uretim-kayitlari.html">Uygulama Girişi <span>→</span></a><button class="auth-back" id="edit-records-toggle" type="button" aria-pressed="false" disabled>Kayıtları Düzenle</button><a class="auth-back" id="edit-farm" href="tarla-bilgileri.html" hidden>Tarla Bilgilerini Düzenle</a></div>
+      <div><p class="profile-kicker" data-i18n="KİŞİSEL TARLA BİLGİSİ">KİŞİSEL TARLA BİLGİSİ</p><h1 id="farm-title" data-i18n="Tarla yükleniyor…">Tarla yükleniyor…</h1><p id="farm-location"></p></div>
+      <div class="farm-detail-actions"><a class="profile-submit" id="add-operation" href="uretim-kayitlari.html"><span data-i18n="Uygulama Girişi">Uygulama Girişi </span><span>→</span></a><button class="auth-back" id="edit-records-toggle" type="button" aria-pressed="false" disabled data-i18n="Kayıtları Düzenle">Kayıtları Düzenle</button><a class="auth-back" id="edit-farm" href="tarla-bilgileri.html" hidden data-i18n="Tarla Bilgilerini Düzenle">Tarla Bilgilerini Düzenle</a></div>
     </div>
-    <label class="season-selector" for="farm-season-select">Sezon Yılı<select id="farm-season-select"></select></label>
+    <label class="season-selector" for="farm-season-select"><span data-i18n="Sezon Yılı">Sezon Yılı</span><select id="farm-season-select"></select></label>
     <div class="farm-detail-metrics">
-      <article><span>Ürün</span><b id="farm-crop">—</b></article>
-      <article><span>Alan</span><b><span id="farm-area">—</span> da</b></article>
-      <article><span>Hesaplanan maliyet</span><b><span id="farm-per-decare">—</span> TL/da</b></article>
-      <article><span>Hesaplanan tarla toplamı</span><b><span id="farm-total">—</span> TL</b></article>
+      <article><span data-i18n="Ürün">Ürün</span><b id="farm-crop">—</b></article>
+      <article><span data-i18n="Alan">Alan</span><b><span id="farm-area">—</span><span data-i18n="da"> da</span></b></article>
+      <article><span data-i18n="Hesaplanan maliyet">Hesaplanan maliyet</span><b><span id="farm-per-decare">—</span><span data-i18n="TL/da"> TL/da</span></b></article>
+      <article><span data-i18n="Hesaplanan tarla toplamı">Hesaplanan tarla toplamı</span><b><span id="farm-total">—</span><span data-i18n="TL"> TL</span></b></article>
     </div>
-    <a id="new-season" class="auth-back" href="tarla-bilgileri.html">Yeni Sezon Aç</a>
+    <a id="new-season" class="auth-back" href="tarla-bilgileri.html" data-i18n="Yeni Sezon Aç">Yeni Sezon Aç</a>
     <p class="farm-detail-note" id="farm-cost-note" role="status" aria-live="polite"></p>
   </section>
   <section class="farm-detail-card">
-    <div class="farm-detail-list-head"><div><p class="profile-kicker">SEZON TAKİBİ</p><h2>Tarla Üretim Kayıtları</h2></div><a class="auth-back" href="uretim-kayitlari.html">Tüm kayıtlar</a></div>
+    <div class="farm-detail-list-head"><div><p class="profile-kicker" data-i18n="SEZON TAKİBİ">SEZON TAKİBİ</p><h2 data-i18n="Tarla Üretim Kayıtları">Tarla Üretim Kayıtları</h2></div><a class="auth-back" href="uretim-kayitlari.html" data-i18n="Tüm kayıtlar">Tüm kayıtlar</a></div>
     <div id="farm-records" class="farm-detail-records"></div>
-    <p id="farm-empty" class="farm-detail-empty" hidden>Bu tarlada henüz kayıt yok. İlk işlemi ekleyerek maliyet takibini başlat.</p>
+    <p id="farm-empty" class="farm-detail-empty" hidden data-i18n="Bu tarlada henüz kayıt yok. İlk işlemi ekleyerek maliyet takibini başlat.">Bu tarlada henüz kayıt yok. İlk işlemi ekleyerek maliyet takibini başlat.</p>
   </section>
-  <section class="farm-detail-card season-end-report"><p class="profile-kicker">TAHMİNLERE GÖRE</p><h2>Sezon İçi Tahmini Sonuç</h2><p id="expected-report-note"></p><a class="auth-back" href="sezon-sonu-tahmini.html">Sezon Sonu Tahminine Git →</a><div class="finance-grid" id="expected-report"></div></section>
-  <section class="farm-detail-card season-end-report" id="season-end"><p class="profile-kicker">HASAT SONRASI GERÇEK SONUÇ</p><h2>Sezon Sonu Gerçekleşen</h2><a class="auth-back" id="harvest-sales-link" href="hasat-satis.html">Hasat &amp; Satış Kayıtlarına Git →</a><p id="actual-report-note"></p><form id="actual-season-form">
+  <section class="farm-detail-card season-end-report"><p class="profile-kicker" data-i18n="TAHMİNLERE GÖRE">TAHMİNLERE GÖRE</p><h2 data-i18n="Sezon İçi Tahmini Sonuç">Sezon İçi Tahmini Sonuç</h2><p id="expected-report-note"></p><a class="auth-back" href="sezon-sonu-tahmini.html" data-i18n="Sezon Sonu Tahminine Git →">Sezon Sonu Tahminine Git →</a><div class="finance-grid" id="expected-report"></div></section>
+  <section class="farm-detail-card season-end-report" id="season-end"><p class="profile-kicker" data-i18n="HASAT SONRASI GERÇEK SONUÇ">HASAT SONRASI GERÇEK SONUÇ</p><h2 data-i18n="Sezon Sonu Gerçekleşen">Sezon Sonu Gerçekleşen</h2><a class="auth-back" id="harvest-sales-link" href="hasat-satis.html" data-i18n="Hasat &amp; Satış Kayıtlarına Git →">Hasat &amp; Satış Kayıtlarına Git →</a><p id="actual-report-note"></p><form id="actual-season-form">
     <fieldset id="actual-season-fields" disabled><div class="actual-season-inputs">
-      <div class="profile-field"><label for="actual-yield">Gerçek Verim (kg/da)</label><input id="actual-yield" type="text" inputmode="decimal" placeholder="Hasattan sonra gir"></div>
-      <div class="profile-field"><label for="actual-price">Gerçek Satış Fiyatı (TL/kg)</label><input id="actual-price" type="text" inputmode="decimal" placeholder="Gerçekleşen kg satış fiyatı"></div>
-      <div class="profile-field actual-support-field"><label for="actual-support">Gerçekleşen Toplam Destekleme (TL)</label><input id="actual-support" type="text" inputmode="decimal" placeholder="Bu tarla için sezonluk toplam destek"><small>Destek yoksa 0 yaz; belli değilse boş bırak.</small></div>
-    </div><button class="profile-submit" id="actual-save" type="submit">Gerçekleşen Bilgileri Kaydet →</button></fieldset>
+      <div class="profile-field"><label for="actual-yield" data-i18n="Gerçek Verim (kg/da)">Gerçek Verim (kg/da)</label><input id="actual-yield" type="text" inputmode="decimal" placeholder="Hasattan sonra gir" data-i18n-placeholder="Hasattan sonra gir"></div>
+      <div class="profile-field"><label for="actual-price" data-i18n="Gerçek Satış Fiyatı (TL/kg)">Gerçek Satış Fiyatı (TL/kg)</label><input id="actual-price" type="text" inputmode="decimal" placeholder="Gerçekleşen kg satış fiyatı" data-i18n-placeholder="Gerçekleşen kg satış fiyatı"></div>
+      <div class="profile-field actual-support-field"><label for="actual-support" data-i18n="Gerçekleşen Toplam Destekleme (TL)">Gerçekleşen Toplam Destekleme (TL)</label><input id="actual-support" type="text" inputmode="decimal" placeholder="Bu tarla için sezonluk toplam destek" data-i18n-placeholder="Bu tarla için sezonluk toplam destek"><small data-i18n="Destek yoksa 0 yaz; belli değilse boş bırak.">Destek yoksa 0 yaz; belli değilse boş bırak.</small></div>
+    </div><button class="profile-submit" id="actual-save" type="submit" data-i18n="Gerçekleşen Bilgileri Kaydet →">Gerçekleşen Bilgileri Kaydet →</button></fieldset>
     <p id="actual-save-status" class="profile-help" role="status" aria-live="polite"></p>
-  </form><div class="finance-grid" id="actual-report"></div><p>Toplam maliyet = masraflar + kira. Kâr = satış geliri + gerçekleşen destekleme − toplam maliyet. Destek boşsa veya 0 ise eklenmez. Kâr/zarar yüzdesi = kâr/zarar ÷ toplam maliyet × 100. Sıfır maliyette yüzde hesaplanmaz.</p></section>
+  </form><div class="finance-grid" id="actual-report"></div><p data-i18n="Toplam maliyet = masraflar + kira. Kâr = satış geliri + gerçekleşen destekleme − toplam maliyet. Destek boşsa veya 0 ise eklenmez. Kâr/zarar yüzdesi = kâr/zarar ÷ toplam maliyet × 100. Sıfır maliyette yüzde hesaplanmaz.">Toplam maliyet = masraflar + kira. Kâr = satış geliri + gerçekleşen destekleme − toplam maliyet. Destek boşsa veya 0 ise eklenmez. Kâr/zarar yüzdesi = kâr/zarar ÷ toplam maliyet × 100. Sıfır maliyette yüzde hesaplanmaz.</p></section>
 
   <p class="farm-detail-status" id="farm-status" role="status" aria-live="polite"></p>
 </main>
-<script src="assets/supabase-config.js"></script>
-<script type="module" src="assets/farm-detail-finance.js?v=harvest-v1"></script>
+<script src="assets/supabase-config.js?v=international-v1"></script>
+<script type="module" src="assets/farm-detail-finance.js?v=international-v1"></script>
+<script type="module" src="assets/regional-boot.js?v=international-v1"></script>
 </body>
 </html>

@@ -1,8 +1,11 @@
+import {t,locale,areaDisplay,areaStored,perAreaDisplay,perAreaStored} from './regional-format.js?v=international-v1';
+const I=window.AgroIntl;
+const __avt=s=>I.t(s);
 // Decorative illustration, not measured growth or a satellite observation.
 const ns='http://www.w3.org/2000/svg';
 export function cropVisual(crop) {
- const name=String(crop||'Bitki').toLocaleLowerCase('tr-TR'),svg=document.createElementNS(ns,'svg');
- svg.setAttribute('viewBox','0 0 420 360');svg.setAttribute('role','img');svg.setAttribute('aria-label',crop+' bitkisinin temsili gelişim görseli');svg.classList.add('crop-scene');
+ const name=I.cropName(crop||__avt("Bitki")).toLocaleLowerCase('tr-TR'),svg=document.createElementNS(ns,'svg');
+ svg.setAttribute('viewBox','0 0 420 360');svg.setAttribute('role','img');svg.setAttribute('aria-label',crop+__avt(" bitkisinin temsili gelişim görseli"));svg.classList.add('crop-scene');
  const add=(tag,attrs,parent=svg)=>{const n=document.createElementNS(ns,tag);Object.entries(attrs).forEach(([k,v])=>n.setAttribute(k,v));parent.append(n);return n;};
  add('rect',{width:420,height:360,fill:'#e5eddf'});add('circle',{cx:334,cy:65,r:28,fill:'#edb43e'});add('path',{d:'M0 240 Q100 195 220 231 T420 215 V360 H0Z',fill:'#aab98a'});add('path',{d:'M0 267 Q140 240 420 263 V360 H0Z',fill:'#674731'});
  [36,94,152,210,268,326,384].forEach(x=>add('path',{d:`M${x} 360 L${210+(x-210)*.4} 267`,stroke:'#8b6543','stroke-width':3,fill:'none'}));
@@ -22,5 +25,5 @@ export function cropVisual(crop) {
   if(/pamuk/.test(name))[[165,156],[251,187],[174,222],[221,102]].forEach(([x,y])=>{stem(`M210 ${y+20} L${x} ${y}`,2);[[-8,1],[6,2],[0,-7]].forEach(([dx,dy])=>add('circle',{cx:x+dx,cy:y+dy,r:12,fill:'#fffdf6'},plant));});
   else [[176,162],[247,194],[213,87]].forEach(([x,y])=>add('circle',{cx:x,cy:y,r:10,fill:'#d5b86b'},plant));
  }
- const wrap=document.createElement('div');wrap.className='crop-art';const caption=document.createElement('small');caption.textContent=(crop||'Bitki')+' · Temsili bitki animasyonu';wrap.append(svg,caption);wrap.setProgress=p=>{const scale=Math.max(0,Math.min(1,p*1.15));growth.setAttribute('transform','translate(210 275) scale('+scale+') translate(-210 -275)');plant.querySelectorAll('circle').forEach(n=>n.style.opacity=String(Math.max(0,Math.min(1,(p-.55)/.3))));};return wrap;
+ const wrap=document.createElement('div');wrap.className='crop-art';const caption=document.createElement('small');caption.textContent=(crop||__avt("Bitki"))+__avt(" · Temsili bitki animasyonu");wrap.append(svg,caption);wrap.setProgress=p=>{const scale=Math.max(0,Math.min(1,p*1.15));growth.setAttribute('transform','translate(210 275) scale('+scale+') translate(-210 -275)');plant.querySelectorAll('circle').forEach(n=>n.style.opacity=String(Math.max(0,Math.min(1,(p-.55)/.3))));};return wrap;
 }

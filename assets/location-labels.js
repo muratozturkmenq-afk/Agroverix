@@ -1,5 +1,9 @@
+import {t,locale,areaDisplay,areaStored,perAreaDisplay,perAreaStored} from './regional-format.js?v=international-v1';
+const I=window.AgroIntl;
+const __avt=s=>I.t(s);
 // Seçim kutuları kayıtları kodla saklar; ekranda yer adlarını göster.
 export function locationLabels(record, admin, separator = " · ") {
+  if(record.country&&record.country!=='TR')return [record.village,record.district,record.province,window.AgroIntl.countryName(record.country)].filter(Boolean).join(separator);
   const province = String(record.province || "").trim();
   const district = String(record.district || "").trim();
   const provinceRow = (admin?.provinces || []).find((row) => String(row.id) === province || row.name === province);

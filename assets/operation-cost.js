@@ -1,3 +1,6 @@
+import {t,locale,areaDisplay,areaStored,perAreaDisplay,perAreaStored} from './regional-format.js?v=international-v1';
+const I=window.AgroIntl;
+const __avt=s=>I.t(s);
 export function costPerDecare(record, farmArea) {
   if (record.cost_basis === 'field_total') {
     const area = Number(farmArea);

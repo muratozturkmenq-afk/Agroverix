@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Tarla Bilgileri · AgroVerix</title>
+<title data-i18n="Tarla Bilgileri · AgroVerix">Tarla Bilgileri · AgroVerix</title>
 <meta name="theme-color" content="#0D100B">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -44,68 +44,71 @@
 <meta name="apple-mobile-web-app-title" content="AgroVerix">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
+<link rel="stylesheet" href="assets/regional.css?v=international-v1">
+<script src="assets/i18n-en.js?v=international-v1"></script><script src="assets/i18n.js?v=international-v1"></script>
 </head>
 <body class="profile-page">
 <header class="profile-top">
-  <a class="brand" href="index.html" aria-label="AgroVerix ana sayfa"><img class="home-logo" src="assets/images/agroverix-logo-horizontal-light.svg" width="920" height="302" alt="AgroVerix — Cebimdeki Tarlam"></a>
-  <span class="profile-step">AŞAMA <i>·</i> 02 TARLA BİLGİLERİ</span>
-  <a class="profile-back" href="index.html">← Ana Sayfaya Dön</a>
+  <a class="brand" href="index.html" aria-label="AgroVerix ana sayfa" data-i18n-label="AgroVerix ana sayfa"><img class="home-logo" src="assets/images/agroverix-logo-horizontal-light.svg" width="920" height="302" alt="AgroVerix — Cebimdeki Tarlam" data-i18n-alt="AgroVerix — Cebimdeki Tarlam"></a>
+  <span class="profile-step"><span data-i18n="AŞAMA">AŞAMA </span><i>·</i><span data-i18n="02 TARLA BİLGİLERİ"> 02 TARLA BİLGİLERİ</span></span>
+  <a class="profile-back" href="index.html" data-i18n="← Ana Sayfaya Dön">← Ana Sayfaya Dön</a>
 </header>
 <main class="farm-page-layout">
   <section class="profile-intro farm-page-intro">
-    <p class="eyebrow">Her tarla ayrı bir kayıt</p>
-    <h1>Tarla<br><em>bilgilerin.</em></h1>
-    <p>Ürününü, alanını ve konumunu ekle. Birden fazla tarlan varsa her birini ayrı ayrı kaydedebilirsin.</p>
-    <div class="profile-progress" aria-label="Kayıt aşamaları">
-      <span><b>01</b> Profil</span><i></i><span><b>02</b> Tarla</span><i></i><a class="farm-stage-link" href="uretim-kayitlari.html"><b>03</b> Üretim</a>
+    <p class="eyebrow" data-i18n="Her tarla ayrı bir kayıt">Her tarla ayrı bir kayıt</p>
+    <h1><span data-i18n="Tarla">Tarla</span><br><em data-i18n="bilgilerin.">bilgilerin.</em></h1>
+    <p data-i18n="Ürününü, alanını ve konumunu ekle. Birden fazla tarlan varsa her birini ayrı ayrı kaydedebilirsin.">Ürününü, alanını ve konumunu ekle. Birden fazla tarlan varsa her birini ayrı ayrı kaydedebilirsin.</p>
+    <div class="profile-progress" aria-label="Kayıt aşamaları" data-i18n-label="Kayıt aşamaları">
+      <span><b>01</b><span data-i18n="Profil"> Profil</span></span><i></i><span><b>02</b><span data-i18n="Tarla"> Tarla</span></span><i></i><a class="farm-stage-link" href="uretim-kayitlari.html"><b>03</b><span data-i18n="Üretim"> Üretim</span></a>
     </div>
-    <div class="profile-side-note"><span class="profile-lock">⌖</span><div><b>Tarlanın konumunu ekle</b><small>Telefonundan konum alabilir veya köy ve mahalle seçebilirsin.</small></div></div>
+    <div class="profile-side-note"><span class="profile-lock">⌖</span><div><b data-i18n="Tarlanın konumunu ekle">Tarlanın konumunu ekle</b><small data-i18n="Telefonundan konum alabilir veya köy ve mahalle seçebilirsin.">Telefonundan konum alabilir veya köy ve mahalle seçebilirsin.</small></div></div>
   </section>
   <section class="profile-card farm-page-card" aria-labelledby="farm-page-title">
-    <div class="profile-card-head farm-page-kicker"><div><span class="profile-kicker">AŞAMA 02 · TARLA BİLGİLERİ</span><h2 id="farm-page-title">Yeni tarla kaydı</h2></div><span class="profile-required">* Zorunlu alanlar</span></div>
+    <div class="profile-card-head farm-page-kicker"><div><span class="profile-kicker" data-i18n="AŞAMA 02 · TARLA BİLGİLERİ">AŞAMA 02 · TARLA BİLGİLERİ</span><h2 id="farm-page-title" data-i18n="Yeni tarla kaydı">Yeni tarla kaydı</h2></div><span class="profile-required" data-i18n="* Zorunlu alanlar">* Zorunlu alanlar</span></div>
     <div class="farm-auth-banner" id="farm-auth-banner" role="status">
-      <span aria-hidden="true">⌑</span><p><b>Görüntüleme açık, kayıt hesabına özel.</b> Tarlayı kaydetmek ve kayıtlarını görmek için <a id="farm-login-link" href="ciftci-bilgi.html?next=tarla-bilgileri.html">hesabına giriş yap</a>.</p>
+      <span aria-hidden="true">⌑</span><p><b data-i18n="Görüntüleme açık, kayıt hesabına özel.">Görüntüleme açık, kayıt hesabına özel.</b><span data-i18n="Tarlayı kaydetmek ve kayıtlarını görmek için"> Tarlayı kaydetmek ve kayıtlarını görmek için </span><a id="farm-login-link" href="ciftci-bilgi.html?next=tarla-bilgileri.html" data-i18n="hesabına giriş yap">hesabına giriş yap</a>.</p>
     </div>
-    <div class="farm-entry-heading"><h3>Tarla bilgileri</h3><p>Bu bilgileri her parsel için ayrı gir. Alanı dekar cinsinden yaz.</p></div>
+    <div class="farm-entry-heading"><h3 data-i18n="Tarla bilgileri">Tarla bilgileri</h3><p data-i18n="Bu bilgileri her parsel için ayrı gir. Alanı dekar cinsinden yaz.">Bu bilgileri her parsel için ayrı gir. Alanı dekar cinsinden yaz.</p></div>
     <form id="farm-entry-form">
       <input type="hidden" id="farm-entry-id">
       <fieldset class="profile-section">
-        <legend><span>01</span> Ürün ve alan</legend>
+        <legend><span>01</span><span data-i18n="Ürün ve alan"> Ürün ve alan</span></legend>
         <div class="farm-entry-grid">
-          <div class="profile-field wide"><label for="farm-season-year">Sezon Yılı <b>*</b></label><input id="farm-season-year" type="number" min="2000" max="2200" step="1" required><small>Yeni yıl için aynı tarlayı düzenleyip yeni sezon yılını yaz. Önceki sezonun masrafları ve sonuçları saklanır.</small></div>
-          <div class="profile-field"><label for="farm-entry-name">Tarla adı / parsel <b>*</b></label><input id="farm-entry-name" required maxlength="80" placeholder="Örn. Kuzey tarla veya Parsel 1"></div>
-          <div class="profile-field"><label for="farm-entry-crop">Yetiştirdiğin ürün <b>*</b></label><input id="farm-entry-crop" type="text" list="farm-entry-crop-suggestions" maxlength="100" placeholder="Ürün seç veya adını yaz" pattern=".*\S.*" required><datalist id="farm-entry-crop-suggestions"><option value="Pamuk"><option value="Buğday"><option value="Mısır"><option value="Zeytin"><option value="Üzüm"><option value="Ayçiçeği"><option value="Arpa"></datalist></div>
-          <div class="profile-field"><label for="farm-entry-area">Tarla alanı (dekar) <b>*</b></label><input id="farm-entry-area" type="text" inputmode="decimal" pattern="[0-9]+([.,][0-9]+)?" placeholder="Örn. 20" required></div>
+          <div class="profile-field wide"><label for="farm-season-year"><span data-i18n="Sezon Yılı">Sezon Yılı </span><b>*</b></label><input id="farm-season-year" type="number" min="2000" max="2200" step="1" required><small data-i18n="Yeni yıl için aynı tarlayı düzenleyip yeni sezon yılını yaz. Önceki sezonun masrafları ve sonuçları saklanır.">Yeni yıl için aynı tarlayı düzenleyip yeni sezon yılını yaz. Önceki sezonun masrafları ve sonuçları saklanır.</small></div>
+          <div class="profile-field"><label for="farm-entry-name"><span data-i18n="Tarla adı / parsel">Tarla adı / parsel </span><b>*</b></label><input id="farm-entry-name" required maxlength="80" placeholder="Örn. Kuzey tarla veya Parsel 1" data-i18n-placeholder="Örn. Kuzey tarla veya Parsel 1"></div>
+          <div class="profile-field"><label for="farm-entry-crop"><span data-i18n="Yetiştirdiğin ürün">Yetiştirdiğin ürün </span><b>*</b></label><input id="farm-entry-crop" type="text" list="farm-entry-crop-suggestions" maxlength="100" placeholder="Ürün seç veya adını yaz" pattern=".*\S.*" required data-i18n-placeholder="Ürün seç veya adını yaz"><datalist id="farm-entry-crop-suggestions"><option value="Pamuk" data-crop-tr="Pamuk"><option value="Buğday" data-crop-tr="Buğday"><option value="Mısır" data-crop-tr="Mısır"><option value="Zeytin" data-crop-tr="Zeytin"><option value="Üzüm" data-crop-tr="Üzüm"><option value="Ayçiçeği" data-crop-tr="Ayçiçeği"><option value="Arpa" data-crop-tr="Arpa"></datalist></div>
+          <div class="profile-field"><label for="farm-entry-area"><span data-i18n="Tarla alanı (dekar)">Tarla alanı (dekar) </span><b>*</b></label><input id="farm-entry-area" type="text" inputmode="decimal" pattern="[0-9]+([.,][0-9]+)?" placeholder="Örn. 20" required data-i18n-placeholder="Örn. 20"></div>
         </div>
       </fieldset>
       <fieldset class="profile-section">
-        <legend><span>02</span> Tarla konumu</legend>
-        <div class="farm-entry-grid">
-          <div class="profile-field"><label for="farm-entry-province">İl <b>*</b></label><select id="farm-entry-province" required><option value="">İller yükleniyor…</option></select></div>
-          <div class="profile-field"><label for="farm-entry-district">İlçe <b>*</b></label><select id="farm-entry-district" required disabled><option value="">Önce il seçin</option></select></div>
-          <div class="profile-field wide"><label for="farm-entry-village">Köy / Mahalle <b>*</b></label><select id="farm-entry-village" required disabled><option value="">Önce ilçe seçin</option></select></div>
+        <legend><span>02</span><span data-i18n="Tarla konumu"> Tarla konumu</span></legend>
+        <div class="farm-entry-grid"><div class="profile-field wide"><label for="f-country"><span data-i18n="Ülke">Ülke </span><b>*</b></label><select id="f-country" required></select></div><div class="profile-field international-fields" data-address="f" hidden><label for="f-region" data-i18n="Bölge / Eyalet">Bölge / Eyalet</label><input id="f-region" maxlength="160" autocomplete="address-level1"></div><div class="profile-field international-fields" data-address="f" hidden><label for="f-city" data-i18n="Şehir / İlçe">Şehir / İlçe</label><input id="f-city" maxlength="160" autocomplete="address-level2"></div><div class="profile-field international-fields" data-address="f" hidden><label for="f-locality" data-i18n="Yerleşim / Adres">Yerleşim / Adres</label><input id="f-locality" maxlength="160" autocomplete="address-line1"></div>
+          <div class="profile-field"><label for="farm-entry-province"><span data-i18n="İl">İl </span><b>*</b></label><select id="farm-entry-province" required><option value="" data-i18n="İller yükleniyor…">İller yükleniyor…</option></select></div>
+          <div class="profile-field"><label for="farm-entry-district"><span data-i18n="İlçe">İlçe </span><b>*</b></label><select id="farm-entry-district" required disabled><option value="" data-i18n="Önce il seçin">Önce il seçin</option></select></div>
+          <div class="profile-field wide"><label for="farm-entry-village"><span data-i18n="Köy / Mahalle">Köy / Mahalle </span><b>*</b></label><select id="farm-entry-village" required disabled><option value="" data-i18n="Önce ilçe seçin">Önce ilçe seçin</option></select></div>
         </div>
         <div class="profile-location">
           <div class="profile-location-icon" aria-hidden="true">⌖</div>
-          <div class="profile-location-copy"><b>Tarlanızın konumunu ekleyin</b><small id="farm-entry-location-status">Konum, yalnızca bu tarla kaydına eklenir.</small></div>
-          <button class="profile-location-btn" id="farm-entry-get-location" type="button">Konum ekle <span>＋</span></button>
+          <div class="profile-location-copy"><b data-i18n="Tarlanızın konumunu ekleyin">Tarlanızın konumunu ekleyin</b><small id="farm-entry-location-status" data-i18n="Konum, yalnızca bu tarla kaydına eklenir.">Konum, yalnızca bu tarla kaydına eklenir.</small></div>
+          <button class="profile-location-btn" id="farm-entry-get-location" type="button"><span data-i18n="Konum ekle">Konum ekle </span><span>＋</span></button>
           <input type="hidden" id="farm-entry-latitude"><input type="hidden" id="farm-entry-longitude">
         </div>
       </fieldset>
-      <fieldset class="profile-section"><legend><span>03</span> Mülkiyet ve Kira</legend><div class="farm-entry-grid">
-        <div class="profile-field"><label for="farm-tenure">Tarla Durumu <b>*</b></label><select id="farm-tenure" required><option value="">Seçin</option><option value="owned">Mülk</option><option value="rented">Kiralık</option></select></div>
-        <div class="profile-field" id="farm-rent-field" hidden><label for="farm-rent">Sezonluk Toplam Kira (TL) <b>*</b></label><input id="farm-rent" type="text" inputmode="decimal" pattern="[0-9]+([.,][0-9]{1,2})?" placeholder="Tarlanın tamamının sezonluk kirası"><small>Bu tutar masraflara bir kez eklenir.</small></div>
+      <fieldset class="profile-section"><legend><span>03</span><span data-i18n="Mülkiyet ve Kira"> Mülkiyet ve Kira</span></legend><div class="farm-entry-grid">
+        <div class="profile-field"><label for="farm-tenure"><span data-i18n="Tarla Durumu">Tarla Durumu </span><b>*</b></label><select id="farm-tenure" required><option value="" data-i18n="Seçin">Seçin</option><option value="owned" data-i18n="Mülk">Mülk</option><option value="rented" data-i18n="Kiralık">Kiralık</option></select></div>
+        <div class="profile-field" id="farm-rent-field" hidden><label for="farm-rent"><span data-i18n="Sezonluk Toplam Kira (TL)">Sezonluk Toplam Kira (TL) </span><b>*</b></label><input id="farm-rent" type="text" inputmode="decimal" pattern="[0-9]+([.,][0-9]{1,2})?" placeholder="Tarlanın tamamının sezonluk kirası" data-i18n-placeholder="Tarlanın tamamının sezonluk kirası"><small data-i18n="Bu tutar masraflara bir kez eklenir.">Bu tutar masraflara bir kez eklenir.</small></div>
       </div></fieldset>
 
-      <div class="farm-page-note"><b>Hesabına özel kayıt</b>Kaydedilen tarla bilgileri yalnızca giriş yapan hesabınla ilişkilendirilir. KVKK aydınlatma metnini incelemeden gerçek kişisel bilgi ekleme.</div>
-      <div class="farm-page-actions"><button class="profile-submit" type="submit" id="farm-entry-submit">Tarlayı kaydet <span>→</span></button><button class="auth-back" type="button" id="farm-entry-cancel" hidden>Vazgeç</button></div>
+      <div class="farm-page-note"><b data-i18n="Hesabına özel kayıt">Hesabına özel kayıt</b><span data-i18n="Kaydedilen tarla bilgileri yalnızca giriş yapan hesabınla ilişkilendirilir. KVKK aydınlatma metnini incelemeden gerçek kişisel bilgi ekleme.">Kaydedilen tarla bilgileri yalnızca giriş yapan hesabınla ilişkilendirilir. KVKK aydınlatma metnini incelemeden gerçek kişisel bilgi ekleme.</span></div>
+      <div class="farm-page-actions"><button class="profile-submit" type="submit" id="farm-entry-submit"><span data-i18n="Tarlayı kaydet">Tarlayı kaydet </span><span>→</span></button><button class="auth-back" type="button" id="farm-entry-cancel" hidden data-i18n="Vazgeç">Vazgeç</button></div>
       <p class="profile-result farm-page-alert" id="farm-entry-status" role="status" aria-live="polite"></p>
     </form>
-    <section aria-label="Kayıtlı tarlalar"><div class="farm-entry-heading" id="farm-list-heading" hidden><h3>Tarlalarım</h3><p>Hesabına kayıtlı parseller.</p></div><div class="farm-page-list" id="farm-entry-list"></div></section>
-    <p class="profile-footer">Kayıtlarını sadece sen görebilirsin. <a href="ciftci-bilgi.html?next=tarla-bilgileri.html">Hesabına giriş yap</a></p>
+    <section aria-label="Kayıtlı tarlalar" data-i18n-label="Kayıtlı tarlalar"><div class="farm-entry-heading" id="farm-list-heading" hidden><h3 data-i18n="Tarlalarım">Tarlalarım</h3><p data-i18n="Hesabına kayıtlı parseller.">Hesabına kayıtlı parseller.</p></div><div class="farm-page-list" id="farm-entry-list"></div></section>
+    <p class="profile-footer"><span data-i18n="Kayıtlarını sadece sen görebilirsin.">Kayıtlarını sadece sen görebilirsin. </span><a href="ciftci-bilgi.html?next=tarla-bilgileri.html" data-i18n="Hesabına giriş yap">Hesabına giriş yap</a></p>
   </section>
 </main>
-<script src="assets/supabase-config.js"></script>
-<script type="module" src="assets/farm-entry-page.js?v=season-actual-v1"></script>
+<script src="assets/supabase-config.js?v=international-v1"></script>
+<script type="module" src="assets/farm-entry-page.js?v=international-v1"></script>
+<script type="module" src="assets/regional-boot.js?v=international-v1"></script>
 </body>
 </html>

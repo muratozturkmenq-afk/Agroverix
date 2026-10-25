@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Çiftçi Profilin · AgroVerix</title>
+<title data-i18n="Çiftçi Profilin · AgroVerix">Çiftçi Profilin · AgroVerix</title>
 <meta name="theme-color" content="#0D100B">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,73 +20,76 @@
 <meta name="apple-mobile-web-app-title" content="AgroVerix">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
+<link rel="stylesheet" href="assets/regional.css?v=international-v1">
+<script src="assets/i18n-en.js?v=international-v1"></script><script src="assets/i18n.js?v=international-v1"></script>
 </head>
 <body class="profile-page">
 <header class="profile-top">
-  <a class="brand" href="index.html" aria-label="AgroVerix ana sayfa"><img class="home-logo" src="assets/images/agroverix-logo-horizontal-light.svg" width="920" height="302" alt="AgroVerix — Cebimdeki Tarlam"></a>
-  <span class="profile-step">ÇİFTÇİ ÜYELİĞİ <i>·</i> PROFİL</span>
-  <a class="profile-back" href="index.html">← Ana Sayfaya Dön</a>
+  <a class="brand" href="index.html" aria-label="AgroVerix ana sayfa" data-i18n-label="AgroVerix ana sayfa"><img class="home-logo" src="assets/images/agroverix-logo-horizontal-light.svg" width="920" height="302" alt="AgroVerix — Cebimdeki Tarlam" data-i18n-alt="AgroVerix — Cebimdeki Tarlam"></a>
+  <span class="profile-step"><span data-i18n="ÇİFTÇİ ÜYELİĞİ">ÇİFTÇİ ÜYELİĞİ </span><i>·</i><span data-i18n="PROFİL"> PROFİL</span></span>
+  <a class="profile-back" href="index.html" data-i18n="← Ana Sayfaya Dön">← Ana Sayfaya Dön</a>
 </header>
 <main class="profile-layout">
   <section class="profile-intro">
-    <p class="eyebrow">Kendi alanın, kendi kayıtların</p>
-    <h1>Çiftçi<br><em>profilin.</em></h1>
-    <p>Bilgilerini bir kez ekle. Tarlalarını ve sezon kayıtlarını kişisel alanında düzenle.</p>
-    <div class="profile-progress"><span><b>01</b> Kişisel bilgiler</span><i></i><span><b>02</b> Tarla bilgileri</span><i></i><span><b>03</b> Üretim</span></div>
-    <div class="profile-side-note"><span class="profile-lock">⌑</span><div><b>Bilgilerin sana ait</b><small>Profil alanı üyelikle kişiye özel tasarlanmıştır.</small></div></div>
+    <p class="eyebrow" data-i18n="Kendi alanın, kendi kayıtların">Kendi alanın, kendi kayıtların</p>
+    <h1><span data-i18n="Çiftçi">Çiftçi</span><br><em data-i18n="profilin.">profilin.</em></h1>
+    <p data-i18n="Bilgilerini bir kez ekle. Tarlalarını ve sezon kayıtlarını kişisel alanında düzenle.">Bilgilerini bir kez ekle. Tarlalarını ve sezon kayıtlarını kişisel alanında düzenle.</p>
+    <div class="profile-progress"><span><b>01</b><span data-i18n="Kişisel bilgiler"> Kişisel bilgiler</span></span><i></i><span><b>02</b><span data-i18n="Tarla bilgileri"> Tarla bilgileri</span></span><i></i><span><b>03</b><span data-i18n="Üretim"> Üretim</span></span></div>
+    <div class="profile-side-note"><span class="profile-lock">⌑</span><div><b data-i18n="Bilgilerin sana ait">Bilgilerin sana ait</b><small data-i18n="Profil alanı üyelikle kişiye özel tasarlanmıştır.">Profil alanı üyelikle kişiye özel tasarlanmıştır.</small></div></div>
   </section>
   <section class="profile-card auth-card" id="auth-card">
-    <div class="profile-card-head"><div><span class="profile-kicker">GÜVENLİ ÇİFTÇİ HESABI</span><h2 id="auth-title">Hesabına giriş yap</h2></div></div>
-    <div class="auth-modes" id="auth-modes" role="tablist" aria-label="Hesap işlemi">
-      <button class="auth-mode is-active" type="button" data-auth-mode="login" aria-selected="true">Giriş yap</button>
-      <button class="auth-mode" type="button" data-auth-mode="signup" aria-selected="false">Yeni hesap oluştur</button>
+    <div class="profile-card-head"><div><span class="profile-kicker" data-i18n="GÜVENLİ ÇİFTÇİ HESABI">GÜVENLİ ÇİFTÇİ HESABI</span><h2 id="auth-title" data-i18n="Hesabına giriş yap">Hesabına giriş yap</h2></div></div>
+    <div class="auth-modes" id="auth-modes" role="tablist" aria-label="Hesap işlemi" data-i18n-label="Hesap işlemi">
+      <button class="auth-mode is-active" type="button" data-auth-mode="login" aria-selected="true" data-i18n="Giriş yap">Giriş yap</button>
+      <button class="auth-mode" type="button" data-auth-mode="signup" aria-selected="false" data-i18n="Yeni hesap oluştur">Yeni hesap oluştur</button>
     </div>
     <form id="auth-form">
-      <div class="profile-field"><label for="auth-email">E-posta adresi <b>*</b></label><input id="auth-email" type="email" inputmode="email" autocomplete="email" placeholder="ornek@posta.com" required></div>
-      <div class="profile-field"><label for="auth-password">Şifre <b>*</b></label><input id="auth-password" type="password" autocomplete="current-password" minlength="8" placeholder="En az 8 karakter" required></div>
-      <button class="profile-submit" id="auth-submit" type="submit">Giriş yap <span>→</span></button>
+      <div class="profile-field"><label for="auth-email"><span data-i18n="E-posta adresi">E-posta adresi </span><b>*</b></label><input id="auth-email" type="email" inputmode="email" autocomplete="email" placeholder="ornek@posta.com" required data-i18n-placeholder="ornek@posta.com"></div>
+      <div class="profile-field"><label for="auth-password"><span data-i18n="Şifre">Şifre </span><b>*</b></label><input id="auth-password" type="password" autocomplete="current-password" minlength="8" placeholder="En az 8 karakter" required data-i18n-placeholder="En az 8 karakter"></div>
+      <button class="profile-submit" id="auth-submit" type="submit"><span data-i18n="Giriş yap">Giriş yap </span><span>→</span></button>
     </form>
-    <p class="auth-reset-note">Deneme hesabını e-posta ile aç. Girişten önce e-posta adresine gönderilen onay bağlantısına tıkla.</p>
+    <p class="auth-reset-note" data-i18n="Deneme hesabını e-posta ile aç. Girişten önce e-posta adresine gönderilen onay bağlantısına tıkla.">Deneme hesabını e-posta ile aç. Girişten önce e-posta adresine gönderilen onay bağlantısına tıkla.</p>
     <p class="profile-result auth-status" id="auth-status" role="status" aria-live="polite"></p>
-    <p class="auth-setup-note" id="auth-setup-note" hidden>Hesap servisi henüz yapılandırılmadı. Kurulum için <a href="SUPABASE-KURULUM.md">yönetici kurulum adımlarını</a> tamamlayın.</p>
+    <p class="auth-setup-note" id="auth-setup-note" hidden><span data-i18n="Hesap servisi henüz yapılandırılmadı. Kurulum için">Hesap servisi henüz yapılandırılmadı. Kurulum için </span><a href="SUPABASE-KURULUM.md" data-i18n="yönetici kurulum adımlarını">yönetici kurulum adımlarını</a><span data-i18n="tamamlayın."> tamamlayın.</span></p>
   </section>
   <section class="profile-card" id="profile-card" hidden>
-    <div class="profile-card-head"><div><span class="profile-kicker">KİŞİSEL ALANIN</span><h2 id="profile-title">Çiftçi profilin</h2><p class="profile-account-phone" id="profile-account-phone"></p></div><div class="profile-actions"><button class="auth-back" id="auth-back" type="button" hidden>← Girişe dön</button><button class="auth-signout" id="auth-signout" type="button" hidden>Güvenli çıkış</button></div></div>
+    <div class="profile-card-head"><div><span class="profile-kicker" data-i18n="KİŞİSEL ALANIN">KİŞİSEL ALANIN</span><h2 id="profile-title" data-i18n="Çiftçi profilin">Çiftçi profilin</h2><p class="profile-account-phone" id="profile-account-phone"></p></div><div class="profile-actions"><button class="auth-back" id="auth-back" type="button" hidden data-i18n="← Girişe dön">← Girişe dön</button><button class="auth-signout" id="auth-signout" type="button" hidden data-i18n="Güvenli çıkış">Güvenli çıkış</button></div></div>
 
     <details id="profile-edit-details" class="profile-edit-details" open>
-      <summary class="profile-edit-summary"><span><b>01 · Profil bilgileri</b><small>Kişisel bilgilerini görüntüle veya düzenle</small></span><i aria-hidden="true">⌄</i></summary>
+      <summary class="profile-edit-summary"><span><b data-i18n="01 · Profil bilgileri">01 · Profil bilgileri</b><small data-i18n="Kişisel bilgilerini görüntüle veya düzenle">Kişisel bilgilerini görüntüle veya düzenle</small></span><i aria-hidden="true">⌄</i></summary>
     <form id="farmer-profile-form">
       <fieldset class="profile-section">
-        <legend><span>01</span> Profil bilgileri <small>(daha sonra tamamlanabilir)</small></legend>
-        <div class="profile-grid">
-          <div class="profile-field"><label for="p-name">Adı Soyadı</label><input id="p-name" name="fullName" autocomplete="name" placeholder="Adınız ve soyadınız"></div>
-          <div class="profile-field"><label for="p-phone">Telefon Numarası</label><input id="p-phone" type="tel" inputmode="numeric" autocomplete="tel-national" minlength="11" maxlength="11" pattern="05[0-9]{9}" placeholder="05xxxxxxxxx" title="05 ile başlayan 11 rakam girin"><small>05 ile başlayan 11 rakam. İletişim ve isteğe bağlı SMS bildirimleri için.</small></div>
-          <div class="profile-field"><label for="p-id">T.C. Kimlik No</label><input id="p-id" name="identityNumber" inputmode="numeric" autocomplete="off" maxlength="11" pattern="[0-9]{11}" placeholder="11 haneli kimlik numarası"><small>Kimlik numaranı yalnızca kendi hesabın için kullan.</small></div>
-          <div class="profile-field"><label for="p-province">İl</label><select id="p-province" name="province"><option value="">İller yükleniyor…</option></select></div>
-          <div class="profile-field"><label for="p-district">İlçe</label><select id="p-district" name="district" disabled><option value="">Önce il seçin</option></select></div>
-          <div class="profile-field"><label for="p-village">Köy / Mahalle</label><select id="p-village" name="village" disabled><option value="">Önce ilçe seçin</option></select></div>
+        <legend><span>01</span><span data-i18n="Profil bilgileri"> Profil bilgileri </span><small data-i18n="(daha sonra tamamlanabilir)">(daha sonra tamamlanabilir)</small></legend>
+        <div class="profile-grid"><div class="profile-field wide"><label for="p-country"><span data-i18n="Ülke">Ülke </span><b>*</b></label><select id="p-country" required></select></div><div class="profile-field international-fields" data-address="p" hidden><label for="p-region" data-i18n="Bölge / Eyalet">Bölge / Eyalet</label><input id="p-region" maxlength="160" autocomplete="address-level1"></div><div class="profile-field international-fields" data-address="p" hidden><label for="p-city" data-i18n="Şehir / İlçe">Şehir / İlçe</label><input id="p-city" maxlength="160" autocomplete="address-level2"></div><div class="profile-field international-fields" data-address="p" hidden><label for="p-locality" data-i18n="Yerleşim / Adres">Yerleşim / Adres</label><input id="p-locality" maxlength="160" autocomplete="address-line1"></div><div class="profile-field"><label for="p-currency" data-i18n="Para Birimi">Para Birimi</label><select id="p-currency"><option value="TRY">TL / TRY</option><option value="EUR">EUR / €</option></select></div><p class="currency-account-note" data-i18n="Hesap para birimi kayıt sırasında seçilir. Mevcut tutarlar başka para birimine dönüştürülmez.">Hesap para birimi kayıt sırasında seçilir. Mevcut tutarlar başka para birimine dönüştürülmez.</p>
+          <div class="profile-field"><label for="p-name" data-i18n="Adı Soyadı">Adı Soyadı</label><input id="p-name" name="fullName" autocomplete="name" placeholder="Adınız ve soyadınız" data-i18n-placeholder="Adınız ve soyadınız"></div>
+          <div class="profile-field"><label for="p-phone" data-i18n="Telefon Numarası">Telefon Numarası</label><input id="p-phone" type="tel" inputmode="numeric" autocomplete="tel-national" minlength="11" maxlength="11" pattern="05[0-9]{9}" placeholder="05xxxxxxxxx" title="05 ile başlayan 11 rakam girin" data-i18n-placeholder="05xxxxxxxxx" data-i18n-title="05 ile başlayan 11 rakam girin"><small data-i18n="05 ile başlayan 11 rakam. İletişim ve isteğe bağlı SMS bildirimleri için.">05 ile başlayan 11 rakam. İletişim ve isteğe bağlı SMS bildirimleri için.</small></div>
+          <div class="profile-field"><label for="p-id" data-i18n="T.C. Kimlik No">T.C. Kimlik No</label><input id="p-id" name="identityNumber" inputmode="numeric" autocomplete="off" maxlength="11" pattern="[0-9]{11}" placeholder="11 haneli kimlik numarası" data-i18n-placeholder="11 haneli kimlik numarası"><small data-i18n="Kimlik numaranı yalnızca kendi hesabın için kullan.">Kimlik numaranı yalnızca kendi hesabın için kullan.</small></div>
+          <div class="profile-field"><label for="p-province" data-i18n="İl">İl</label><select id="p-province" name="province"><option value="" data-i18n="İller yükleniyor…">İller yükleniyor…</option></select></div>
+          <div class="profile-field"><label for="p-district" data-i18n="İlçe">İlçe</label><select id="p-district" name="district" disabled><option value="" data-i18n="Önce il seçin">Önce il seçin</option></select></div>
+          <div class="profile-field"><label for="p-village" data-i18n="Köy / Mahalle">Köy / Mahalle</label><select id="p-village" name="village" disabled><option value="" data-i18n="Önce ilçe seçin">Önce ilçe seçin</option></select></div>
         </div>
       </fieldset>
       <fieldset id="signup-credentials" class="profile-section signup-credentials">
-        <legend><span>02</span> Hesap bilgileri</legend>
-        <p class="profile-help">Deneme hesabını e-posta adresin ve kendi belirlediğin şifreyle oluştur. E-postanı onayladıktan sonra giriş yapabilirsin.</p>
+        <legend><span>02</span><span data-i18n="Hesap bilgileri"> Hesap bilgileri</span></legend>
+        <p class="profile-help" data-i18n="Deneme hesabını e-posta adresin ve kendi belirlediğin şifreyle oluştur. E-postanı onayladıktan sonra giriş yapabilirsin.">Deneme hesabını e-posta adresin ve kendi belirlediğin şifreyle oluştur. E-postanı onayladıktan sonra giriş yapabilirsin.</p>
         <div class="profile-grid">
-          <div class="profile-field"><label for="signup-email">E-posta adresi <b>*</b></label><input id="signup-email" type="email" inputmode="email" autocomplete="email" placeholder="ornek@posta.com" required></div>
-          <div class="profile-field"><label for="signup-password">Kendi şifren <b>*</b></label><input id="signup-password" type="password" autocomplete="new-password" minlength="8" placeholder="En az 8 karakter" required></div>
-          <div class="profile-field"><label for="signup-password-confirm">Şifreni tekrar yaz <b>*</b></label><input id="signup-password-confirm" type="password" autocomplete="new-password" minlength="8" placeholder="Şifreni doğrula" required></div>
+          <div class="profile-field"><label for="signup-email"><span data-i18n="E-posta adresi">E-posta adresi </span><b>*</b></label><input id="signup-email" type="email" inputmode="email" autocomplete="email" placeholder="ornek@posta.com" required data-i18n-placeholder="ornek@posta.com"></div>
+          <div class="profile-field"><label for="signup-password"><span data-i18n="Kendi şifren">Kendi şifren </span><b>*</b></label><input id="signup-password" type="password" autocomplete="new-password" minlength="8" placeholder="En az 8 karakter" required data-i18n-placeholder="En az 8 karakter"></div>
+          <div class="profile-field"><label for="signup-password-confirm"><span data-i18n="Şifreni tekrar yaz">Şifreni tekrar yaz </span><b>*</b></label><input id="signup-password-confirm" type="password" autocomplete="new-password" minlength="8" placeholder="Şifreni doğrula" required data-i18n-placeholder="Şifreni doğrula"></div>
         </div>
       </fieldset>
-      <div class="profile-consent"><label><input type="checkbox" id="p-kvkk"><span class="profile-check"></span><span><b>KVKK bilgilendirmesi</b><small><a href="kvkk-bilgilendirme.html" target="_blank" rel="noopener">KVKK bilgilendirme sayfasını</a> okudum ve profil bilgilerimin hesap hizmeti için işlenmesi hakkında bilgilendirildim.</small></span></label></div>
-      <div class="profile-consent"><label><input type="checkbox" id="p-sms"><span class="profile-check"></span><span><b>SMS İletişim İzni · İsteğe Bağlı</b><small>AgroVerix tarafından tarım danışmanlığı hizmetleri, ürün ve hizmet tanıtımları ile kampanyalar hakkında telefonuma SMS gönderilmesine izin veriyorum. Bu seçim üyelik için zorunlu değildir; profilimden kapatabilirim.</small></span></label></div>
-      <div class="profile-notice"><span>i</span><p><b>Bilgilendirme</b> Bu kutu anonim analiz izni değildir. Veri sorumlusu, tam aydınlatma metni ve saklama koşulları kesinleştirilmeden gerçek kişisel veri girişi başlatmayın.</p></div>
-      <button class="profile-submit" type="submit" id="profile-submit">Profili güvenli şekilde kaydet <span>→</span></button>
+      <div class="profile-consent"><label><input type="checkbox" id="p-kvkk"><span class="profile-check"></span><span><b data-i18n="KVKK bilgilendirmesi">KVKK bilgilendirmesi</b><small><a href="kvkk-bilgilendirme.html" target="_blank" rel="noopener" data-i18n="KVKK bilgilendirme sayfasını">KVKK bilgilendirme sayfasını</a><span data-i18n="okudum ve profil bilgilerimin hesap hizmeti için işlenmesi hakkında bilgilendirildim."> okudum ve profil bilgilerimin hesap hizmeti için işlenmesi hakkında bilgilendirildim.</span></small></span></label></div>
+      <div class="profile-consent"><label><input type="checkbox" id="p-sms"><span class="profile-check"></span><span><b data-i18n="SMS İletişim İzni · İsteğe Bağlı">SMS İletişim İzni · İsteğe Bağlı</b><small data-i18n="AgroVerix tarafından tarım danışmanlığı hizmetleri, ürün ve hizmet tanıtımları ile kampanyalar hakkında telefonuma SMS gönderilmesine izin veriyorum. Bu seçim üyelik için zorunlu değildir; profilimden kapatabilirim.">AgroVerix tarafından tarım danışmanlığı hizmetleri, ürün ve hizmet tanıtımları ile kampanyalar hakkında telefonuma SMS gönderilmesine izin veriyorum. Bu seçim üyelik için zorunlu değildir; profilimden kapatabilirim.</small></span></label></div>
+      <div class="profile-notice"><span>i</span><p><b data-i18n="Bilgilendirme">Bilgilendirme</b><span data-i18n="Bu kutu anonim analiz izni değildir. Veri sorumlusu, tam aydınlatma metni ve saklama koşulları kesinleştirilmeden gerçek kişisel veri girişi başlatmayın."> Bu kutu anonim analiz izni değildir. Veri sorumlusu, tam aydınlatma metni ve saklama koşulları kesinleştirilmeden gerçek kişisel veri girişi başlatmayın.</span></p></div>
+      <button class="profile-submit" type="submit" id="profile-submit"><span data-i18n="Profili güvenli şekilde kaydet">Profili güvenli şekilde kaydet </span><span>→</span></button>
       <p class="profile-result" id="profile-status" role="status" aria-live="polite"></p>
     </form>
     </details>
-    <p class="profile-footer">Oturum açtığında kayıtların bu hesaba özel gösterilir.</p>
+    <p class="profile-footer" data-i18n="Oturum açtığında kayıtların bu hesaba özel gösterilir.">Oturum açtığında kayıtların bu hesaba özel gösterilir.</p>
   </section>
 </main>
-<script src="assets/supabase-config.js"></script>
-<script type="module" src="assets/account.js?v=harvest-v1"></script>
+<script src="assets/supabase-config.js?v=international-v1"></script>
+<script type="module" src="assets/account.js?v=international-v1"></script>
+<script type="module" src="assets/regional-boot.js?v=international-v1"></script>
 </body>
 </html>

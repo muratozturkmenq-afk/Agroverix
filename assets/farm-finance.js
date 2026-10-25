@@ -1,5 +1,8 @@
-import { costPerDecare } from './operation-cost.js';
-export const fmt = value => Number(value).toLocaleString('tr-TR', {maximumFractionDigits:2});
+import {t,locale,areaDisplay,areaStored,perAreaDisplay,perAreaStored} from './regional-format.js?v=international-v1';
+const I=window.AgroIntl;
+const __avt=s=>I.t(s);
+import { costPerDecare } from './operation-cost.js?v=international-v1';
+export const fmt = value => Number(value).toLocaleString(I.locale, {maximumFractionDigits:2});
 export const decimal = value => String(value ?? '').trim() === '' ? null : Number(String(value).trim().replace(',','.'));
 export function seasonFor(farm, year = farm.season_year) {
   return (farm.farmer_seasons || []).find(s => Number(s.season_year) === Number(year)) || null;
@@ -28,20 +31,21 @@ export function farmFinance(farm, records, year = farm.season_year, overrides = 
   const actualYield=actualFromSales?Number(season.harvest_sale_kg)/area:season.actual_yield,actualPrice=actualFromSales?Number(season.harvest_sale_total)/Number(season.harvest_sale_kg):season.actual_price;
   const expected=result(season.expected_yield,season.expected_price,season.expected_support),actual=result(actualYield,actualPrice,season.actual_support,actualFromSales?{kg:season.harvest_sale_kg,total:season.harvest_sale_total}:null);
   return {season,area,actualFromSales,actualYield,actualPrice,rows,missing,operations,rent,total,perDecare:total !== null && area>0 ? total/area : null,expected,actual,
-    costKg:actual.kg !== null ? actual.costKg : expected.costKg,kgBasis:actual.kg !== null ? 'Gerçek verimle' : 'Tahmini verimle'};
+    costKg:actual.kg !== null ? actual.costKg : expected.costKg,kgBasis:actual.kg !== null ? __avt("Gerçek verimle") : __avt("Tahmini verimle")};
 }
 export function appendMetric(parent,label,value,unit='',className='finance-metric') {
   const el=document.createElement(className === 'farmer-crop-metric' ? 'span' : 'article'); el.className=className;
   const caption=document.createElement('span'); caption.textContent=label;
+  if(I.lang==='en'&&/\/(?:da|ha)$/.test(unit)&&value!==null)value=perAreaDisplay(value);
   const number=document.createElement('strong'); number.textContent=value === null || !Number.isFinite(value) ? '—' : fmt(value)+(unit?' '+unit:'');
   el.append(caption,number); parent.append(el); return el;
 }
-export const operationLabels={soil_analysis:'Toprak Analizi',fuel:'Mazot Kullanımı',maintenance:'Araç Bakımı/Tamir',electricity:'Elektrik',transport:'Nakliye',tillage:'Tarla Sürümü',seed:'Tohum',planting:'Ekim Dikim',fertilizing:'Gübreleme',irrigation:'Sulama',spraying:'İlaçlama',weeding:'Yabancı Ot Mücadelesi',harvest:'Hasat',other:'Diğer Girdi',hoeing:'Çapalama',machine_spraying:'İlaçlama (Makine)',machine_fertilizing:'Gübreleme (Makine)',labor:'İşçilik',pruning:'Budama',machine_other:'Diğer Makine / Hizmet'};
+export const operationLabels={soil_analysis:__avt("Toprak Analizi"),fuel:__avt("Mazot Kullanımı"),maintenance:__avt("Araç Bakımı/Tamir"),electricity:__avt("Elektrik"),transport:__avt("Nakliye"),tillage:__avt("Tarla Sürümü"),seed:__avt("Tohum"),planting:__avt("Ekim Dikim"),fertilizing:__avt("Gübreleme"),irrigation:__avt("Sulama"),spraying:__avt("İlaçlama"),weeding:__avt("Yabancı Ot Mücadelesi"),harvest:__avt("Hasat"),other:__avt("Diğer Girdi"),hoeing:__avt("Çapalama"),machine_spraying:__avt("İlaçlama (Makine)"),machine_fertilizing:__avt("Gübreleme (Makine)"),labor:__avt("İşçilik"),pruning:__avt("Budama"),machine_other:__avt("Diğer Makine / Hizmet")};
 export const serviceTypes=new Set(['soil_analysis','maintenance','electricity','transport','tillage','planting','hoeing','machine_spraying','machine_fertilizing','labor','pruning','harvest','machine_other']);
 
 // Support is an additional income; production costs always remain unchanged.
 export function appendSupportMetrics(parent,result){
-  appendMetric(parent,'Toplam Destekleme',result.support,'TL');
-  appendMetric(parent,'Dekara Destekleme',result.supportPerDecare,'TL/da');
-  appendMetric(parent,'Kg Başına Destekleme',result.supportPerKg,'TL/kg');
+  appendMetric(parent,__avt("Toplam Destekleme"),result.support,__avt("TL"));
+  appendMetric(parent,__avt("Dekara Destekleme"),result.supportPerDecare,__avt("TL/da"));
+  appendMetric(parent,__avt("Kg Başına Destekleme"),result.supportPerKg,__avt("TL/kg"));
 }

@@ -1,3 +1,6 @@
+import {t,locale,areaDisplay,areaStored,perAreaDisplay,perAreaStored} from './regional-format.js?v=international-v1';
+const I=window.AgroIntl;
+const __avt=s=>I.t(s);
 (function(){
  'use strict';
  var nav=document.getElementById('nav'),menu=document.getElementById('mobile-page-menu'),summary=document.getElementById('nav-toggle');

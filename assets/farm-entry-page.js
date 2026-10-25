@@ -1,7 +1,13 @@
-import { parseNumberInput as decimal, bindNumberInput, setNumberInputValue } from './number-input.js?v=groups-v2';
+import {t,locale,areaDisplay,areaStored,perAreaDisplay,perAreaStored} from './regional-format.js?v=international-v1';
+import {ready as regionalReady,client as regionalClient} from './regional-context.js?v=international-v1';
+await regionalReady;
+const I=window.AgroIntl;
+const __avt=s=>I.t(s);
+import {addressForm} from './international-address.js?v=international-v1';
+import { parseNumberInput as decimal, bindNumberInput, setNumberInputValue } from './number-input.js?v=international-v1';
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm";
-import { seasonFor } from "./farm-finance.js?v=support-simple-v1";
-import { locationLabels } from "./location-labels.js";
+import { seasonFor } from "./farm-finance.js?v=international-v1";
+import { locationLabels } from "./location-labels.js?v=international-v1";
 
 const $ = (selector) => document.querySelector(selector);
 const form = $("#farm-entry-form");
@@ -20,7 +26,7 @@ function tenureChanged(){ const rented=$("#farm-tenure").value==='rented'; $("#f
 function seasonFields(year){
  const s=editingFarm ? seasonFor(editingFarm,year) : null;
  $("#farm-tenure").value=s?.tenure||'';setNumberInputValue($('#farm-rent'),s?.rent_total);
- if(s){$("#farm-entry-crop").value=s.crop;setNumberInputValue($("#farm-entry-area"),s.area_decare);}
+ if(s){$("#farm-entry-crop").value=s.crop;setNumberInputValue($("#farm-entry-area"),areaDisplay(s.area_decare));}
  tenureChanged();
 }
 $("#farm-tenure").addEventListener('change',tenureChanged);
@@ -45,23 +51,25 @@ function bindLocations() {
   const district = $("#farm-entry-district");
   const village = $("#farm-entry-village");
   province.addEventListener("change", () => {
-    fillSelect(district, "İlçe seçin", admin?.districts?.[province.value] || []);
-    resetSelect(village, "Önce ilçe seçin");
+    fillSelect(district, __avt("İlçe seçin"), admin?.districts?.[province.value] || []);
+    resetSelect(village, __avt("Önce ilçe seçin"));
   });
   district.addEventListener("change", () => {
     const rows = (admin?.settlements?.[district.value] || []).map((name) => ({ id: name, name }));
-    fillSelect(village, rows.length ? "Köy / mahalle seçin" : "Köy / mahalle bulunamadı", rows);
+    fillSelect(village, rows.length ? __avt("Köy / mahalle seçin") : __avt("Köy / mahalle bulunamadı"), rows);
   });
 }
 bindLocations();
+const internationalAddress=addressForm('f',{province:$('#farm-entry-province'),district:$('#farm-entry-district'),village:$('#farm-entry-village')},I.country);
+
 
 const adminReady = fetch("assets/administrative-units.json?v=2")
   .then((response) => { if (!response.ok) throw new Error(); return response.json(); })
   .then((data) => {
     admin = data;
-    fillSelect($("#farm-entry-province"), "İl seçin", data.provinces);
+    fillSelect($("#farm-entry-province"), __avt("İl seçin"), data.provinces);
   })
-  .catch(() => resetSelect($("#farm-entry-province"), "Yer listesi yüklenemedi"));
+  .catch(() => resetSelect($("#farm-entry-province"), __avt("Yer listesi yüklenemedi")));
 
 function renderFarms(rows) {
   const list = $("#farm-entry-list");
@@ -74,19 +82,19 @@ function renderFarms(rows) {
     const title = document.createElement("b");
     title.textContent = farm.name;
     const sub = document.createElement("small");
-    sub.textContent = [farm.crop, Number(farm.area_decare).toLocaleString("tr-TR") + " da", locationLabels(farm, admin)].filter(Boolean).join(" · ");
+    sub.textContent = [farm.crop, areaDisplay(farm.area_decare).toLocaleString(I.locale) + __avt(" da"), locationLabels(farm, admin)].filter(Boolean).join(" · ");
     details.append(title, sub);
     const actions = document.createElement("div");
     const remove = document.createElement("button");
     remove.type = "button"; remove.textContent = "Sil";
     remove.addEventListener("click", async () => {
-      if (!window.confirm(farm.name + " kaydını silmek istiyor musun?")) return;
+      if (!window.confirm(farm.name + __avt(" kaydını silmek istiyor musun?"))) return;
       const { error } = await client.from("farmer_farms").delete().eq("id", farm.id).eq("user_id", session.user.id);
-      if (error) { message("Tarla silinemedi. Daha sonra tekrar dene.", true); return; }
-      message("Tarla kaydı silindi.");
+      if (error) { message(__avt("Tarla silinemedi. Daha sonra tekrar dene."), true); return; }
+      message(__avt("Tarla kaydı silindi."));
       await loadFarms();
     });
-    const detailsLink=document.createElement('a');detailsLink.className='auth-back';detailsLink.textContent='Tarla Detayı';detailsLink.href='tarla-detay.html?farm='+encodeURIComponent(farm.id);
+    const detailsLink=document.createElement('a');detailsLink.className='auth-back';detailsLink.textContent=__avt("Tarla Detayı");detailsLink.href='tarla-detay.html?farm='+encodeURIComponent(farm.id);
     actions.append(detailsLink,remove);
     card.append(details, actions);
     list.append(card);
@@ -95,7 +103,7 @@ function renderFarms(rows) {
 async function loadFarms() {
   await adminReady;
   const { data, error } = await client.from("farmer_farms").select("*,farmer_seasons(*)").eq("user_id", session.user.id).order("created_at", { ascending: false });
-  if (error) { message("Tarla kayıtları yüklenemedi. Kurulum durumunu kontrol et.", true); return; }
+  if (error) { message(__avt("Tarla kayıtları yüklenemedi. Kurulum durumunu kontrol et."), true); return; }
   renderFarms(data || []);
   const requestedEdit = new URLSearchParams(location.search).get("edit");
   if (requestedEdit && !requestedEditOpened) {
@@ -105,15 +113,15 @@ async function loadFarms() {
       if(location.hash==='#season-end'){location.replace('tarla-detay.html?farm='+encodeURIComponent(farm.id)+'&year='+(Number(new URLSearchParams(location.search).get('year'))||farm.season_year)+'#season-end');return;}
       editFarm(farm);
     }
-    else message("Düzenlenecek tarla bulunamadı veya hesabına ait değil.", true);
+    else message(__avt("Düzenlenecek tarla bulunamadı veya hesabına ait değil."), true);
   }
 }
 function editFarm(farm) {
   editingFarm=farm;
   $("#farm-entry-id").value = farm.id;
-  $("#farm-entry-name").value = farm.name || "";
+  $("#farm-entry-name").value = farm.name || "";internationalAddress.load(farm);
   $("#farm-entry-crop").value = farm.crop || "";
-  setNumberInputValue($("#farm-entry-area"),farm.area_decare);
+  setNumberInputValue($("#farm-entry-area"),areaDisplay(farm.area_decare));
   const province = $("#farm-entry-province");
   const district = $("#farm-entry-district");
   const village = $("#farm-entry-village");
@@ -121,12 +129,12 @@ function editFarm(farm) {
   province.dispatchEvent(new Event("change"));
   district.value = farm.district || "";
   district.dispatchEvent(new Event("change"));
-  village.value = farm.village || "";
+  village.value = farm.village || "";internationalAddress.update();
   $("#farm-entry-latitude").value = farm.latitude || "";
   $("#farm-entry-longitude").value = farm.longitude || "";
-  $("#farm-entry-location-status").textContent = farm.latitude ? "Tarla konumu kayıtlı. Yenilemek için konumu tekrar ekle." : "Konum, yalnızca bu tarla kaydına eklenir.";
-  $("#farm-page-title").textContent = "Tarla kaydını düzenle";
-  $("#farm-entry-submit").innerHTML = "Değişiklikleri kaydet <span>→</span>";
+  $("#farm-entry-location-status").textContent = farm.latitude ? __avt("Tarla konumu kayıtlı. Yenilemek için konumu tekrar ekle.") : __avt("Konum, yalnızca bu tarla kaydına eklenir.");
+  $("#farm-page-title").textContent = __avt("Tarla kaydını düzenle");
+  $("#farm-entry-submit").innerHTML = __avt("Değişiklikleri kaydet <span>→</span>");
   $("#farm-entry-cancel").hidden = false;
   const year=Number(new URLSearchParams(location.search).get('year'))||farm.season_year;
   $("#farm-season-year").value=year;seasonFields(year);
@@ -136,77 +144,76 @@ $("#farm-entry-cancel").addEventListener("click", () => {
   form.reset();
   editingFarm=null;$("#farm-season-year").value=new Date().getFullYear();tenureChanged();
   $("#farm-entry-id").value = "";
-  resetSelect($("#farm-entry-district"), "Önce il seçin");
-  resetSelect($("#farm-entry-village"), "Önce ilçe seçin");
-  $("#farm-page-title").textContent = "Yeni tarla kaydı";
-  $("#farm-entry-submit").innerHTML = "Tarlayı kaydet <span>→</span>";
+  resetSelect($("#farm-entry-district"), __avt("Önce il seçin"));
+  resetSelect($("#farm-entry-village"), __avt("Önce ilçe seçin"));
+  $("#farm-page-title").textContent = __avt("Yeni tarla kaydı");
+  $("#farm-entry-submit").innerHTML = __avt("Tarlayı kaydet <span>→</span>");
   $("#farm-entry-cancel").hidden = true;
   message("");
 });
 $("#farm-entry-get-location").addEventListener("click", () => {
   const note = $("#farm-entry-location-status");
   const button = $("#farm-entry-get-location");
-  if (!window.isSecureContext || !navigator.geolocation) { note.textContent = "Konum almak için HTTPS ve uyumlu bir tarayıcı gerekli."; return; }
-  button.disabled = true; note.textContent = "Konum izni bekleniyor…";
+  if (!window.isSecureContext || !navigator.geolocation) { note.textContent = __avt("Konum almak için HTTPS ve uyumlu bir tarayıcı gerekli."); return; }
+  button.disabled = true; note.textContent = __avt("Konum izni bekleniyor…");
   navigator.geolocation.getCurrentPosition((position) => {
     $("#farm-entry-latitude").value = position.coords.latitude;
     $("#farm-entry-longitude").value = position.coords.longitude;
-    note.textContent = "Tarla konumu eklendi. Koordinatlar ekranda gösterilmez.";
+    note.textContent = __avt("Tarla konumu eklendi. Koordinatlar ekranda gösterilmez.");
     button.disabled = false;
   }, (error) => {
-    note.textContent = error.code === 1 ? "Konum izni verilmedi. Tarayıcı ayarlarından izin verip tekrar dene." : "Konum alınamadı. GPS'i açıp tekrar dene.";
+    note.textContent = error.code === 1 ? __avt("Konum izni verilmedi. Tarayıcı ayarlarından izin verip tekrar dene.") : __avt("Konum alınamadı. GPS'i açıp tekrar dene.");
     button.disabled = false;
   }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
 });
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   if (!session) {
-    message("Kaydetmek için önce hesabına giriş yap. Formdaki bilgiler bu sayfada kaydedilmedi.", true);
+    message(__avt("Kaydetmek için önce hesabına giriş yap. Formdaki bilgiler bu sayfada kaydedilmedi."), true);
     return;
   }
-  if (!$("#farm-entry-village").value) { message("İl, ilçe ve köy/mahalle seçimini tamamla.", true); return; }
-  const area = decimal($("#farm-entry-area").value);
-  if (!Number.isFinite(area) || area <= 0 || area > 1000000) { message("Tarla alanını sıfırdan büyük, en fazla 1.000.000 dekar olacak şekilde yaz.", true); return; }
+  if (internationalAddress.select.value==='TR' && !$("#farm-entry-village").value) { message(__avt("İl, ilçe ve köy/mahalle seçimini tamamla."), true); return; }
+  const area = areaStored(decimal($("#farm-entry-area").value));
+  if(!internationalAddress.select.value){message(t("Ülke seçimini tamamla."),true);return;}
+  if (!Number.isFinite(area) || area <= 0 || area > 1000000) { message(__avt("Tarla alanını sıfırdan büyük, en fazla 1.000.000 dekar olacak şekilde yaz."), true); return; }
   const record = {
     user_id: session.user.id,
     name: $("#farm-entry-name").value.trim(),
     crop: $("#farm-entry-crop").value.trim(),
     area_decare: area,
-    province: $("#farm-entry-province").value,
-    district: $("#farm-entry-district").value,
-    village: $("#farm-entry-village").value,
+    ...Object.fromEntries(Object.entries(internationalAddress.value()).map(([k,v])=>[k,v??''])),
     latitude: $("#farm-entry-latitude").value ? Number($("#farm-entry-latitude").value) : null,
     longitude: $("#farm-entry-longitude").value ? Number($("#farm-entry-longitude").value) : null,
     updated_at: new Date().toISOString()
   };
   const editingId = $("#farm-entry-id").value;
   const year=Number($("#farm-season-year").value),rent=decimal($("#farm-rent").value);
-  if(!Number.isInteger(year)||year<2000||year>2200){message('Geçerli sezon yılı gir.',true);return;}
-  if(!['owned','rented'].includes($("#farm-tenure").value)){message('Mülk veya kiralık seç.',true);return;}
-  if($("#farm-tenure").value==='rented'&&(rent===null||!Number.isFinite(rent)||rent<0)){message('Sezonluk toplam kira tutarını gir.',true);return;}
+  if(!Number.isInteger(year)||year<2000||year>2200){message(__avt("Geçerli sezon yılı gir."),true);return;}
+  if(!['owned','rented'].includes($("#farm-tenure").value)){message(__avt("Mülk veya kiralık seç."),true);return;}
+  if($("#farm-tenure").value==='rented'&&(rent===null||!Number.isFinite(rent)||rent<0)){message(__avt("Sezonluk toplam kira tutarını gir."),true);return;}
   const prior=editingFarm?seasonFor(editingFarm,year):null;
   const season={season_year:year,crop:record.crop,area_decare:area,tenure:$("#farm-tenure").value,rent_total:$("#farm-tenure").value==='rented'?rent:0,expected_yield:prior?.expected_yield??null,expected_price:prior?.expected_price??null,actual_yield:prior?.actual_yield??null,actual_price:prior?.actual_price??null};
   $("#farm-entry-submit").disabled = true;
-  message("Tarla kaydı kaydediliyor…");
+  message(__avt("Tarla kaydı kaydediliyor…"));
   const { error, data:savedId } = await client.rpc('save_farmer_farm_season',{p_farm:{...record,id:editingId||null},p_season:season});
   $("#farm-entry-submit").disabled = false;
-  if (error) { message("Tarla kaydedilemedi. Kurulum durumunu kontrol edip tekrar dene.", true); return; }
+  if (error) { message(__avt("Tarla kaydedilemedi. Kurulum durumunu kontrol edip tekrar dene."), true); return; }
   if (savedId) { window.location.assign("tarla-detay.html?farm=" + encodeURIComponent(savedId)+"&year="+year); return; }
-  message("Tarla kaydın hesabına özel kaydedildi.");
+  message(__avt("Tarla kaydın hesabına özel kaydedildi."));
   form.reset();
   $("#farm-entry-id").value = "";
-  resetSelect($("#farm-entry-district"), "Önce il seçin");
-  resetSelect($("#farm-entry-village"), "Önce ilçe seçin");
+  resetSelect($("#farm-entry-district"), __avt("Önce il seçin"));
+  resetSelect($("#farm-entry-village"), __avt("Önce ilçe seçin"));
   $("#farm-entry-page-title")?.scrollIntoView?.({ behavior: "smooth", block: "start" });
-  $("#farm-page-title").textContent = "Yeni tarla kaydı";
-  $("#farm-entry-submit").innerHTML = "Tarlayı kaydet <span>→</span>";
+  $("#farm-page-title").textContent = __avt("Yeni tarla kaydı");
+  $("#farm-entry-submit").innerHTML = __avt("Tarlayı kaydet <span>→</span>");
   $("#farm-entry-cancel").hidden = true;
   await loadFarms();
 });
 if (!ready) {
-  message("Kayıt servisi henüz hazır değil.", true);
+  message(__avt("Kayıt servisi henüz hazır değil."), true);
 } else {
-  client = createClient(cfg.url, cfg.publishableKey, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
+  client = (regionalClient||createClient(cfg.url,cfg.publishableKey,{ auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } }));
   const { data } = await client.auth.getSession();
   session = data.session;
   client.auth.onAuthStateChange((_event, newSession) => {
