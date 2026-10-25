@@ -1,5 +1,5 @@
 import {t,locale,areaDisplay,areaStored,perAreaDisplay,perAreaStored} from './regional-format.js?v=international-v1';
-import {ready as regionalReady,client as regionalClient} from './regional-context.js?v=international-v1';
+import {ready as regionalReady,client as regionalClient} from './regional-context.js?v=stable-tr-v1';
 await regionalReady;
 const I=window.AgroIntl;
 const __avt=s=>I.t(s);
@@ -13,7 +13,7 @@ function reset(select,prompt){select.replaceChildren(new Option(prompt,''));sele
 function fill(select,prompt,rows){reset(select,prompt);rows.forEach(r=>select.add(new Option(r.name,r.id)));select.disabled=!rows.length;}
 const province=$('#p-province'),district=$('#p-district'),village=$('#p-village');
 const internationalAddress=addressForm('p',{province,district,village},I.accountId?I.country:(I.lang==='en'?'':'TR'));
-const currencySelect=$('#p-currency');currencySelect.value=I.currency;currencySelect.disabled=!!I.accountId;currencySelect.addEventListener('change',()=>I.setCurrency(currencySelect.value));
+const currencySelect=$('#p-currency');currencySelect.value=I.currency;currencySelect.disabled=!!I.accountId;if(!I.accountId)currencySelect.querySelector('option[value=EUR]')?.remove();currencySelect.addEventListener('change',()=>I.setCurrency(currencySelect.value));
 province.addEventListener('change',()=>{fill(district,__avt("İlçe seçin"),admin?.districts?.[province.value]||[]);reset(village,__avt("Önce ilçe seçin"));});
 district.addEventListener('change',()=>fill(village,__avt("Köy / mahalle seçin"),(admin?.settlements?.[district.value]||[]).map(name=>({id:name,name}))));
 const locations=fetch('assets/administrative-units.json?v=2').then(r=>r.json()).then(data=>{admin=data;fill(province,__avt("İl seçin"),data.provinces);}).catch(()=>reset(province,__avt("Yer listesi yüklenemedi")));

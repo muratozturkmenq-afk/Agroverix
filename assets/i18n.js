@@ -1,9 +1,8 @@
 (function(){
 'use strict';
 const store={get(k){try{return localStorage.getItem(k);}catch{return null;}},set(k,v){try{localStorage.setItem(k,v);}catch{}}};
-const requested=new URLSearchParams(location.search).get('lang'),lang=['tr','en'].includes(requested)?requested:(store.get('agroverix-language')||'tr');
-if(requested)store.set('agroverix-language',lang);
-const I=window.AgroIntl={lang:lang==='en'?'en':'tr',currency:store.get('agroverix-new-currency')||(lang==='en'?'EUR':'TRY'),accountId:null,country:'TR',dict:window.AGROVERIX_EN||{},locale:lang==='en'?'en-GB':'tr-TR'};
+const lang='tr';
+const I=window.AgroIntl={lang:'tr',currency:'TRY',accountId:null,country:'TR',dict:{},locale:'tr-TR'};
 I.factor=()=>I.lang==='en'?10:1;
 I.currencyLabel=code=>(code||I.currency)==='EUR'?'EUR':I.lang==='en'?'TRY':'TL';
 I.unit=unit=>String(unit||'').replace(/\bTL\b/g,I.currencyLabel()).replace(I.lang==='en'?/\bda\b/g:/$^/g,'ha');
@@ -19,8 +18,8 @@ I.cropName=crop=>{const raw=String(crop||''),n=raw.trim().toLowerCase();return (
 const last=new WeakMap(),original=new WeakMap();
 I.apply=function(root=document){
  document.documentElement.lang=I.lang;
- root.querySelectorAll('[data-i18n]').forEach(el=>{const key=el.getAttribute('data-i18n'),before=last.get(el);if(el.textContent.trim().replace(/\s+/g,' ')===key||el.textContent===before){if(!original.has(el))original.set(el,el.textContent);const text=I.t(original.get(el));el.textContent=text;last.set(el,text);}});
- for(const [attr,data]of [['placeholder','data-i18n-placeholder'],['title','data-i18n-title'],['aria-label','data-i18n-label'],['alt','data-i18n-alt']])root.querySelectorAll('['+data+']').forEach(el=>el.setAttribute(attr,I.t(el.getAttribute(data))));
+ root.querySelectorAll('[data-i18n]').forEach(el=>{const key=el.getAttribute('data-i18n'),before=last.get(el);if(el.textContent.trim().replace(/\s+/g,' ')===key||el.textContent===before){if(!original.has(el))original.set(el,el.textContent);const text=I.t(original.get(el));if(el.textContent!==text)el.textContent=text;last.set(el,text);}});
+ for(const [attr,data]of [['placeholder','data-i18n-placeholder'],['title','data-i18n-title'],['aria-label','data-i18n-label'],['alt','data-i18n-alt']])root.querySelectorAll('['+data+']').forEach(el=>{const value=I.t(el.getAttribute(data));if(el.getAttribute(attr)!==value)el.setAttribute(attr,value);});
  root.querySelectorAll('datalist option[data-crop-tr]').forEach(el=>el.value=I.lang==='en'?(I.dict[el.dataset.cropTr]||el.dataset.cropTr):el.dataset.cropTr);
  document.querySelectorAll('[data-account-currency]').forEach(el=>el.textContent=I.currencyLabel());
  document.querySelectorAll('[data-new-currency]').forEach(el=>{el.value=I.currency;el.disabled=!!I.accountId;});
@@ -33,16 +32,8 @@ I.dbError=function(error){const s=String(error?.message||'');if(I.lang!=='en')re
  if(/hesab|owner|auth|Giriş/i.test(s))return 'Sign in again and check that this record belongs to your account.';
  return 'Could not save. Check your entries and connection, then try again.';
 };
-I.mount=function(){
- const target=document.querySelector('.nav-in,.profile-top');if(!target||document.querySelector('.regional-controls'))return;
- const wrap=document.createElement('div');wrap.className='regional-controls';wrap.setAttribute('aria-label',I.t('Dil ve para birimi'));
- const group=document.createElement('div');group.className='regional-language';group.setAttribute('role','group');group.setAttribute('aria-label',I.t('Dil'));
- ['tr','en'].forEach(code=>{const b=document.createElement('button');b.type='button';b.textContent=code.toUpperCase();b.lang=code;b.setAttribute('aria-pressed',String(code===I.lang));b.onclick=()=>{if(code===I.lang)return;if(document.querySelector('form[data-intl-dirty="true"]')&&!confirm(I.t('Kaydedilmemiş bilgiler var. Dil değiştirilsin mi?')))return;store.set('agroverix-language',code);const u=new URL(location.href);u.searchParams.set('lang',code);location.assign(u.href);};group.append(b);});wrap.append(group);
- if(I.accountId){const badge=document.createElement('span');badge.className='regional-currency';badge.setAttribute('data-account-currency','');badge.title=I.t('Hesabın para birimi');badge.textContent=I.currencyLabel();wrap.append(badge);}
- else{const select=document.createElement('select');select.setAttribute('data-new-currency','');select.setAttribute('aria-label',I.t('Yeni hesabın para birimi'));[['TRY','TL / TRY'],['EUR','EUR / €']].forEach(([value,text])=>select.add(new Option(text,value)));select.value=I.currency;select.onchange=()=>{if(document.querySelector('form[data-intl-dirty="true"]')&&!confirm(I.t('Kaydedilmemiş bilgiler var. Para birimi seçimi değiştirilsin mi?'))){select.value=I.currency;return;}store.set('agroverix-new-currency',select.value);location.reload();};wrap.append(select);}
- function place(){const menu=document.querySelector('.mobile-page-links');const narrow=matchMedia('(max-width:1800px)').matches;if(menu&&narrow)menu.append(wrap);else target.append(wrap);}
- place();window.addEventListener('resize',place);
-};
+// Language switching is paused while the Turkish release is stabilised.
+I.mount=function(){document.querySelectorAll('.regional-controls').forEach(el=>el.remove());};
 I.setCurrency=function(code){if(!['TRY','EUR'].includes(code))return;I.currency=code;I.apply();};
 document.addEventListener('input',e=>{if(e.isTrusted&&e.target.closest('form'))e.target.closest('form').dataset.intlDirty='true';});
 document.addEventListener('DOMContentLoaded',()=>{I.apply();I.mount();});
