@@ -9,6 +9,7 @@ import {readAll,fmt,money,today} from './inventory-data.js?v=international-v1';
 const $=id=>document.getElementById(id),cfg=window.AGROVERIX_SUPABASE||{},params=new URLSearchParams(location.search);
 let client=null,session=null,farms=[],sales=[],receipts=[],ready=false,loading=false,queued=false,saving=false,generation=0,channel=null,view='sale',historyMode='company',saleId=crypto.randomUUID(),receiptId=crypto.randomUUID(),editingSale=false,editingReceipt=false,requestedOpened=false;
 const num=id=>parseNumberInput($(id).value),day=value=>new Date(value+'T12:00:00').toLocaleDateString(I.locale),cents=value=>Math.round(Number(value||0)*100),key=(farm,year)=>farm+'|'+year;
+const averagePrice=value=>Number(value).toLocaleString(I.locale,{minimumFractionDigits:2,maximumFractionDigits:2});
 function node(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;}
 function say(id,text,error=false){$(id).textContent=text;$(id).classList.toggle('is-error',error);}
 function errorText(error){const text=error?.message||'';if(/Tahsilat,|Önce bu firma|hesabına|Tarla ve sezon/.test(text))return text;if(['42P01','42703','PGRST202','PGRST205'].includes(error?.code))return __avt("Hasat ve satış kayıt servisi henüz hazır değil. Biraz sonra yeniden dene.");return __avt("Kayıt tamamlanamadı. Bağlantını ve girdiğin bilgileri kontrol edip tekrar dene.");}
@@ -60,7 +61,7 @@ function renderFarms(){
  rows.forEach(({farm,season})=>{
   const records=activeSales().filter(s=>s.farm_id===farm.id&&Number(s.season_year)===Number(season.season_year)),kg=records.reduce((n,r)=>n+Number(r.quantity_kg),0),total=records.reduce((n,r)=>n+cents(r.total_amount),0)/100;
   const card=node('a',undefined,'harvest-farm-card');card.href='tarla-detay.html?farm='+encodeURIComponent(farm.id)+'&year='+season.season_year+'#season-end';card.append(node('h3',farm.name+' - '+season.crop),node('small',season.season_year+__avt(" sezonu · ")+records.length+__avt(" satış / araç kaydı")));
-  const grid=node('div',undefined,'harvest-farm-metrics');[[__avt("Hasat Toplamı"),fmt(kg)+__avt(" kg")],[__avt("Ortalama Fiyat"),kg>0?fmt(total/kg)+__avt(" TL/kg"):'—'],[__avt("Toplam Satış"),money(total)],[__avt("Alan"),fmt(areaDisplay(season.area_decare))+__avt(" da")]].forEach(([label,value])=>{const cell=node('div');cell.append(node('span',label),node('b',value));grid.append(cell);});card.append(grid);list.append(card);
+  const grid=node('div',undefined,'harvest-farm-metrics');[[__avt("Hasat Toplamı"),fmt(kg)+__avt(" kg")],[__avt("Ortalama Fiyat"),kg>0?averagePrice(total/kg)+__avt(" TL/kg"):'—'],[__avt("Toplam Satış"),money(total)],[__avt("Alan"),fmt(areaDisplay(season.area_decare))+__avt(" da")]].forEach(([label,value])=>{const cell=node('div');cell.append(node('span',label),node('b',value));grid.append(cell);});card.append(grid);list.append(card);
  });$('harvest-farms-empty').hidden=rows.length>0;$('harvest-farms-empty').textContent=session?__avt("Bu sezon için tarla kaydı yok. Tarla Ekle bölümünden başlayabilirsin."):__avt("Tarla özetlerin giriş yaptıktan sonra burada görünür.");
 }
 function metrics(parent,values){const row=node('div',undefined,'ledger-amounts');values.forEach(([label,value])=>{const cell=node('div');cell.append(node('span',label),node('b',value));row.append(cell);});parent.append(row);}
@@ -108,7 +109,7 @@ function renderSales(){
   const details=node('details',undefined,'harvest-sale-group'),summary=node('summary'),title=node('div',undefined,'harvest-group-heading'),count=node('small',active.length+__avt(" etkin kayıt")+(group.rows.length>active.length?' · '+(group.rows.length-active.length)+__avt(" iptal"):''));
   if(historyMode==='company'){const label=node('div',undefined,'harvest-group-label');label.append(node('b',group.name),count);title.append(label,node('span','⌄','harvest-group-arrow'));summary.append(title);}else{title.append(node('b',group.name),node('span','⌄','harvest-group-arrow'));summary.append(title,count);}
   const totals=node('div',undefined,'harvest-group-metrics');
-  [[__avt("Toplam Miktar"),fmt(kg)+__avt(" kg")],[__avt("Ortalama Fiyat"),kg>0?fmt(total/kg)+__avt(" TL/kg"):'—'],[__avt("Toplam Satış"),money(total)]].forEach(([label,value])=>{const cell=node('div');cell.append(node('span',label),node('strong',value));totals.append(cell);});
+  [[__avt("Toplam Miktar"),fmt(kg)+__avt(" kg")],[__avt("Ortalama Fiyat"),kg>0?averagePrice(total/kg)+__avt(" TL/kg"):'—'],[__avt("Toplam Satış"),money(total)]].forEach(([label,value])=>{const cell=node('div');cell.append(node('span',label),node('strong',value));totals.append(cell);});
   summary.append(totals);details.append(summary);const records=node('div',undefined,'harvest-group-records');
   function populateGroup(){if(records.childElementCount)return;group.rows.slice().sort((a,b)=>b.sale_date.localeCompare(a.sale_date)||a.id.localeCompare(b.id)).forEach(s=>records.append(saleCard(s,{company:historyMode==='company'})));}
   details.append(records);details.open=group.key===selected;if(details.open)populateGroup();
