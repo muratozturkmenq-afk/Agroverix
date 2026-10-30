@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Sans:ital,wght@0,400..700;1,400&family=Martian+Mono:wght@400..600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/styles.css">
-<link rel="stylesheet" href="assets/profile.css?v=profile-legend-v2">
+<link rel="stylesheet" href="assets/profile.css?v=profile-email-v1">
 <link rel="stylesheet" href="assets/farm-finance.css?v=cost-line-v2">
 <link rel="stylesheet" href="assets/mobile-reports.css?v=readable-labels-v2">
 
@@ -65,6 +65,7 @@
         <div class="profile-grid"><div class="profile-field wide"><label for="p-country"><span data-i18n="Ülke">Ülke </span><b>*</b></label><select id="p-country" required></select></div><div class="profile-field international-fields" data-address="p" hidden><label for="p-region">Bölge / Eyalet <b>*</b></label><input id="p-region" maxlength="160" autocomplete="address-level1" required></div><div class="profile-field international-fields" data-address="p" hidden><label for="p-city">Şehir / İlçe <b>*</b></label><input id="p-city" maxlength="160" autocomplete="address-level2" required></div><div class="profile-field international-fields" data-address="p" hidden><label for="p-locality">Yerleşim / Adres <b>*</b></label><input id="p-locality" maxlength="160" autocomplete="address-line1" required></div><div class="profile-field"><label for="p-currency" data-i18n="Para Birimi">Para Birimi</label><select id="p-currency"><option value="TRY">TL / TRY</option><option value="EUR">EUR / €</option></select></div><p class="currency-account-note" data-i18n="Hesap para birimi kayıt sırasında seçilir. Mevcut tutarlar başka para birimine dönüştürülmez.">Hesap para birimi kayıt sırasında seçilir. Mevcut tutarlar başka para birimine dönüştürülmez.</p>
           <div class="profile-field"><label for="p-name">Adı Soyadı <b>*</b></label><input id="p-name" name="fullName" maxlength="160" minlength="2" autocomplete="name" placeholder="Adınız ve soyadınız" data-i18n-placeholder="Adınız ve soyadınız" required></div>
           <div class="profile-field"><label for="p-phone">Telefon Numarası <b>*</b></label><input id="p-phone" type="tel" inputmode="numeric" autocomplete="tel-national" minlength="11" maxlength="11" pattern="05[0-9]{9}" placeholder="05xxxxxxxxx" title="05 ile başlayan 11 rakam girin" data-i18n-placeholder="05xxxxxxxxx" data-i18n-title="05 ile başlayan 11 rakam girin" required><small data-i18n="05 ile başlayan 11 rakam. İletişim ve isteğe bağlı SMS bildirimleri için.">05 ile başlayan 11 rakam. İletişim ve isteğe bağlı SMS bildirimleri için.</small></div>
+          <div class="profile-field"><label for="p-email">E-posta Adresi (İsteğe Bağlı)</label><input id="p-email" name="contactEmail" type="email" inputmode="email" autocomplete="email" maxlength="254" placeholder="ornek@posta.com" aria-describedby="p-email-help"><small id="p-email-help">İletişim için kaydedilir. Giriş e-postanı değiştirmek için aşağıdaki ayrı bölümü kullanabilirsin.</small></div>
           <div class="profile-field"><label for="p-id">T.C. Kimlik No <b>*</b></label><input id="p-id" name="identityNumber" inputmode="numeric" autocomplete="off" maxlength="11" pattern="[0-9]{11}" placeholder="11 haneli kimlik numarası" data-i18n-placeholder="11 haneli kimlik numarası" required><small data-i18n="Kimlik numaranı yalnızca kendi hesabın için kullan.">Kimlik numaranı yalnızca kendi hesabın için kullan.</small></div>
           <div class="profile-field"><label for="p-province">İl <b>*</b></label><select id="p-province" name="province" required><option value="" data-i18n="İller yükleniyor…">İller yükleniyor…</option></select></div>
           <div class="profile-field"><label for="p-district">İlçe <b>*</b></label><select id="p-district" name="district" disabled required><option value="" data-i18n="Önce il seçin">Önce il seçin</option></select></div>
@@ -87,11 +88,22 @@
       
     </form>
     </details>
+    <section class="profile-account-email" id="account-email-section" aria-labelledby="account-email-title" hidden>
+      <h3 id="account-email-title">Giriş E-postanı Değiştir</h3>
+      <p class="profile-help">Onay tamamlandığında yeni adresin eskisinin yerine geçer; eski adresle giriş yapılamaz. Tarlaların, kayıtların ve yetkilerin aynı hesapta kalır.</p>
+      <p class="profile-login-email">Mevcut Giriş E-postası<strong id="account-email-current"></strong></p>
+      <p class="profile-help" id="account-email-pending" role="status" hidden></p>
+      <form id="account-email-form" class="profile-email-fields">
+        <div class="profile-field"><label for="account-email-new">Yeni E-posta Adresi <b>*</b></label><input id="account-email-new" type="email" inputmode="email" autocomplete="email" maxlength="254" placeholder="yeni@posta.com" required></div>
+        <button class="profile-email-submit" id="account-email-submit" type="submit">E-posta Değişikliğini Başlat</button>
+      </form>
+      <p class="profile-result" id="account-email-status" role="status" aria-live="polite"></p>
+    </section>
     <p class="profile-footer" data-i18n="Oturum açtığında kayıtların bu hesaba özel gösterilir.">Oturum açtığında kayıtların bu hesaba özel gösterilir.</p>
   </section>
 </main>
 <script src="assets/supabase-config.js?v=international-v1"></script>
-<script type="module" src="assets/account.js?v=profile-save-v2"></script>
+<script type="module" src="assets/account.js?v=profile-email-v1"></script>
 <script type="module" src="assets/regional-boot.js?v=stable-tr-v1"></script>
 </body>
 </html>

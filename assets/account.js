@@ -4,6 +4,7 @@ await regionalReady;
 const I=window.AgroIntl;
 const __avt=s=>I.t(s);
 import {addressForm} from './international-address.js?v=international-v1';
+import {accountEmailChange} from './account-email.js?v=profile-email-v1';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
 const $=s=>document.querySelector(s),cfg=window.AGROVERIX_SUPABASE||{};
 const auth=$('#auth-card'),profile=$('#profile-card'),credentials=$('#signup-credentials');
@@ -18,16 +19,16 @@ function profileRequest(run,milliseconds){
  return Promise.race([Promise.resolve().then(()=>run(controller.signal)),timeout]).finally(()=>clearTimeout(timer));
 }
 function formIssues(){
- const labels={'p-country':'Ülke','p-name':'Adı Soyadı','p-phone':'Telefon Numarası','p-id':'T.C. Kimlik No','p-province':'İl','p-district':'İlçe','p-village':'Köy / Mahalle','p-region':'Bölge / Eyalet','p-city':'Şehir / İlçe','p-locality':'Yerleşim / Adres','p-kvkk':'KVKK bilgilendirmesi','signup-email':'E-posta adresi','signup-password':'Şifre','signup-password-confirm':'Şifre tekrarı'};
+ const labels={'p-country':'Ülke','p-name':'Adı Soyadı','p-phone':'Telefon Numarası','p-email':'İletişim E-posta Adresi','p-id':'T.C. Kimlik No','p-province':'İl','p-district':'İlçe','p-village':'Köy / Mahalle','p-region':'Bölge / Eyalet','p-city':'Şehir / İlçe','p-locality':'Yerleşim / Adres','p-kvkk':'KVKK bilgilendirmesi','signup-email':'E-posta adresi','signup-password':'Şifre','signup-password-confirm':'Şifre tekrarı'};
  return [...profileForm.elements].filter(field=>field.willValidate&&!field.validity.valid).map(field=>({field,label:labels[field.id]||'Profil alanı'}));
 }
 function showIssues(issues){
- const names=[...new Set(issues.map(issue=>issue.label))];saveMessage('Kaydetmek için şu alanları kontrol et: '+names.join(', ')+'. Telefon 05 ile başlayan 11 rakam, T.C. kimlik numarası 11 rakam olmalı; KVKK bilgilendirme kutusunu da işaretle.',true);
+ const names=[...new Set(issues.map(issue=>issue.label))];const hint=issues.every(issue=>issue.field.id==='p-email')?'E-posta adresini ad@ornek.com biçiminde yaz veya alanı boş bırak.':'Telefon 05 ile başlayan 11 rakam, T.C. kimlik numarası 11 rakam olmalı; KVKK bilgilendirme kutusunu da işaretle.';saveMessage('Kaydetmek için şu alanları kontrol et: '+names.join(', ')+'. '+hint,true);
  for(const {field}of issues)field.setAttribute('aria-invalid','true');
  const first=issues[0]?.field;if(first){const target=first.closest('.profile-field,.profile-consent')||first;target.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'});first.focus({preventScroll:true});}
 }
 profileForm.addEventListener('input',event=>event.target.removeAttribute('aria-invalid'));
-let session=null,client=null,mode='login',admin=null,registering=false,profileReady=false,profileLoad=0,storedProfileLoaded=false,smsEdited=false;
+let session=null,client=null,mode='login',admin=null,registering=false,profileReady=false,profileLoad=0,storedProfileLoaded=false,smsEdited=false,contactEmailEdited=false,accountEmail=null;
 function status(id,copy,error=false){const p=$(id);p.textContent=copy;p.classList.toggle('is-error',error);}
 function reset(select,prompt){select.replaceChildren(new Option(prompt,''));select.disabled=true;}
 function fill(select,prompt,rows){reset(select,prompt);rows.forEach(r=>select.add(new Option(r.name,r.id)));select.disabled=!rows.length;}
@@ -50,6 +51,7 @@ function destination(){
  return 'index.html';
 }
 function setMode(next){
+ accountEmail?.show(null);
  personalFields.disabled=false;$('#profile-submit').disabled=false;profileRetry.hidden=true;
  mode=next;auth.hidden=next!=='login';profile.hidden=next!=='signup';credentials.hidden=next!=='signup';credentials.disabled=next!=='signup';$('#profile-edit-details').open=true;
  $('#auth-signout').hidden=!session;$('#auth-back').hidden=next!=='signup';$('#auth-modes').hidden=false;
@@ -64,7 +66,7 @@ function phoneRegion(){const tr=internationalAddress.select.value==='TR';phoneIn
 internationalAddress.select.addEventListener('change',phoneRegion);phoneRegion();
 phoneInput.addEventListener('input',()=>{phoneInput.value=internationalAddress.select.value==='TR'?phoneInput.value.replace(/\D/g,'').slice(0,11):phoneInput.value.replace(/[^+0-9]/g,'').slice(0,16);});
 function normalizedPhone(){const value=phoneInput.value.trim();if(internationalAddress.select.value!=='TR')return value||null;return value?(/^05[0-9]{9}$/.test(value)?'+90'+value.slice(1):value):null;}
-function record(){const r={user_id:session?.user.id,full_name:$('#p-name').value.trim()||null,identity_number:$('#p-id').value.trim()||null,phone:normalizedPhone(),sms_consent:$('#p-sms').checked,...internationalAddress.value(),kvkk_notice_acknowledged:$('#p-kvkk').checked,kvkk_notice_acknowledged_at:$('#p-kvkk').checked?new Date().toISOString():null,updated_at:new Date().toISOString()};if(session&&!storedProfileLoaded&&!smsEdited)delete r.sms_consent;return r;}
+function record(){const r={user_id:session?.user.id,full_name:$('#p-name').value.trim()||null,identity_number:$('#p-id').value.trim()||null,phone:normalizedPhone(),contact_email:$('#p-email').value.trim().toLowerCase()||null,sms_consent:$('#p-sms').checked,...internationalAddress.value(),kvkk_notice_acknowledged:$('#p-kvkk').checked,kvkk_notice_acknowledged_at:$('#p-kvkk').checked?new Date().toISOString():null,updated_at:new Date().toISOString()};if(session&&!storedProfileLoaded&&!smsEdited)delete r.sms_consent;if(session&&!storedProfileLoaded&&!contactEmailEdited)delete r.contact_email;return r;}
 function completeProfile(r){
  if(!r||String(r.full_name||'').trim().length<2||['phone','country','province','district','village'].some(key=>!String(r[key]||'').trim())||!r.kvkk_notice_acknowledged)return false;
  if(r.country==='TR')return /^[0-9]{11}$/.test(r.identity_number||'')&&/^(?:05[0-9]{9}|[+]905[0-9]{9})$/.test(r.phone);
@@ -83,7 +85,7 @@ function profileValues(row,s){
 }
 function personalValues(values){
  internationalAddress.load(values);phoneRegion();
- $('#p-name').value=values.full_name||'';$('#p-phone').value=localPhone(values.phone||'');$('#p-id').value=values.identity_number||'';
+ $('#p-email').value=values.contact_email||'';$('#p-name').value=values.full_name||'';$('#p-phone').value=localPhone(values.phone||'');$('#p-id').value=values.identity_number||'';
  $('#p-sms').checked=values.sms_consent===true;$('#p-kvkk').checked=values.kvkk_notice_acknowledged===true;
 }
 function savedOption(select,value){
@@ -101,7 +103,7 @@ function addressValues(values){
 }
 async function show(s){
  const preserveDraft=session?.user.id===s?.user.id&&profileForm.dataset.intlDirty==='true';
- const load=++profileLoad;session=s;profileReady=false;storedProfileLoaded=false;if(!preserveDraft)smsEdited=false;
+ const load=++profileLoad;session=s;profileReady=false;storedProfileLoaded=false;if(!preserveDraft){smsEdited=false;contactEmailEdited=false;}accountEmail?.show(s?.user||null);
  if(!s){setMode('login');return;}
  const editing=new URLSearchParams(location.search).get('profile')==='edit';
  auth.hidden=true;profile.hidden=false;credentials.hidden=true;credentials.disabled=true;
@@ -130,6 +132,7 @@ async function show(s){
  }
 }
 $('#p-sms').addEventListener('change',()=>{smsEdited=true;});
+$('#p-email').addEventListener('input',()=>{contactEmailEdited=true;profileForm.dataset.intlDirty='true';});
 profileRetry.addEventListener('click',()=>{if(session)show(session);});
 
 document.querySelectorAll('[data-auth-mode]').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.authMode)));$('#auth-back').addEventListener('click',()=>setMode('login'));
@@ -149,7 +152,7 @@ $('#farmer-profile-form').addEventListener('submit',async e=>{
  if((r.full_name||r.phone||r.identity_number||r.province||r.district||r.village)&&!r.kvkk_notice_acknowledged){status('#profile-status',__avt("Kişisel bilgilerini kaydetmek için KVKK bilgilendirme kutusunu tamamla."),true);return;}
  if(session){
   
-  const saveLoad=profileLoad,owner=session.user.id;$('#profile-submit').disabled=true;saveMessage('Profil bilgilerin kaydediliyor…');try{const {data,error}=await profileRequest(signal=>client.from('farmer_profiles').upsert(r,{onConflict:'user_id'}).select('*').single().abortSignal(signal),20000);if(saveLoad!==profileLoad||session?.user.id!==owner)return;if(error)throw error;personalValues(data);addressValues(data);delete profileForm.dataset.intlDirty;storedProfileLoaded=true;smsEdited=false;saveMessage('Profil bilgilerin kaydedildi. Sayfayı yeniden açtığında bu bilgiler gösterilir.');}catch(error){if(saveLoad===profileLoad&&session?.user.id===owner)saveMessage(error?.code==='42501'?'Oturum kayda izin vermedi. Yazdığın bilgileri koruyarak yeniden giriş yapıp tekrar dene.':'Kaydın tamamlandığı doğrulanamadı. Yazdığın bilgiler formda korunuyor; bağlantını kontrol edip tekrar Kaydet düğmesine bas.',true);}finally{if(saveLoad===profileLoad&&session?.user.id===owner)$('#profile-submit').disabled=false;}return;
+  const saveLoad=profileLoad,owner=session.user.id;$('#profile-submit').disabled=true;saveMessage('Profil bilgilerin kaydediliyor…');try{const {data,error}=await profileRequest(signal=>client.from('farmer_profiles').upsert(r,{onConflict:'user_id'}).select('*').single().abortSignal(signal),20000);if(saveLoad!==profileLoad||session?.user.id!==owner)return;if(error)throw error;personalValues(data);addressValues(data);delete profileForm.dataset.intlDirty;storedProfileLoaded=true;smsEdited=false;contactEmailEdited=false;saveMessage('Profil bilgilerin kaydedildi. Sayfayı yeniden açtığında bu bilgiler gösterilir.');}catch(error){if(saveLoad===profileLoad&&session?.user.id===owner)saveMessage(error?.code==='42501'?'Oturum kayda izin vermedi. Yazdığın bilgileri koruyarak yeniden giriş yapıp tekrar dene.':'Kaydın tamamlandığı doğrulanamadı. Yazdığın bilgiler formda korunuyor; bağlantını kontrol edip tekrar Kaydet düğmesine bas.',true);}finally{if(saveLoad===profileLoad&&session?.user.id===owner)$('#profile-submit').disabled=false;}return;
  }
  if(mode!=='signup')return;if($('#signup-password').value!==$('#signup-password-confirm').value){status('#profile-status',__avt("Şifreler eşleşmiyor."),true);return;}
  registering=true;$('#profile-submit').disabled=true;status('#profile-status',__avt("Hesap oluşturuluyor…"));const redirect=new URL('ciftci-bilgi.html',location.href);redirect.searchParams.set('next',destination());
@@ -160,6 +163,7 @@ $('#farmer-profile-form').addEventListener('submit',async e=>{
 });
 // Custom validation always reaches the save handler and gives a visible explanation.
 profileForm.noValidate=true;
-$('#auth-signout').addEventListener('click',async()=>{await client.auth.signOut();session=null;setMode('login');});
-if(cfg.url&&cfg.publishableKey){client=(regionalClient||createClient(cfg.url,cfg.publishableKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}));const {data}=await client.auth.getSession();await show(data.session);client.auth.onAuthStateChange((event,s)=>{if(registering)return;if((event==='SIGNED_IN'||event==='SIGNED_OUT')&&session?.user.id!==s?.user.id)setTimeout(()=>show(s),0);});}
+$('#auth-signout').addEventListener('click',async()=>{await client.auth.signOut();session=null;$('#p-email').value='';setMode('login');});
+function updateAccountUser(user){if(!user||session?.user.id!==user.id)return;session={...session,user};$('#profile-account-phone').textContent=user.email||'';accountEmail?.show(user);}
+if(cfg.url&&cfg.publishableKey){client=(regionalClient||createClient(cfg.url,cfg.publishableKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}));accountEmail=accountEmailChange(client,updateAccountUser);const {data}=await client.auth.getSession();await show(data.session);client.auth.onAuthStateChange((event,s)=>{if(registering)return;if((event==='SIGNED_IN'||event==='SIGNED_OUT')&&session?.user.id!==s?.user.id)setTimeout(()=>show(s),0);else if(['USER_UPDATED','TOKEN_REFRESHED','SIGNED_IN'].includes(event)&&s?.user.id===session?.user.id)updateAccountUser(s.user);});}
 else{setMode('login');status('#auth-status',__avt("Hesap servisi bağlanamadı."),true);}

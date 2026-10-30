@@ -101,3 +101,16 @@
 .profile-section legend>span:first-child{flex:0 0 26px;margin-right:0}
 .profile-section legend>span:not(:first-child){min-width:0}
 .profile-section legend>small{font-size:12px;line-height:1.4}
+
+/* Optional contact details and the separate confirmed login-email flow. */
+.profile-account-email{border-top:1px solid #deded2;margin-top:22px;padding-top:22px}
+.profile-account-email h3{margin:0 0 10px;font-size:18px;line-height:1.35}
+.profile-login-email{font-size:12px;color:#717766;margin:16px 0}
+.profile-login-email strong{display:block;margin-top:5px;font-size:15px;color:#31441f;overflow-wrap:anywhere}
+.profile-email-fields{display:flex;align-items:flex-end;gap:12px}
+.profile-email-fields .profile-field{flex:1;min-width:0}
+.profile-email-submit{min-height:46px;max-width:100%;padding:10px 13px;border:0;border-radius:5px;background:#dca52e;color:#201b0c;font:700 12px 'Instrument Sans',sans-serif;cursor:pointer}
+.profile-email-submit:disabled{opacity:.6;cursor:wait}
+.profile-account-email .profile-result{text-align:left;overflow-wrap:anywhere}
+.profile-account-email .is-error{color:#a1392b}
+@media(max-width:760px){.profile-email-fields{display:grid;grid-template-columns:minmax(0,1fr)}.profile-email-submit{width:100%;min-height:48px}}
