@@ -4,10 +4,11 @@ await regionalReady;
 const I=window.AgroIntl;
 const __avt=s=>I.t(s);
 import {addressForm} from './international-address.js?v=international-v1';
-import {accountEmailChange} from './account-email.js?v=profile-email-v1';
+import {saveProfileAndEmail,freshAccountUser,preferredProfileEmail,emailConfirmationNotice} from './profile-save.js?v=single-save-v1';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
 const $=s=>document.querySelector(s),cfg=window.AGROVERIX_SUPABASE||{};
 const auth=$('#auth-card'),profile=$('#profile-card'),credentials=$('#signup-credentials');
+const confirmationNotice=emailConfirmationNotice(location.href);
 const profileForm=$('#farmer-profile-form'),profileSubmit=$('#profile-submit');
 const personalFields=$('#profile-personal-fields')||profileForm.querySelector('.profile-section');
 let profileRetry=$('#profile-retry');if(!profileRetry){profileRetry=document.createElement('button');profileRetry.type='button';profileRetry.id='profile-retry';profileRetry.className='auth-back';profileRetry.textContent='Bilgileri Yeniden Yükle';profileRetry.hidden=true;$('#profile-status').after(profileRetry);}
@@ -19,7 +20,7 @@ function profileRequest(run,milliseconds){
  return Promise.race([Promise.resolve().then(()=>run(controller.signal)),timeout]).finally(()=>clearTimeout(timer));
 }
 function formIssues(){
- const labels={'p-country':'Ülke','p-name':'Adı Soyadı','p-phone':'Telefon Numarası','p-email':'İletişim E-posta Adresi','p-id':'T.C. Kimlik No','p-province':'İl','p-district':'İlçe','p-village':'Köy / Mahalle','p-region':'Bölge / Eyalet','p-city':'Şehir / İlçe','p-locality':'Yerleşim / Adres','p-kvkk':'KVKK bilgilendirmesi','signup-email':'E-posta adresi','signup-password':'Şifre','signup-password-confirm':'Şifre tekrarı'};
+ const labels={'p-country':'Ülke','p-name':'Adı Soyadı','p-phone':'Telefon Numarası','p-email':'E-posta Adresi','p-id':'T.C. Kimlik No','p-province':'İl','p-district':'İlçe','p-village':'Köy / Mahalle','p-region':'Bölge / Eyalet','p-city':'Şehir / İlçe','p-locality':'Yerleşim / Adres','p-kvkk':'KVKK bilgilendirmesi','signup-email':'E-posta adresi','signup-password':'Şifre','signup-password-confirm':'Şifre tekrarı'};
  return [...profileForm.elements].filter(field=>field.willValidate&&!field.validity.valid).map(field=>({field,label:labels[field.id]||'Profil alanı'}));
 }
 function showIssues(issues){
@@ -28,7 +29,8 @@ function showIssues(issues){
  const first=issues[0]?.field;if(first){const target=first.closest('.profile-field,.profile-consent')||first;target.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'});first.focus({preventScroll:true});}
 }
 profileForm.addEventListener('input',event=>event.target.removeAttribute('aria-invalid'));
-let session=null,client=null,mode='login',admin=null,registering=false,profileReady=false,profileLoad=0,storedProfileLoaded=false,smsEdited=false,contactEmailEdited=false,accountEmail=null;
+let session=null,client=null,mode='login',admin=null,registering=false,profileReady=false,profileLoad=0,storedProfileLoaded=false,smsEdited=false,contactEmailEdited=false;
+let emailRefreshPending=false,lastEmailRefresh=0;
 function status(id,copy,error=false){const p=$(id);p.textContent=copy;p.classList.toggle('is-error',error);}
 function reset(select,prompt){select.replaceChildren(new Option(prompt,''));select.disabled=true;}
 function fill(select,prompt,rows){reset(select,prompt);rows.forEach(r=>select.add(new Option(r.name,r.id)));select.disabled=!rows.length;}
@@ -51,14 +53,14 @@ function destination(){
  return 'index.html';
 }
 function setMode(next){
- accountEmail?.show(null);
  personalFields.disabled=false;$('#profile-submit').disabled=false;profileRetry.hidden=true;
  mode=next;auth.hidden=next!=='login';profile.hidden=next!=='signup';credentials.hidden=next!=='signup';credentials.disabled=next!=='signup';$('#profile-edit-details').open=true;
  $('#auth-signout').hidden=!session;$('#auth-back').hidden=next!=='signup';$('#auth-modes').hidden=false;
  $('#profile-title').textContent=__avt("Çiftçi Profilini Oluştur");$('#profile-account-phone').textContent=__avt("Kişisel bilgilerini ekle, e-posta hesabını oluştur.");
  $('#profile-submit').innerHTML=__avt("Hesabı oluştur ve profilini kaydet <span>→</span>");
  document.querySelectorAll('[data-auth-mode]').forEach(b=>{const active=b.dataset.authMode===next;b.classList.toggle('is-active',active);b.setAttribute('aria-selected',String(active));});
- status('#auth-status','');status('#profile-status','');
+ status('#auth-status',next==='login'?confirmationNotice:'');status('#profile-status','');
+ $('#p-email').closest('.profile-field').hidden=next==='signup';
 }
 const phoneInput=$('#p-phone');
 function localPhone(value){if(internationalAddress.select.value!=='TR')return value||'';let digits=String(value||'').replace(/\D/g,'');if(digits.startsWith('90')&&digits.length===12)digits='0'+digits.slice(2);return digits;}
@@ -85,7 +87,7 @@ function profileValues(row,s){
 }
 function personalValues(values){
  internationalAddress.load(values);phoneRegion();
- $('#p-email').value=values.contact_email||'';$('#p-name').value=values.full_name||'';$('#p-phone').value=localPhone(values.phone||'');$('#p-id').value=values.identity_number||'';
+ $('#p-email').value=session?.user?preferredProfileEmail(session.user):(values.contact_email||'');updateEmailHint();$('#p-name').value=values.full_name||'';$('#p-phone').value=localPhone(values.phone||'');$('#p-id').value=values.identity_number||'';
  $('#p-sms').checked=values.sms_consent===true;$('#p-kvkk').checked=values.kvkk_notice_acknowledged===true;
 }
 function savedOption(select,value){
@@ -103,10 +105,10 @@ function addressValues(values){
 }
 async function show(s){
  const preserveDraft=session?.user.id===s?.user.id&&profileForm.dataset.intlDirty==='true';
- const load=++profileLoad;session=s;profileReady=false;storedProfileLoaded=false;if(!preserveDraft){smsEdited=false;contactEmailEdited=false;}accountEmail?.show(s?.user||null);
+ const load=++profileLoad;session=s;profileReady=false;storedProfileLoaded=false;if(!preserveDraft){smsEdited=false;contactEmailEdited=false;}
  if(!s){setMode('login');return;}
  const editing=new URLSearchParams(location.search).get('profile')==='edit';
- auth.hidden=true;profile.hidden=false;credentials.hidden=true;credentials.disabled=true;
+ auth.hidden=true;profile.hidden=false;credentials.hidden=true;credentials.disabled=true;$('#p-email').closest('.profile-field').hidden=false;
  $('#auth-modes').hidden=true;$('#auth-back').hidden=true;$('#auth-signout').hidden=false;$('#profile-edit-details').open=true;
  $('#profile-title').textContent='Profil Bilgileri';$('#profile-account-phone').textContent=s.user.email||'';$('#profile-submit').innerHTML='Profil Bilgilerini Kaydet <span>→</span>';
  $('#profile-submit').disabled=true;personalFields.disabled=true;profileRetry.hidden=true;
@@ -124,12 +126,14 @@ async function show(s){
  else if(!completeProfile(values))status('#profile-status','Profilindeki zorunlu bilgileri tamamlayıp kaydet. Daha önce kaydedilmemiş alanlar boş görünür.');
  else if(recovered.length||!result.data)status('#profile-status','Kayıt sırasında verdiğin bilgiler getirildi. Kontrol edip profilini kaydet.');
  else status('#profile-status','Kayıtlı profil bilgilerin yüklendi.');
+ if(confirmationNotice)saveMessage(confirmationNotice);
  }catch(error){
   if(load!==profileLoad)return;
   saveMessage('Kayıtlı profil yüklenemedi. Yazdığın bilgiler formda korunur; zorunlu alanları tamamlayıp kaydedebilir veya Bilgileri Yeniden Yükle düğmesini kullanabilirsin.',true);profileRetry.hidden=false;
  }finally{
   if(load===profileLoad&&session?.user.id===s.user.id){personalFields.disabled=false;profileSubmit.disabled=false;profileReady=true;}
  }
+ if(load===profileLoad&&session?.user.id===s.user.id)refreshAccountEmail();
 }
 $('#p-sms').addEventListener('change',()=>{smsEdited=true;});
 $('#p-email').addEventListener('input',()=>{contactEmailEdited=true;profileForm.dataset.intlDirty='true';});
@@ -152,7 +156,22 @@ $('#farmer-profile-form').addEventListener('submit',async e=>{
  if((r.full_name||r.phone||r.identity_number||r.province||r.district||r.village)&&!r.kvkk_notice_acknowledged){status('#profile-status',__avt("Kişisel bilgilerini kaydetmek için KVKK bilgilendirme kutusunu tamamla."),true);return;}
  if(session){
   
-  const saveLoad=profileLoad,owner=session.user.id;$('#profile-submit').disabled=true;saveMessage('Profil bilgilerin kaydediliyor…');try{const {data,error}=await profileRequest(signal=>client.from('farmer_profiles').upsert(r,{onConflict:'user_id'}).select('*').single().abortSignal(signal),20000);if(saveLoad!==profileLoad||session?.user.id!==owner)return;if(error)throw error;personalValues(data);addressValues(data);delete profileForm.dataset.intlDirty;storedProfileLoaded=true;smsEdited=false;contactEmailEdited=false;saveMessage('Profil bilgilerin kaydedildi. Sayfayı yeniden açtığında bu bilgiler gösterilir.');}catch(error){if(saveLoad===profileLoad&&session?.user.id===owner)saveMessage(error?.code==='42501'?'Oturum kayda izin vermedi. Yazdığın bilgileri koruyarak yeniden giriş yapıp tekrar dene.':'Kaydın tamamlandığı doğrulanamadı. Yazdığın bilgiler formda korunuyor; bağlantını kontrol edip tekrar Kaydet düğmesine bas.',true);}finally{if(saveLoad===profileLoad&&session?.user.id===owner)$('#profile-submit').disabled=false;}return;
+  const saveLoad=profileLoad,owner=session.user.id,targetEmail=$('#p-email').value.trim(),currentUser=session.user;
+  const isCurrent=()=>saveLoad===profileLoad&&session?.user.id===owner;
+  $('#profile-submit').disabled=true;saveMessage('Profil bilgilerin kaydediliyor…');
+  try{
+   const result=await saveProfileAndEmail({client,user:currentUser,record:r,email:targetEmail,isCurrent,saveProfile:async row=>{
+    const {data,error}=await profileRequest(signal=>client.from('farmer_profiles').upsert(row,{onConflict:'user_id'}).select('*').single().abortSignal(signal),20000);if(error)throw error;return data;
+   }});
+   if(result.stale||!isCurrent())return;
+   session={...session,user:result.user};$('#profile-account-phone').textContent=result.user.email||'';
+   contactEmailEdited=false;personalValues(result.profile);addressValues(result.profile);delete profileForm.dataset.intlDirty;storedProfileLoaded=true;smsEdited=false;
+   if(result.emailState==='error'){$('#p-email').value=targetEmail;contactEmailEdited=true;profileForm.dataset.intlDirty='true';saveMessage('Diğer profil bilgilerin kaydedildi. '+result.emailError,true);}
+   else if(result.emailState==='pending')saveMessage('Profil bilgilerin kaydedildi. E-posta değişikliği için mevcut ve yeni adresine gelen iki onay bağlantısını da tamamla. İkisi tamamlandığında yeni adres eskisinin yerine geçer; kayıtların ve yetkilerin korunur.');
+   else if(result.emailState==='confirmed')saveMessage('Profil bilgilerin ve giriş e-posta adresin güncellendi. Kayıtların ve yetkilerin aynı hesapta korundu.');
+   else saveMessage('Profil bilgilerin kaydedildi. Sayfayı yeniden açtığında güncel bilgilerin gösterilir.');
+  }catch(error){if(isCurrent())saveMessage(error?.code==='42501'?'Oturum kayda izin vermedi. Yazdığın bilgileri koruyarak yeniden giriş yapıp tekrar dene.':'Kaydın tamamlandığı doğrulanamadı. Yazdığın bilgiler formda korunuyor; bağlantını kontrol edip tekrar Kaydet düğmesine bas.',true);}
+  finally{if(isCurrent())$('#profile-submit').disabled=false;}return;
  }
  if(mode!=='signup')return;if($('#signup-password').value!==$('#signup-password-confirm').value){status('#profile-status',__avt("Şifreler eşleşmiyor."),true);return;}
  registering=true;$('#profile-submit').disabled=true;status('#profile-status',__avt("Hesap oluşturuluyor…"));const redirect=new URL('ciftci-bilgi.html',location.href);redirect.searchParams.set('next',destination());
@@ -164,6 +183,23 @@ $('#farmer-profile-form').addEventListener('submit',async e=>{
 // Custom validation always reaches the save handler and gives a visible explanation.
 profileForm.noValidate=true;
 $('#auth-signout').addEventListener('click',async()=>{await client.auth.signOut();session=null;$('#p-email').value='';setMode('login');});
-function updateAccountUser(user){if(!user||session?.user.id!==user.id)return;session={...session,user};$('#profile-account-phone').textContent=user.email||'';accountEmail?.show(user);}
-if(cfg.url&&cfg.publishableKey){client=(regionalClient||createClient(cfg.url,cfg.publishableKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}));accountEmail=accountEmailChange(client,updateAccountUser);const {data}=await client.auth.getSession();await show(data.session);client.auth.onAuthStateChange((event,s)=>{if(registering)return;if((event==='SIGNED_IN'||event==='SIGNED_OUT')&&session?.user.id!==s?.user.id)setTimeout(()=>show(s),0);else if(['USER_UPDATED','TOKEN_REFRESHED','SIGNED_IN'].includes(event)&&s?.user.id===session?.user.id)updateAccountUser(s.user);});}
+function updateEmailHint(){
+ const pending=session?.user.new_email,current=session?.user.email;
+ $('#p-email-help').textContent=pending&&pending.toLowerCase()!==String(current||'').toLowerCase()?'E-posta değişikliği onay bekliyor. Mevcut ve yeni adresine gelen iki bağlantıyı da onayla.':'Bilgilerini burada düzenleyip Profil Bilgilerini Kaydet düğmesiyle güncelleyebilirsin. E-posta değişikliği onay tamamlandığında geçerli olur.';
+}
+function updateAccountUser(user){
+ if(!user||session?.user.id!==user.id)return;
+ const changed=session.user.email&&user.email&&session.user.email.toLowerCase()!==user.email.toLowerCase();
+ session={...session,user};$('#profile-account-phone').textContent=user.email||'';
+ if(!contactEmailEdited)$('#p-email').value=preferredProfileEmail(user);updateEmailHint();
+ if(changed)saveMessage('E-posta değişikliğin onaylandı. Yeni adres eskisinin yerine geçti; kayıtların ve yetkilerin aynı hesapta kaldı.');
+}
+async function refreshAccountEmail(){
+ if(!session||!client||emailRefreshPending)return;
+ const owner=session.user.id,load=profileLoad;emailRefreshPending=true;lastEmailRefresh=Date.now();
+ try{const user=await freshAccountUser(client,owner);if(load===profileLoad&&session?.user.id===owner)updateAccountUser(user);}catch{/* Profile fields remain usable when a status refresh fails. */}finally{emailRefreshPending=false;}
+}
+window.addEventListener('focus',()=>{if(Date.now()-lastEmailRefresh>30000)refreshAccountEmail();});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&Date.now()-lastEmailRefresh>30000)refreshAccountEmail();});
+if(cfg.url&&cfg.publishableKey){client=(regionalClient||createClient(cfg.url,cfg.publishableKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}));const {data}=await client.auth.getSession();await show(data.session);client.auth.onAuthStateChange((event,s)=>{if(registering)return;if((event==='SIGNED_IN'||event==='SIGNED_OUT')&&session?.user.id!==s?.user.id)setTimeout(()=>show(s),0);else if(['USER_UPDATED','TOKEN_REFRESHED','SIGNED_IN'].includes(event)&&s?.user.id===session?.user.id)updateAccountUser(s.user);});}
 else{setMode('login');status('#auth-status',__avt("Hesap servisi bağlanamadı."),true);}
