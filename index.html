@@ -31,6 +31,14 @@
 /* Keep the farmer and phone in view across screen sizes. */
 .home-fields-page .hero-photo{object-position:72% center}
 @media(max-width:760px){.home-fields-page .hero-photo{object-position:82% center}}
+/* Give the mobile portrait its own window, independent of the farm list height. */
+@media(max-width:600px){
+ .home-fields-page .hero{background:var(--night)}
+ .home-fields-page .hero-media,.home-fields-page .hero-shade{inset:0 0 auto;height:calc(var(--home-nav-height,142px) + clamp(310px,83vw,380px))}
+ .home-fields-page .hero-photo{object-position:center top;transform:none;will-change:auto}
+ .home-fields-page .hero-shade{background:linear-gradient(180deg,rgba(7,10,6,.25) 0%,rgba(7,10,6,0) 25%,rgba(7,10,6,.08) 60%,var(--night) 100%)}
+ .home-fields-page .hero .hero-inner{padding-top:calc(var(--home-nav-height,142px) + clamp(210px,58vw,280px))}
+}
 </style>
 <link rel="stylesheet" href="assets/site-contact.css?v=contact-v1">
 </head>
@@ -74,6 +82,7 @@
 <!-- HERO -->
 <section class="hero" id="top">
   <picture class="hero-media" aria-hidden="true">
+    <source media="(max-width:600px)" type="image/webp" srcset="assets/images/hero-farmer-mobile-v1.webp?v=mobile-v1" width="960" height="1280">
     <img class="hero-photo" src="assets/images/hero-farmer-orange-canola.jpg?v=orange-canola-v1" alt="Farklı ürünlerin yetiştiği tarlaları telefonundan takip eden çiftçi" width="1672" height="941" fetchpriority="high">
   </picture>
   <div class="hero-shade"></div>
