@@ -8,7 +8,7 @@ Yönetici yetkisi mevcut kullanıcı kimliğine bağlıdır; e-posta değişikli
 1. Resend hesabını agroverixinfo@gmail.com adresiyle açın ve hesabın e-posta doğrulamasını tamamlayın. Gmail şifresi veya Gmail uygulama şifresi gerekmez.
 2. Resend → API Keys bölümünden yalnızca gönderim yetkili (Sending access) bir anahtar oluşturun. Anahtarı sohbete veya kaynak koduna yazmayın.
 3. Supabase → Edge Functions → Secrets alanında RESEND_API_KEY adlı gizli değere bu anahtarı kendiniz girip kaydedin.
-4. Bağlantı kaydedildiğinde sunucu kontrol çağrısını çalıştırıp sonucu doğrulayın; ardından agroverix-admin-notifications zamanlayıcısını yeniden açın. Gmail denemesi reddedildiği için bu iş şu an duraklatılmıştır. Bekleyen bildirimler korunur.
+4. Bağlantı kaydedildiğinde sunucu kontrol çağrısını çalıştırıp sonucu doğrulayın. agroverix-admin-notifications zamanlayıcısı duraklatılmışsa başarılı gönderimden sonra yeniden açın. Duraklama sırasında bekleyen bildirimler korunur.
 
 Deneme göndericisi AgroVerix <onboarding@resend.dev> olarak ayarlıdır. Resend bu göndericiden yalnızca Resend hesabınızın kendi adresine deneme gönderimine izin verir; hesabı agroverixinfo@gmail.com ile açın. Başka bir adresle açılmış Resend hesabında bu kısıtlama kalkmaz.
 Canlı kullanımda agroverix.com altında bir gönderim alt alanını Resend'de DNS kayıtlarıyla doğrulayın; sonra EMAIL_FROM gizli ayarına o alan adındaki gönderici adresini girin. Örnek: AgroVerix <bildirim@send.agroverix.com>. DNS doğrulanmadan bu örneği kullanmayın.
