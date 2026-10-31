@@ -1,29 +1,42 @@
-# AgroVerix yönetici bildirimleri
+# AgroVerix yönetici bildirimleri — Resend
 
 Alıcı ve herkese açık iletişim adresi: agroverixinfo@gmail.com.
 Yönetici yetkisi mevcut kullanıcı kimliğine bağlıdır; e-posta değişikliği yeni yetki oluşturmaz.
 
 ## Son bağlantı adımı
 
-Gmail hesabında iki adımlı doğrulamayı etkinleştirip bir uygulama şifresi oluşturun.
-Supabase projesinde Edge Functions → Secrets alanında `SMTP_PASSWORD` isimli gizli değere bu uygulama şifresini kendiniz girip kaydedin. Şifreyi sohbete veya kaynak koduna yazmayın.
-Varsayılan gönderici agroverixinfo@gmail.com, sunucu smtp.gmail.com, TLS portu 465'tir.
-Gmail politikası uygulama şifresine izin vermiyorsa başka bir SMTP hizmeti bağlanmalıdır.
+1. Resend hesabını agroverixinfo@gmail.com adresiyle açın ve hesabın e-posta doğrulamasını tamamlayın. Gmail şifresi veya Gmail uygulama şifresi gerekmez.
+2. Resend → API Keys bölümünden yalnızca gönderim yetkili (Sending access) bir anahtar oluşturun. Anahtarı sohbete veya kaynak koduna yazmayın.
+3. Supabase → Edge Functions → Secrets alanında RESEND_API_KEY adlı gizli değere bu anahtarı kendiniz girip kaydedin.
+4. Bağlantı kaydedildiğinde sunucu kontrol çağrısını çalıştırıp sonucu doğrulayın; ardından agroverix-admin-notifications zamanlayıcısını yeniden açın. Gmail denemesi reddedildiği için bu iş şu an duraklatılmıştır. Bekleyen bildirimler korunur.
+
+Deneme göndericisi AgroVerix <onboarding@resend.dev> olarak ayarlıdır. Resend bu göndericiden yalnızca Resend hesabınızın kendi adresine deneme gönderimine izin verir; hesabı agroverixinfo@gmail.com ile açın. Başka bir adresle açılmış Resend hesabında bu kısıtlama kalkmaz.
+Canlı kullanımda agroverix.com altında bir gönderim alt alanını Resend'de DNS kayıtlarıyla doğrulayın; sonra EMAIL_FROM gizli ayarına o alan adındaki gönderici adresini girin. Örnek: AgroVerix <bildirim@send.agroverix.com>. DNS doğrulanmadan bu örneği kullanmayın.
+
+Resend'in 31 Ekim 2026 itibarıyla Free planı günde 100, ayda 3.000 e-posta içeriyor. Ücretli plan veya kota aşım ödemesi açılmadı. Her giriş bir bildirim oluşturduğu için kullanım büyüdüğünde kotalar izlenmelidir.
+Önceki SMTP_PASSWORD değeri bu gönderici tarafından okunmaz.
 
 ## Kurulum ve davranış
 
-1. `20261031-admin-notifications.sql` geçişini PostgreSQL yönetici bağlantısıyla çalıştırın.
-2. `functions/admin-notify/index.ts` dosyasını `admin-notify` Edge Function olarak yayınlayın. JWT doğrulaması açık kalmalıdır.
-3. Özel notification_settings tablosundaki gateway_key alanına projenin eski herkese açık anon JWT anahtarını girin. service_role anahtarını buraya koymayın. Ayrı rastgele worker_key veritabanında oluşturulur ve istemciye verilmez.
-4. SMTP_PASSWORD gizli değerini yukarıdaki yöntemle kaydedin.
+1. 20261031-admin-notifications.sql geçişini PostgreSQL yönetici bağlantısıyla çalıştırın.
+2. functions/admin-notify/index.ts dosyasını admin-notify Edge Function olarak yayınlayın. JWT doğrulaması açık kalmalıdır.
+3. Özel notification_settings tablosundaki gateway_key alanında projenin eski herkese açık anon JWT anahtarı kullanılır; service_role anahtarını buraya koymayın. Ayrı rastgele worker_key veritabanında oluşturulur ve istemciye verilmez.
+4. Yukarıdaki Resend bağlantısını tamamlayın.
 
-Yeni üyelik ve başarılı giriş olayları sunucuda sıraya alınır. Beş dakikada bir en fazla üç bildirim işlenir. İlk kurulum kontrol bildirimi de sıraya eklenir. SMTP bağlantısı yokken olaylar tüketilmez. Bağlantı sorunlarında sınırlı yeniden deneme yapılır; başarısız olaylar korunur.
-
+Yeni üyelik ve başarılı giriş olayları sunucuda sıraya alınır. Zamanlayıcı açıkken beş dakikada bir en fazla üç bildirim işlenir. Resend bağlantısı yokken olaylar tüketilmez. Bağlantı sorunlarında sınırlı yeniden deneme yapılır; başarısız olaylar korunur.
 E-postalar olay türü, zaman ve yönetici sayfası bağlantısı içerir; çiftçilerin kimlik, telefon, tarla veya mali kayıtları gönderilmez. Alıcı HTTP isteğinden alınmaz. Yönetici panelindeki durum düğmesi yalnızca durumu okur.
-
-Kaynak olay anahtarı tekrar kuyruğa girişi önler; işleme kiraları eşzamanlı çalışmaları sınırlar. SMTP kabulü sonrası veritabanı onayı kaybolursa nadiren aynı e-posta tekrar gönderilebilir; sabit Message-ID kullanılır. Bu sistem teslimat için mutlak tek-sefer garantisi vermez.
+Resend API'sinden başarılı HTTP yanıtı ve e-posta işlem kimliği alınmadan olay gönderilmiş sayılmaz. API kabulü, gelen kutusuna teslim edildiğinin kesin kanıtı değildir; teslimat ayrıca Resend panelinden veya alıcı gelen kutusundan kontrol edilmelidir.
+Resend'in olay kimliği tabanlı Idempotency-Key koruması 24 saat geçerlidir. Çok daha sonra tekrarlanan, sonucu belirsiz bir gönderim için mutlak tek-sefer garantisi yoktur. Zaman aşımı 10 saniye; yanıt gövdeleri, anahtarlar ve ayrıntılı sağlayıcı hataları kaydedilmez.
 
 ## Kontrol
 
-Yönetici alanında Yönetici Bildirimleri bölümünden gönderim durumunu ve bekleyen/gönderilen sayılarını kontrol edin. Giriş yapmamış kullanıcılar veya normal üyeler bu durum bilgilerine erişemez.
-Gerçek SMTP teslimatı ancak uygulama şifresi bağlandıktan sonra doğrulanabilir. Yerel worker.test.mjs testleri sahte SMTP ile çalışır; gerçek e-posta göndermez.
+Yönetici alanındaki Yönetici Bildirimleri bölümünde bağlantı ve bekleyen/gönderilen sayıları görünür. Anonim kullanıcılar ve normal üyeler bu durum bilgilerine erişemez.
+Yerel denetim: node --test supabase/tests/admin-notify.test.mjs
+Testler gerçek sağlayıcıya bağlantı kurmaz veya e-posta göndermez.
+Gerçek teslimat yalnızca Resend hesabı ve RESEND_API_KEY bağlandıktan sonra doğrulanabilir.
+
+Resmi kaynaklar:
+- https://resend.com/docs/send-with-supabase-edge-functions
+- https://resend.com/docs/api-reference/emails/send-email
+- https://resend.com/docs/api-reference/errors
+- https://resend.com/pricing
