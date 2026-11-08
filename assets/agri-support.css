@@ -79,7 +79,7 @@
   #agri-support .agri-launcher-copy strong { font-size: 17px; }
   #agri-support .agri-launcher-copy > span { font-size: 12px; }
   #agri-support .agri-launcher-portrait { width: 64px; height: 78px; border-radius: 0 0 15px 0; }
-  #agri-support .agri-panel { width: 350px; max-width: calc(100vw - 24px); max-height: calc(100dvh - 24px); }
+  #agri-support .agri-panel { width: 350px; max-width: calc(100vw - 40px); max-height: calc(100dvh - 24px); }
 }
 @media (prefers-reduced-motion: no-preference) {
   #agri-support .agri-launcher-portrait { animation: agri-hello 650ms ease-out 1; transform-origin: 50% 100%; }
