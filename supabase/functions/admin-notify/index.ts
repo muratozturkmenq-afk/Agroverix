@@ -2,7 +2,7 @@ import {createClient} from 'npm:@supabase/supabase-js@2.117.1';
 
 const json=(value,status=200)=>Response.json(value,{status});
 const site='https://agroverix.com/yonetici.html';
-const subjects={signup:'AgroVerix · Yeni üye kaydı',login:'AgroVerix · Üye girişi',system_test:'AgroVerix · Bildirim bağlantısı hazır'};
+const subjects={signup:'AgroVerix · Yeni üye kaydı',system_test:'AgroVerix · Bildirim bağlantısı hazır'};
 
 function memberDetails(event){
  if(event.kind!=='signup')return '';
@@ -10,7 +10,9 @@ function memberDetails(event){
  const clean=(value,limit)=>typeof value==='string'?value.replace(/[\u0000-\u001f\u007f]+/g,' ').replace(/\s+/g,' ').trim().slice(0,limit):'';
  const name=clean(profile.full_name,120),province=clean(profile.province,100),district=clean(profile.district,100);
  if(!name||!province||!district)throw Object.assign(new Error('Signup profile not ready'),{code:'SIGNUP_PROFILE_MISSING'});
- return '\n\nYeni üye bilgileri:\nAdı Soyadı: '+name+'\nİl: '+province+'\nİlçe: '+district;
+ const membership=event.membership||{},number=membership.member_number,count=membership.member_count;
+ if(!Number.isSafeInteger(number)||number<1||!Number.isSafeInteger(count)||count<0||membership.member_code!=='AV-'+String(number).padStart(6,'0'))throw Object.assign(new Error('Member identity not ready'),{code:'MEMBER_IDENTITY_MISSING'});
+ return '\n\nÜye Kodu: '+membership.member_code+'\nÜyelik Sırası: '+number+'\nToplam Kayıtlı Üye (bildirim hazırlanırken): '+count+'\n\nYeni üye bilgileri:\nAdı Soyadı: '+name+'\nİl: '+province+'\nİlçe: '+district;
 }
 
 Deno.serve(async req=>{
@@ -31,13 +33,13 @@ Deno.serve(async req=>{
  // Use a verified sending domain via EMAIL_FROM before sending to other recipients.
  const from=(Deno.env.get('EMAIL_FROM')||'AgroVerix <onboarding@resend.dev>').trim();
  let sent=0,failed=0;
- for(const event of events||[]){
+ for(const event of (events||[]).filter(event=>event.kind!=='login')){
   if(sent+failed)await new Promise(resolve=>setTimeout(resolve,600));
   try{
    const subject=subjects[event.kind];if(!subject)throw new Error('UNKNOWN_EVENT');
    const when=new Intl.DateTimeFormat('tr-TR',{dateStyle:'long',timeStyle:'short',timeZone:'Europe/Istanbul'}).format(new Date(event.occurred_at));
    const member=memberDetails(event);
-   const detail=event.kind==='signup'?'AgroVerix üzerinde yeni bir üyelik oluşturuldu.':event.kind==='login'?'AgroVerix üzerinde bir üye girişi gerçekleşti.':'AgroVerix yönetici bildirimleri için e-posta bağlantısı çalışıyor.';
+   const detail=event.kind==='signup'?'AgroVerix üzerinde yeni bir üyelik oluşturuldu.':'AgroVerix yönetici bildirimleri için e-posta bağlantısı çalışıyor.';
    // Fixed recipient comes only from the protected queue, never from the HTTP request.
    // Notifications do not contain identity numbers, phones, passwords or farm records.
    const response=await fetch('https://api.resend.com/emails',{method:'POST',
@@ -52,7 +54,7 @@ Deno.serve(async req=>{
    if(result.error||result.data!==true)return json({error:'delivery_acknowledgement_pending'},503);
    sent++;
   }catch(error){
-   failed++;const code=/^(RESEND_(HTTP_\d{3}|INVALID_RESPONSE)|SIGNUP_PROFILE_MISSING)$/.test(error?.code||'')?error.code:'RESEND_REQUEST_FAILED';
+   failed++;const code=/^(RESEND_(HTTP_\d{3}|INVALID_RESPONSE)|SIGNUP_PROFILE_MISSING|MEMBER_IDENTITY_MISSING)$/.test(error?.code||'')?error.code:'RESEND_REQUEST_FAILED';
    await db.rpc('agroverix_notification_finish',{p_worker_key:worker,p_id:event.id,p_lease_id:event.lease_id,p_sent:false,p_error:code});
    await db.rpc('agroverix_notification_transport',{p_worker_key:worker,p_ready:false,p_error:code});
   }

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import vm from 'node:vm';
 const source=(await fs.readFile(new URL('../functions/admin-notify/index.ts',import.meta.url),'utf8')).replace(/^import .*;\r?\n/gm,'');
-const key='a'.repeat(64),notice={id:'notice-1',kind:'signup',occurred_at:'2026-10-31T10:00:00Z',lease_id:'lease-1',recipient:'agroverixinfo@gmail.com',profile:{full_name:'Örnek Test Üyesi',province:'Şanlıurfa',district:'Haliliye'}};
+const key='a'.repeat(64),notice={id:'notice-1',kind:'signup',occurred_at:'2026-10-31T10:00:00Z',lease_id:'lease-1',recipient:'agroverixinfo@gmail.com',membership:{member_number:12,member_code:'AV-000012',member_count:12},profile:{full_name:'Örnek Test Üyesi',province:'Şanlıurfa',district:'Haliliye'}};
 function setup({apiKey='test-only-api-key',events=[notice],denied=false,providerStatus=200,providerBody={id:'provider-1'},providerError=null,ack=true,from}={}){
  const calls=[],requests=[],timeouts=[];
  const env={SUPABASE_URL:'https://project.example.test',SUPABASE_SERVICE_ROLE_KEY:'test-only-service-key',RESEND_API_KEY:apiKey,EMAIL_FROM:from};
@@ -31,6 +31,11 @@ test('HTTPS requests use a bounded timeout and keep API key out of URL and messa
 test('configured verified-domain sender is used without accepting caller settings',async()=>{const f=setup({from:'AgroVerix <bildirim@notifications.example.test>'});await f.run();assert.equal(JSON.parse(f.requests[0].options.body).from,'AgroVerix <bildirim@notifications.example.test>');});
 
 test('one-time signup message includes only the three approved profile fields',async()=>{const f=setup();await f.run();const text=JSON.parse(f.requests[0].options.body).text;assert.match(text,/Adı Soyadı: Örnek Test Üyesi/);assert.match(text,/İl: Şanlıurfa/);assert.match(text,/İlçe: Haliliye/);});
-test('later login messages never repeat member details even if payload has a profile',async()=>{const f=setup({events:[{...notice,kind:'login'}]});await f.run();const text=JSON.parse(f.requests[0].options.body).text;assert.doesNotMatch(text,/Örnek Test Üyesi|Şanlıurfa|Haliliye|Adı Soyadı|Yeni üye bilgileri/);});
+test('later login events never send any email',async()=>{const f=setup({events:[{...notice,kind:'login'}]});const r=await f.run();assert.equal(f.requests.length,0);assert.deepEqual(await r.json(),{sent:0,failed:0});});
 test('incomplete signup details cannot produce a generic premature signup email',async()=>{const f=setup({events:[{...notice,profile:{full_name:'Örnek Test Üyesi'}}]});await f.run();assert.equal(f.requests.length,0);const ack=f.calls.find(c=>c.name==='agroverix_notification_finish');assert.equal(ack.args.p_sent,false);assert.equal(ack.args.p_error,'SIGNUP_PROFILE_MISSING');});
 test('member display values collapse line breaks and ignore extra fields',async()=>{const f=setup({events:[{...notice,profile:{full_name:' Örnek\r\nTest ',province:' Şanlıurfa ',district:' Haliliye ',phone:'private-number',identity_number:'private-identity'}}]});await f.run();const text=JSON.parse(f.requests[0].options.body).text;assert.match(text,/Adı Soyadı: Örnek Test\nİl: Şanlıurfa\nİlçe: Haliliye/);assert.doesNotMatch(text,/private-number|private-identity/);});
+
+test('signup mail includes stable member code, registration order and snapshotted count',async()=>{const f=setup();await f.run();const text=JSON.parse(f.requests[0].options.body).text;assert.match(text,/Üye Kodu: AV-000012/);assert.match(text,/Üyelik Sırası: 12/);assert.match(text,/Toplam Kayıtlı Üye \(bildirim hazırlanırken\): 12/);});
+test('missing membership cannot send incomplete signup notice',async()=>{const f=setup({events:[{...notice,membership:null}]});await f.run();assert.equal(f.requests.length,0);assert.equal(f.calls.find(c=>c.name==='agroverix_notification_finish').args.p_error,'MEMBER_IDENTITY_MISSING');});
+test('member code must match the server-issued number',async()=>{const f=setup({events:[{...notice,membership:{member_number:12,member_code:'AV-000013',member_count:12}}]});await f.run();assert.equal(f.requests.length,0);});
+test('system connection checks work without membership data',async()=>{const f=setup({events:[{...notice,kind:'system_test',membership:null,profile:null}]});await f.run();assert.equal(f.requests.length,1);assert.doesNotMatch(JSON.parse(f.requests[0].options.body).text,/Üye Kodu|Üyelik Sırası/);});

@@ -13,9 +13,10 @@ if(panel&&client){
      const {data,error}=await client.rpc('agroverix_admin_notification_status');if(error)throw error;
      document.querySelector('#notification-recipient').textContent=data.recipient;
      document.querySelector('#notification-state').textContent=data.transport_ready?'Bağlı':data.last_error&&!['SMTP_PASSWORD_MISSING','RESEND_API_KEY_MISSING'].includes(data.last_error)?'Bağlantı kontrol edilmeli':'E-posta bağlantısı bekleniyor';
+     document.querySelector('#notification-members').textContent=String(data.member_count??'—');
      document.querySelector('#notification-pending').textContent=String(data.pending||0);
      document.querySelector('#notification-sent').textContent=String(data.sent||0);
-     document.querySelector('#notification-help').textContent=data.transport_ready?'Yeni üyelik ve giriş bildirimleri bu adrese gönderilir.':'Bildirimler sırada saklanıyor. E-posta hesabının bağlantısı tamamlandığında gönderim başlayacak.';
+     document.querySelector('#notification-help').textContent=data.transport_ready?'Yeni üyelikte bir kez ad soyad, il, ilçe, üye kodu ve üyelik sırası bildirilir. Üye girişlerinde e-posta gönderilmez.':'Bildirimler sırada saklanıyor. E-posta hesabının bağlantısı tamamlandığında gönderim başlayacak.';
      if(data.failed)document.querySelector('#notification-help').textContent+=' '+data.failed+' bildirim gönderilemedi; gönderim bağlantısını kontrol et.';
     }catch{document.querySelector('#notification-help').textContent='Bildirim durumu yüklenemedi. Biraz sonra Durumu Yenile düğmesiyle tekrar dene.';}
     finally{button.disabled=false;}

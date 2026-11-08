@@ -4,7 +4,7 @@ await regionalReady;
 const I=window.AgroIntl;
 const __avt=s=>I.t(s);
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
-import { reportData,saveReport,seasonResults } from './reports.js?v=international-v1';
+import { reportData,saveReport,seasonResults } from './reports.js?v=member-codes-v1';
 import { fmt,appendMetric } from './farm-finance.js?v=international-v1';
 const $=id=>document.getElementById(id),cfg=window.AGROVERIX_SUPABASE||{};let client,session,scopeData=null;
 const money=(n,code=I.currency)=>n===null?'—':I.money(n,code);
@@ -27,7 +27,7 @@ else{
  else{const check=await client.rpc('is_agroverix_admin');if(check.error||!check.data){$('admin-access-status').textContent=__avt("Bu hesabın yönetici yetkisi bulunmuyor.");}
  else{try{let accounts=[];for(let offset=0;;offset+=500){const {data,error}=await client.rpc('agroverix_admin_report_rows',{p_dataset:'accounts',p_offset:offset,p_limit:500,p_user_id:null});if(error)throw error;accounts.push(...data);if(data.length<500)break;}
   $('admin-account').textContent=session.user.email;$('admin-access-status').hidden=true;$('admin-content').hidden=false;
-  accounts.forEach(a=>{const label=a.full_name? a.full_name+' · '+a.email:a.email||a.user_id;$('admin-farmer').add(new Option(label,a.user_id));const tr=document.createElement('tr');[a.full_name||__avt("Profil bilgisi yok"),a.email||'—',a.phone||'—',a.sms_consent?__avt("İzinli"):__avt("İzin yok"),a.phone_confirmed?__avt("Doğrulanmış"):__avt("Doğrulanmamış")].forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.append(td);});$('admin-farmer-rows').append(tr);});
+  accounts.forEach(a=>{const label=(a.member_code?a.member_code+' · ':'')+(a.full_name? a.full_name+' · '+a.email:a.email||a.user_id);$('admin-farmer').add(new Option(label,a.user_id));const tr=document.createElement('tr');[a.member_code||'—',a.member_number??'—',a.full_name||__avt("Profil bilgisi yok"),a.email||'—',a.phone||'—',a.sms_consent?__avt("İzinli"):__avt("İzin yok"),a.phone_confirmed?__avt("Doğrulanmış"):__avt("Doğrulanmamış")].forEach(v=>{const td=document.createElement('td');td.textContent=v;tr.append(td);});$('admin-farmer-rows').append(tr);});
  }catch(error){$('admin-access-status').textContent=__avt("Yönetici listesi yüklenemedi. Yeniden giriş yapıp dene.");}}
  }
 }

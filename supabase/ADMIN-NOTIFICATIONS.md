@@ -13,18 +13,18 @@ Yönetici yetkisi mevcut kullanıcı kimliğine bağlıdır; e-posta değişikli
 Deneme göndericisi AgroVerix <onboarding@resend.dev> olarak ayarlıdır. Resend bu göndericiden yalnızca Resend hesabınızın kendi adresine deneme gönderimine izin verir; hesabı agroverixinfo@gmail.com ile açın. Başka bir adresle açılmış Resend hesabında bu kısıtlama kalkmaz.
 Canlı kullanımda agroverix.com altında bir gönderim alt alanını Resend'de DNS kayıtlarıyla doğrulayın; sonra EMAIL_FROM gizli ayarına o alan adındaki gönderici adresini girin. Örnek: AgroVerix <bildirim@send.agroverix.com>. DNS doğrulanmadan bu örneği kullanmayın.
 
-Resend'in 31 Ekim 2026 itibarıyla Free planı günde 100, ayda 3.000 e-posta içeriyor. Ücretli plan veya kota aşım ödemesi açılmadı. Her giriş bir bildirim oluşturduğu için kullanım büyüdüğünde kotalar izlenmelidir.
+Resend'in 31 Ekim 2026 itibarıyla Free planı günde 100, ayda 3.000 e-posta içeriyor. Ücretli plan veya kota aşım ödemesi açılmadı. Yalnızca yeni üyelik bildirimi gönderilir; her giriş için e-posta gönderilmez. Kota kullanımını yeni üyelikler ve bağlantı testleri oluşturur.
 Önceki SMTP_PASSWORD değeri bu gönderici tarafından okunmaz.
 
 ## Kurulum ve davranış
 
-1. Önce 20261031-admin-notifications.sql, ardından 20261031-signup-notice-profile.sql geçişlerini PostgreSQL yönetici bağlantısıyla çalıştırın.
+1. Önce 20261031-admin-notifications.sql, ardından 20261031-signup-notice-profile.sql ve 20261108-member-codes-signup-only.sql geçişlerini PostgreSQL yönetici bağlantısıyla çalıştırın. Son geçiş gönderim zamanlayıcısını durdurur; eşleşen admin-notify işlevi yayımlanıp kontroller bitince zamanlayıcı yeniden açılmalıdır.
 2. functions/admin-notify/index.ts dosyasını admin-notify Edge Function olarak yayınlayın. JWT doğrulaması açık kalmalıdır.
 3. Özel notification_settings tablosundaki gateway_key alanında projenin eski herkese açık anon JWT anahtarı kullanılır; service_role anahtarını buraya koymayın. Ayrı rastgele worker_key veritabanında oluşturulur ve istemciye verilmez.
 4. Yukarıdaki Resend bağlantısını tamamlayın.
 
-Yeni üyelik ve başarılı giriş olayları sunucuda sıraya alınır. Zamanlayıcı açıkken beş dakikada bir en fazla üç bildirim işlenir. Resend bağlantısı yokken olaylar tüketilmez. Bağlantı sorunlarında sınırlı yeniden deneme yapılır; başarısız olaylar korunur.
-E-postalar olay türü, zaman ve yönetici sayfası bağlantısı içerir. Yalnızca ilk yeni üyelik bildiriminde, kullanıcının talebiyle Adı Soyadı, İl ve İlçe de yer alır. Bu üç alan farmer_profiles kaydından okunur; Türkiye il/ilçe kodları sitenin mevcut yer listesiyle adlara çevrilir. Alanlar eksikse üyelik bildirimi tüketilmeden bekler. İlk gönderim için hazırlanan üç alan özel kuyrukta sabitlenir; yeniden denemeler aynı içeriği kullanır. Kullanıcı başına yalnızca bir signup kaydı tutulur; sonraki profil düzenlemeleri yeni üyelik bildirimi oluşturmaz. Normal giriş bildirimlerinde bu bilgiler tekrarlanmaz. Kimlik numarası, telefon, e-posta, köy/adres, tarla ve mali kayıtlar gönderilmez. Alıcı HTTP isteğinden alınmaz. Yönetici panelindeki durum düğmesi yalnızca durumu okur.
+Yalnızca yeni üyelik olayları sunucuda sıraya alınır. Eski giriş olayları gönderilmez; geçmiş kayıtları özel denetim tablosunda korunur. Zamanlayıcı açıkken beş dakikada bir en fazla üç bildirim işlenir. Resend bağlantısı yokken olaylar tüketilmez. Bağlantı sorunlarında sınırlı yeniden deneme yapılır; başarısız olaylar korunur.
+Yalnızca yeni üyelik e-postası gönderilir: Adı Soyadı, İl, İlçe, Üye Kodu, Üyelik Sırası ve bildirim hazırlanırken toplam kayıtlı üye sayısı. İl/ilçe adları mevcut adres listesinden çevrilir. Profil alanları eksikse bildirim bekler. Profil ve üyelik bilgileri ilk gönderim hazırlığında ayrı özel alanlarda sabitlenir; yeniden denemelerde aynı içerik kullanılır. Sonraki profil değişiklikleri veya girişler yeni üyelik bildirimi oluşturmaz. Kimlik numarası, telefon, üyenin e-postası, köy/adres, tarla ve mali kayıtlar e-postaya eklenmez. Alıcı HTTP isteğinden alınmaz.
 Resend API'sinden başarılı HTTP yanıtı ve e-posta işlem kimliği alınmadan olay gönderilmiş sayılmaz. API kabulü, gelen kutusuna teslim edildiğinin kesin kanıtı değildir; teslimat ayrıca Resend panelinden veya alıcı gelen kutusundan kontrol edilmelidir.
 Resend'in olay kimliği tabanlı Idempotency-Key koruması 24 saat geçerlidir. Çok daha sonra tekrarlanan, sonucu belirsiz bir gönderim için mutlak tek-sefer garantisi yoktur. Zaman aşımı 10 saniye; yanıt gövdeleri, anahtarlar ve ayrıntılı sağlayıcı hataları kaydedilmez.
 
@@ -40,3 +40,11 @@ Resmi kaynaklar:
 - https://resend.com/docs/api-reference/emails/send-email
 - https://resend.com/docs/api-reference/errors
 - https://resend.com/pricing
+
+## Yöneticiye özel üye kodları
+
+Kod biçimi AV-000001 şeklindedir. İlk uygulamada mevcut hesaplara Auth kayıt tarihine göre sıra verilir. Sonraki hesaplara işlem içinde kilitlenen sayaçla yeni ve tekil sıra verilir; başarısız işlemler sayacı ilerletmez. E-posta, telefon ve profil değişiklikleri kodu değiştirmez. Hesap silinirse kod yeniden kullanılmaz; aktif kayıtlı üye sayısı ile tarihsel üyelik sırası bu nedenle farklı olabilir. Toplam üye sayısı doğrulanmamış hesaplar dahil mevcut Auth hesaplarını sayar.
+
+member_registry ve member_counter özel şemada, zorunlu RLS ve istemci erişim yasaklarıyla korunur. Üye kodları çiftçi profiline, Auth kullanıcı metadatasına veya çiftçinin kendi Excel raporuna eklenmez. Yalnızca mevcut yönetici yetkisiyle accounts raporunda, yönetici listesindeki Üye Kodu / Üyelik Sırası sütunlarında ve yeni üyelik e-postasında gösterilir. Kod bir giriş şifresi değildir; yönetici yetkisi kullanıcı kimliğine bağlı kalır.
+
+Sunucu kontrolleri: supabase/tests/member-codes-signup-only.sql. Testler gerçek Auth hesabı veya gerçek mesaj oluşturmaz; bütün test verileri rollback ile geri alınır.
