@@ -8,7 +8,7 @@
   root.setAttribute('data-lenis-prevent', '');
   root.innerHTML = `
     <button class="agri-launcher" type="button" aria-label="Agri ile destek mesajı yaz" aria-expanded="false" aria-controls="agri-panel">
-      <span class="agri-launcher-copy"><strong>Agri</strong><span>Bir sorun mu var?</span></span>
+      <span class="agri-launcher-copy"><strong>Agri</strong><span>Nasıl yardımcı olabilirim?</span></span>
       <span class="agri-launcher-portrait"><img width="600" height="657" alt="" decoding="async"></span>
     </button>
     <section class="agri-panel" id="agri-panel" role="dialog" aria-labelledby="agri-title" aria-describedby="agri-role" hidden>
