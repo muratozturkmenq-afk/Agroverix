@@ -3,14 +3,16 @@ import {ready as regionalReady,client as regionalClient} from './regional-contex
 await regionalReady;
 const I=window.AgroIntl;
 const __avt=s=>I.t(s);
-import {bindNumberInput,parseNumberInput,setNumberInputValue} from './number-input.js?v=international-v1';
+import {formatDetailNumber as fmt,setDetailInputValue as setNumberInputValue,readDetailInputValue,bindDetailInput} from './detail-number-format.js?v=two-decimals-v1';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
-import { farmFinance,seasonFor,fmt,appendMetric,appendSupportMetrics,operationLabels,serviceTypes } from './farm-finance.js?v=international-v1';
+import { farmFinance,seasonFor,appendMetric as sharedMetric,appendSupportMetrics as sharedSupportMetrics,operationLabels,serviceTypes } from './farm-finance.js?v=detail-decimals-v1';
 import { costPerDecare } from './operation-cost.js?v=international-v1';
 import { locationLabels } from './location-labels.js?v=international-v1';
 const $=id=>document.getElementById(id),params=new URLSearchParams(location.search),farmId=params.get('farm'),cfg=window.AGROVERIX_SUPABASE||{};
 let farm,records=[],admin,editing=false,client=null,session=null,savingActual=false,actualFormYear=null;
-['actual-yield','actual-price','actual-support'].forEach(id=>bindNumberInput($(id),{maximumFractionDigits:id==='actual-yield'?6:2}));
+['actual-yield','actual-price','actual-support'].forEach(id=>bindDetailInput($(id)));
+const appendMetric=(parent,label,value,unit='')=>sharedMetric(parent,label,value,unit,'finance-metric',fmt);
+const appendSupportMetrics=(parent,result)=>sharedSupportMetrics(parent,result,fmt);
 function element(tag,text,cls){const e=document.createElement(tag);e.textContent=text;if(cls)e.className=cls;return e;}
 function report(parent,result){appendMetric(parent,__avt("Kg Başına Maliyet"),result.costKg,__avt("TL/kg"));appendMetric(parent,__avt("Toplam Ürün"),result.kg,'kg');appendMetric(parent,__avt("Satış Geliri"),result.revenue,__avt("TL"));appendMetric(parent,__avt("Toplam Kâr / Zarar"),result.profit,__avt("TL"));appendMetric(parent,__avt("Kâr / Zarar Oranı"),result.percent,'%');appendMetric(parent,__avt("Kg Başına Kâr / Zarar"),result.unitProfit,__avt("TL/kg"));appendSupportMetrics(parent,result);}
 function render(){
@@ -22,9 +24,9 @@ function render(){
  $('add-operation').href='uretim-kayitlari.html?farm='+farm.id+'&year='+year;
  $('new-season').href='tarla-bilgileri.html?edit='+farm.id+'&year='+(Math.max(...farm.farmer_seasons.map(s=>s.season_year))+1);
  if(actualFormYear!==year){['yield','price','support'].forEach(key=>setNumberInputValue($('actual-'+key),key==='yield'?perAreaDisplay(c.actualYield):key==='price'?c.actualPrice:season?.actual_support));actualFormYear=year;$('actual-save-status').textContent='';}
- const draft={};['yield','price','support'].forEach(key=>draft['actual_'+key]=key==='yield'?perAreaStored(parseNumberInput($('actual-'+key).value)):parseNumberInput($('actual-'+key).value));
+ const draft={};['yield','price','support'].forEach(key=>draft['actual_'+key]=key==='yield'?perAreaStored(readDetailInputValue($('actual-'+key))):readDetailInputValue($('actual-'+key)));
  const actual=$('actual-report'),expected=$('expected-report');actual.replaceChildren();expected.replaceChildren();report(actual,farmFinance(farm,records,year,draft).actual);report(expected,c.expected);
- $('actual-report-note').textContent=c.actualFromSales?fmt(season.harvest_sale_count)+__avt(" satış / araç kaydından ")+fmt(c.actual.kg)+__avt(" kg hasat ve ")+Number(c.actualPrice).toLocaleString(I.locale,{minimumFractionDigits:2,maximumFractionDigits:2})+__avt(" TL/kg ağırlıklı ortalama fiyat hesaplandı. Verim ve satış değişikliklerini Hasat & Satış sayfasından yap."):season?.actual_yield==null?__avt("Hasattan sonra bu tarla ve seçili sezon için gerçek verim, satış fiyatı ve gerçekleşen desteklemeyi gir. Sıfır değer de kaydedilebilir."):__avt("Gerçek verim: ")+fmt(perAreaDisplay(season.actual_yield))+__avt(" kg/da · Gerçek satış fiyatı: ")+(season.actual_price==null?'—':fmt(season.actual_price))+__avt(" TL/kg");
+ $('actual-report-note').textContent=c.actualFromSales?Number(season.harvest_sale_count).toLocaleString(I.locale,{maximumFractionDigits:0})+__avt(" satış / araç kaydından ")+fmt(c.actual.kg)+__avt(" kg hasat ve ")+fmt(c.actualPrice)+__avt(" TL/kg ağırlıklı ortalama fiyat hesaplandı. Verim ve satış değişikliklerini Hasat & Satış sayfasından yap."):season?.actual_yield==null?__avt("Hasattan sonra bu tarla ve seçili sezon için gerçek verim, satış fiyatı ve gerçekleşen desteklemeyi gir. Sıfır değer de kaydedilebilir."):__avt("Gerçek verim: ")+fmt(perAreaDisplay(season.actual_yield))+__avt(" kg/da · Gerçek satış fiyatı: ")+(season.actual_price==null?'—':fmt(season.actual_price))+__avt(" TL/kg");
  $('actual-season-fields').disabled=!season||!session||savingActual;
  $('actual-yield').disabled=c.actualFromSales;$('actual-price').disabled=c.actualFromSales;
  $('expected-report-note').textContent=season?.expected_yield==null?__avt("Sezon Sonu Tahmini sayfasına bu tarla için verim veya fiyat gir."):__avt("Tahmini verim: ")+fmt(perAreaDisplay(season.expected_yield))+__avt(" kg/da · Tahmini satış fiyatı: ")+(season.expected_price==null?'—':fmt(season.expected_price))+__avt(" TL/kg. Sonuçlar kayıtlı masraflara göre değişir.");
@@ -44,7 +46,7 @@ function render(){
 function actualMessage(text,error=false){$('actual-save-status').textContent=text;$('actual-save-status').classList.toggle('is-error',error);}
 $('actual-season-form').addEventListener('input',()=>{
  if(!farm||savingActual)return;
- const overrides={};['yield','price','support'].forEach(key=>overrides['actual_'+key]=key==='yield'?perAreaStored(parseNumberInput($('actual-'+key).value)):parseNumberInput($('actual-'+key).value));
+ const overrides={};['yield','price','support'].forEach(key=>overrides['actual_'+key]=key==='yield'?perAreaStored(readDetailInputValue($('actual-'+key))):readDetailInputValue($('actual-'+key)));
  const c=farmFinance(farm,records,Number($('farm-season-select').value),overrides);
  $('actual-report').replaceChildren();report($('actual-report'),c.actual);
  actualMessage(__avt("Hesaplama güncellendi. Bilgileri hesabında saklamak için kaydet."));
@@ -53,7 +55,7 @@ $('actual-season-form').addEventListener('submit',async event=>{
  event.preventDefault();if(!farm||!session||savingActual)return;
  const year=Number($('farm-season-select').value),season=seasonFor(farm,year);
  if(!season){actualMessage(__avt("Kaydedilecek sezon bulunamadı. Sayfayı yenile."),true);return;}
- const values={};['yield','price','support'].forEach(key=>values['actual_'+key]=key==='yield'?perAreaStored(parseNumberInput($('actual-'+key).value)):parseNumberInput($('actual-'+key).value));
+ const values={};['yield','price','support'].forEach(key=>values['actual_'+key]=key==='yield'?perAreaStored(readDetailInputValue($('actual-'+key))):readDetailInputValue($('actual-'+key)));
  if(Object.values(values).some(v=>v!==null&&(!Number.isFinite(v)||v<0))){actualMessage(__avt("Verim, fiyat ve destekleme sıfır veya daha büyük olmalı."),true);return;}
  if(!Number(season.harvest_sale_count||0)&&(values.actual_yield===null)!==(values.actual_price===null)){actualMessage(__avt("Gerçek verim ve satış fiyatını birlikte gir veya ikisini de boş bırak."),true);return;}
  if(Number(season.harvest_sale_count||0)>0){delete values.actual_yield;delete values.actual_price;}

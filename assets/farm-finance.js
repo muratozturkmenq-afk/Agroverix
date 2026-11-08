@@ -33,19 +33,19 @@ export function farmFinance(farm, records, year = farm.season_year, overrides = 
   return {season,area,actualFromSales,actualYield,actualPrice,rows,missing,operations,rent,total,perDecare:total !== null && area>0 ? total/area : null,expected,actual,
     costKg:actual.kg !== null ? actual.costKg : expected.costKg,kgBasis:actual.kg !== null ? __avt("Gerçek verimle") : __avt("Tahmini verimle")};
 }
-export function appendMetric(parent,label,value,unit='',className='finance-metric') {
+export function appendMetric(parent,label,value,unit='',className='finance-metric',numberFormat=fmt) {
   const el=document.createElement(className === 'farmer-crop-metric' ? 'span' : 'article'); el.className=className;
   const caption=document.createElement('span'); caption.textContent=label;
   if(I.lang==='en'&&/\/(?:da|ha)$/.test(unit)&&value!==null)value=perAreaDisplay(value);
-  const number=document.createElement('strong'); number.textContent=value === null || !Number.isFinite(value) ? '—' : fmt(value)+(unit?' '+unit:'');
+  const number=document.createElement('strong'); number.textContent=value === null || !Number.isFinite(value) ? '—' : numberFormat(value)+(unit?' '+unit:'');
   el.append(caption,number); parent.append(el); return el;
 }
 export const operationLabels={soil_analysis:__avt("Toprak Analizi"),fuel:__avt("Mazot Kullanımı"),maintenance:__avt("Araç Bakımı/Tamir"),electricity:__avt("Elektrik"),transport:__avt("Nakliye"),tillage:__avt("Tarla Sürümü"),seed:__avt("Tohum"),planting:__avt("Ekim Dikim"),fertilizing:__avt("Gübreleme"),irrigation:__avt("Sulama"),spraying:__avt("İlaçlama"),weeding:__avt("Yabancı Ot Mücadelesi"),harvest:__avt("Hasat"),other:__avt("Diğer Girdi"),hoeing:__avt("Çapalama"),machine_spraying:__avt("İlaçlama (Makine)"),machine_fertilizing:__avt("Gübreleme (Makine)"),labor:__avt("İşçilik"),pruning:__avt("Budama"),machine_other:__avt("Diğer Makine / Hizmet")};
 export const serviceTypes=new Set(['soil_analysis','maintenance','electricity','transport','tillage','planting','hoeing','machine_spraying','machine_fertilizing','labor','pruning','harvest','machine_other']);
 
 // Support is an additional income; production costs always remain unchanged.
-export function appendSupportMetrics(parent,result){
-  appendMetric(parent,__avt("Toplam Destekleme"),result.support,__avt("TL"));
-  appendMetric(parent,__avt("Dekara Destekleme"),result.supportPerDecare,__avt("TL/da"));
-  appendMetric(parent,__avt("Kg Başına Destekleme"),result.supportPerKg,__avt("TL/kg"));
+export function appendSupportMetrics(parent,result,numberFormat=fmt){
+  appendMetric(parent,__avt("Toplam Destekleme"),result.support,__avt("TL"),'finance-metric',numberFormat);
+  appendMetric(parent,__avt("Dekara Destekleme"),result.supportPerDecare,__avt("TL/da"),'finance-metric',numberFormat);
+  appendMetric(parent,__avt("Kg Başına Destekleme"),result.supportPerKg,__avt("TL/kg"),'finance-metric',numberFormat);
 }
