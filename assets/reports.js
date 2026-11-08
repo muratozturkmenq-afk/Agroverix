@@ -1,7 +1,7 @@
 import {t,locale,areaDisplay,areaStored,perAreaDisplay,perAreaStored} from './regional-format.js?v=international-v1';
 const __avt=s=>I.t(s);
 import { locationLabels } from './location-labels.js?v=international-v1';
-import { downloadWorkbook } from './xlsx-report.js?v=international-v1';
+import { downloadWorkbook } from './xlsx-report.js?v=expense-export-v2';
 import { farmFinance, operationLabels } from './farm-finance.js?v=international-v1';
 import { costPerDecare } from './operation-cost.js?v=international-v1';
 const I=window.AgroIntl;
