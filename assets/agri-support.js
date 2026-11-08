@@ -7,18 +7,18 @@
   root.id = 'agri-support';
   root.setAttribute('data-lenis-prevent', '');
   root.innerHTML = `
-    <button class="agri-launcher" type="button" aria-label="Agri ile destek mesajı yaz" aria-expanded="false" aria-controls="agri-panel">
-      <span class="agri-launcher-copy"><strong>Agri</strong><span>Nasıl yardımcı olabilirim?</span></span>
+    <button class="agri-launcher" type="button" aria-label="Destek mesajı yaz" aria-expanded="false" aria-controls="agri-panel">
+      <span class="agri-launcher-copy"><strong>Merhaba</strong><span>Nasıl yardımcı olabilirim?</span></span>
       <span class="agri-launcher-portrait"><img width="600" height="657" alt="" decoding="async"></span>
     </button>
     <section class="agri-panel" id="agri-panel" role="dialog" aria-labelledby="agri-title" aria-describedby="agri-role" hidden>
       <header class="agri-header">
-        <span class="agri-avatar"><img width="600" height="657" alt="Agri, tarla ve hesap asistanı" decoding="async"></span>
-        <div><h2 id="agri-title">Agri</h2><p id="agri-role">Tarla ve hesap asistanın</p></div>
-        <button class="agri-close" type="button" aria-label="Agri desteği kapat">×</button>
+        <span class="agri-avatar"><img width="600" height="657" alt="Tarla ve hesap asistanı" decoding="async"></span>
+        <div><h2 id="agri-title">Merhaba</h2><p id="agri-role">Tarla ve hesap asistanın</p></div>
+        <button class="agri-close" type="button" aria-label="Destek penceresini kapat">×</button>
       </header>
       <div class="agri-content">
-        <p class="agri-greeting">Merhaba, ben Agri. Aklına takılanı yaz, AgroVerix ekibine iletelim.</p>
+        <p class="agri-greeting">Merhaba! Aklına takılanı yaz, AgroVerix ekibine iletelim.</p>
         <p class="agri-team">Mesajını AgroVerix destek ekibi yanıtlar.</p>
         <label for="agri-message">Nasıl yardımcı olabiliriz?</label>
         <textarea id="agri-message" rows="4" maxlength="1200" placeholder="Sorunu buraya yaz…" aria-describedby="agri-handoff"></textarea>
@@ -49,7 +49,7 @@
     if (!text) { send.removeAttribute('href'); return; }
     const title = document.title.replace(/\s*[·|]\s*AgroVerix.*$/i, '').trim();
     const context = title && title !== 'AgroVerix' ? '\nSayfa: ' + title.slice(0, 120) : '';
-    const payload = 'AgroVerix · Agri Destek' + context + '\n\n' + text;
+    const payload = 'AgroVerix Destek' + context + '\n\n' + text;
     send.href = 'https://wa.me/' + phone + '?text=' + encodeURIComponent(payload);
   }
   launcher.addEventListener('click', () => setOpen(true));
