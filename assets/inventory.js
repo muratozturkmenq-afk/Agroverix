@@ -32,7 +32,7 @@ function matchingItem(){
 }
 function purchaseCategories(kind,selected){
  const select=$('#purchase-category');select.replaceChildren();
- Object.entries(expenseCategories).filter(([key])=>categoryKind(key)===kind).forEach(([key,name])=>select.add(new Option(name,key)));
+ Object.entries(expenseCategories).filter(([key])=>categoryKind(key)===kind||(kind==='service'&&key==='fuel')).forEach(([key,name])=>select.add(new Option(name,key)));
  if(selected&&[...select.options].some(o=>o.value===selected))select.value=selected;
  else select.value=kind==='service'?'maintenance':'fertilizer';
 }
@@ -44,7 +44,7 @@ function kindChanged(){
 }
 $('#purchase-kind').addEventListener('change',kindChanged);
 $('#purchase-category').addEventListener('change',()=>{
- const kind=categoryKind($('#purchase-category').value),changed=$('#purchase-kind').value!==kind;
+ const kind=$('#purchase-kind').value==='service'&&$('#purchase-category').value==='fuel'?'service':categoryKind($('#purchase-category').value),changed=$('#purchase-kind').value!==kind;
  $('#purchase-kind').value=kind;
  if(changed&&kind==='service'){$('#purchase-unit').value='adet';if(!$('#purchase-quantity').value.trim())setNumberInputValue($('#purchase-quantity'),1);}
  else if(changed&&kind==='stock')$('#purchase-unit').value=$('#purchase-category').value==='fuel'?'L':'kg';
@@ -56,19 +56,19 @@ function populateItems(){updateForm();}
 function updateForm(){
  const pack=['torba','şişe'].includes($('#purchase-unit').value),existing=matchingItem();
  $('#purchase-category').disabled=false;
- const service=$('#purchase-kind').value==='service';
+ const service=$('#purchase-kind').value==='service',fuel=$('#purchase-category').value==='fuel';
  $('#purchase-supplier-field').hidden=service;$('#purchase-supplier').disabled=service;$('#purchase-supplier').required=!service;
  $('#purchase-brand').required=service;$('#purchase-brand-label').textContent=service?__avt("Firma Adı *"):__avt("Firma Adı");
- $('#purchase-service-hint').hidden=!service;
- $('#purchase-quantity-label').textContent=service?__avt("Uygulamalara Dağıtılacak Miktar *"):__avt("Alınan Miktar *");
- $('#purchase-name').placeholder=service?__avt("Örn. traktör bakımı veya elektrik faturası"):__avt("Örn. DAP gübresi veya mazot");
+ $('#purchase-service-hint').hidden=!service||fuel;
+ $('#purchase-quantity-label').textContent=service&&!fuel?__avt("Uygulamalara Dağıtılacak Miktar *"):__avt("Alınan Miktar *");
+ $('#purchase-name').placeholder=service&&!fuel?__avt("Örn. traktör bakımı veya elektrik faturası"):__avt("Örn. DAP gübresi veya mazot");
  $('#package-fields').hidden=!pack;$('#purchase-package').required=pack;$('#purchase-package').disabled=!pack;$('#purchase-package-unit').disabled=!pack;
  const unitPrice=$('#purchase-price-mode').value==='unit';
  $('#purchase-price-label').textContent=unitPrice?__avt("Masrafın Adet Alış Fiyatı (TL) *"):__avt("Masraf Toplamı (TL) *");
  const q=numeric('purchase-quantity'),p=numeric('purchase-price'),factor=pack?numeric('purchase-package'):1,unit=pack?$('#purchase-package-unit').value:$('#purchase-unit').value;
  const amount=converted(q*factor,unit),total=purchaseTotal(q,p),item=existing;
  let text=__avt("Miktar ve fiyatı girince masraf özeti burada görünür.");
- if(q>0&&amount>0&&Number.isFinite(amount))text=fmt(q)+' '+$('#purchase-unit').value+(pack?' × '+fmt(factor)+' '+unit:'')+' = '+fmt(amount)+' '+units[unit][0]+(service?__avt(" dağıtılacak gider miktarı"):__avt(" stok girişi"))+(Number.isFinite(total)&&total>=0?' · '+money(total):'');
+ if(q>0&&amount>0&&Number.isFinite(amount))text=fmt(q)+' '+$('#purchase-unit').value+(pack?' × '+fmt(factor)+' '+unit:'')+' = '+fmt(amount)+' '+units[unit][0]+(service&&!fuel?__avt(" dağıtılacak gider miktarı"):__avt(" stok girişi"))+(Number.isFinite(total)&&total>=0?' · '+money(total):'');
  if(item&&units[unit]?.[0]!==item.base_unit)text+=__avt(" · Bu ürün için ")+item.base_unit+__avt(" ile uyumlu birim seç.");
  const old=purchases.find(p=>p.id===$('#purchase-id').value),paid=Number(old?.paid_total||0);
  if(paymentsReady&&Number.isFinite(total)&&total>=0&&Number.isFinite(paid))text+=__avt(" · Ödenen: ")+money(paid)+__avt(" · Kalan Borç: ")+money(total-paid);
