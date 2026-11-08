@@ -54,7 +54,6 @@
     <div id="farm-records" class="farm-detail-records"></div>
     <p id="farm-empty" class="farm-detail-empty" hidden data-i18n="Bu tarlada henüz kayıt yok. İlk işlemi ekleyerek maliyet takibini başlat.">Bu tarlada henüz kayıt yok. İlk işlemi ekleyerek maliyet takibini başlat.</p>
   </section>
-  <section class="farm-detail-card season-end-report"><p class="profile-kicker" data-i18n="TAHMİNLERE GÖRE">TAHMİNLERE GÖRE</p><h2 data-i18n="Sezon İçi Tahmini Sonuç">Sezon İçi Tahmini Sonuç</h2><p id="expected-report-note"></p><a class="auth-back" href="sezon-sonu-tahmini.html" data-i18n="Sezon Sonu Tahminine Git →">Sezon Sonu Tahminine Git →</a><div class="finance-grid" id="expected-report"></div></section>
   <section class="farm-detail-card season-end-report" id="season-end"><p class="profile-kicker" data-i18n="HASAT SONRASI GERÇEK SONUÇ">HASAT SONRASI GERÇEK SONUÇ</p><h2 data-i18n="Sezon Sonu Gerçekleşen">Sezon Sonu Gerçekleşen</h2><a class="auth-back" id="harvest-sales-link" href="hasat-satis.html" data-i18n="Hasat &amp; Satış Kayıtlarına Git →">Hasat &amp; Satış Kayıtlarına Git →</a><p id="actual-report-note"></p><form id="actual-season-form">
     <fieldset id="actual-season-fields" disabled><div class="actual-season-inputs">
       <div class="profile-field"><label for="actual-yield" data-i18n="Gerçek Verim (kg/da)">Gerçek Verim (kg/da)</label><input id="actual-yield" type="text" inputmode="decimal" placeholder="Hasattan sonra gir" data-i18n-placeholder="Hasattan sonra gir"></div>
@@ -67,7 +66,7 @@
   <p class="farm-detail-status" id="farm-status" role="status" aria-live="polite"></p>
 </main>
 <script src="assets/supabase-config.js?v=international-v1"></script>
-<script type="module" src="assets/farm-detail-finance.js?v=two-decimals-v1"></script>
+<script type="module" src="assets/farm-detail-finance.js?v=actual-only-v2"></script>
 <script type="module" src="assets/regional-boot.js?v=stable-tr-v1"></script>
 <footer class="site-contact-footer"><p class="site-contact-line"><span>İletişim:</span> <a href="mailto:agroverixinfo@gmail.com">agroverixinfo@gmail.com</a></p></footer>
 <script defer src="assets/agri-support.js?v=greeting-v1"></script>

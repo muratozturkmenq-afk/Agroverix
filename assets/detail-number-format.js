@@ -15,6 +15,8 @@ export function readDetailInputValue(input){
 }
 export function bindDetailInput(input){
  bindNumberInput(input,{maximumFractionDigits:2});
+ // Browser-restored values must be formatted before the first farm render too.
+ if(input.value){const value=parseNumberInput(input.value);if(Number.isFinite(value))setDetailInputValue(input,value);}
  input.addEventListener('input',()=>originals.delete(input));
  input.addEventListener('blur',()=>{
   const original=originals.get(input);

@@ -3,7 +3,7 @@ import {ready as regionalReady,client as regionalClient} from './regional-contex
 await regionalReady;
 const I=window.AgroIntl;
 const __avt=s=>I.t(s);
-import {formatDetailNumber as fmt,setDetailInputValue as setNumberInputValue,readDetailInputValue,bindDetailInput} from './detail-number-format.js?v=two-decimals-v1';
+import {formatDetailNumber as fmt,setDetailInputValue as setNumberInputValue,readDetailInputValue,bindDetailInput} from './detail-number-format.js?v=first-render-v2';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
 import { farmFinance,seasonFor,appendMetric as sharedMetric,appendSupportMetrics as sharedSupportMetrics,operationLabels,serviceTypes } from './farm-finance.js?v=detail-decimals-v1';
 import { costPerDecare } from './operation-cost.js?v=international-v1';
@@ -25,11 +25,10 @@ function render(){
  $('new-season').href='tarla-bilgileri.html?edit='+farm.id+'&year='+(Math.max(...farm.farmer_seasons.map(s=>s.season_year))+1);
  if(actualFormYear!==year){['yield','price','support'].forEach(key=>setNumberInputValue($('actual-'+key),key==='yield'?perAreaDisplay(c.actualYield):key==='price'?c.actualPrice:season?.actual_support));actualFormYear=year;$('actual-save-status').textContent='';}
  const draft={};['yield','price','support'].forEach(key=>draft['actual_'+key]=key==='yield'?perAreaStored(readDetailInputValue($('actual-'+key))):readDetailInputValue($('actual-'+key)));
- const actual=$('actual-report'),expected=$('expected-report');actual.replaceChildren();expected.replaceChildren();report(actual,farmFinance(farm,records,year,draft).actual);report(expected,c.expected);
+ const actual=$('actual-report');actual.replaceChildren();report(actual,farmFinance(farm,records,year,draft).actual);
  $('actual-report-note').textContent=c.actualFromSales?Number(season.harvest_sale_count).toLocaleString(I.locale,{maximumFractionDigits:0})+__avt(" satış / araç kaydından ")+fmt(c.actual.kg)+__avt(" kg hasat ve ")+fmt(c.actualPrice)+__avt(" TL/kg ağırlıklı ortalama fiyat hesaplandı. Verim ve satış değişikliklerini Hasat & Satış sayfasından yap."):season?.actual_yield==null?__avt("Hasattan sonra bu tarla ve seçili sezon için gerçek verim, satış fiyatı ve gerçekleşen desteklemeyi gir. Sıfır değer de kaydedilebilir."):__avt("Gerçek verim: ")+fmt(perAreaDisplay(season.actual_yield))+__avt(" kg/da · Gerçek satış fiyatı: ")+(season.actual_price==null?'—':fmt(season.actual_price))+__avt(" TL/kg");
  $('actual-season-fields').disabled=!season||!session||savingActual;
  $('actual-yield').disabled=c.actualFromSales;$('actual-price').disabled=c.actualFromSales;
- $('expected-report-note').textContent=season?.expected_yield==null?__avt("Sezon Sonu Tahmini sayfasına bu tarla için verim veya fiyat gir."):__avt("Tahmini verim: ")+fmt(perAreaDisplay(season.expected_yield))+__avt(" kg/da · Tahmini satış fiyatı: ")+(season.expected_price==null?'—':fmt(season.expected_price))+__avt(" TL/kg. Sonuçlar kayıtlı masraflara göre değişir.");
  $('harvest-sales-link').href='hasat-satis.html?farm='+encodeURIComponent(farm.id)+'&year='+year;
  const list=$('farm-records');list.replaceChildren();$('farm-empty').hidden=c.rows.length>0;
  if(c.rent>0){const row=element('article','','farm-detail-record');row.append(element('b',__avt("Sezonluk Kira")),element('b',fmt(c.rent)+__avt(" TL")));list.append(row);}
@@ -72,7 +71,7 @@ $('edit-records-toggle').addEventListener('click',()=>{editing=!editing;$('edit-
 if(!farmId||!cfg.url||!cfg.publishableKey){$('farm-title').textContent=__avt("Tarla bağlantısı açılamadı.");}
 else{
  client=(regionalClient||createClient(cfg.url,cfg.publishableKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}));const {data}=await client.auth.getSession();session=data.session;
- if(!data.session){location.replace('ciftci-bilgi.html?next='+encodeURIComponent('tarla-detay.html?farm='+encodeURIComponent(farmId)+(params.get('year')?'&year='+encodeURIComponent(params.get('year')):'')+location.hash));}
+ if(!data.session){location.replace('ciftci-bilgi.html?next='+encodeURIComponent(location.pathname+location.search+location.hash));}
  else{
   const [f,r,a]=await Promise.all([client.from('farmer_farms').select('*,farmer_seasons(*)').eq('id',farmId).eq('user_id',data.session.user.id).maybeSingle(),client.from('farmer_operations').select('*').eq('farm_id',farmId).eq('user_id',data.session.user.id).order('operation_date',{ascending:false}),fetch('assets/administrative-units.json?v=2').then(r=>r.ok?r.json():null).catch(()=>null)]);
   if(f.error||r.error||!f.data){$('farm-title').textContent=__avt("Tarla bulunamadı veya hesabına ait değil.");}
