@@ -1,0 +1,87 @@
+/* Agri: isolated support UI, no account data or third-party scripts. */
+#agri-support {
+  --agri-green: var(--moss, #2C3622);
+  --agri-paper: #FFFCF4;
+  --agri-text: var(--ink, #12160E);
+  --agri-gold: var(--gold, #EDB43E);
+  position: fixed;
+  right: max(20px, env(safe-area-inset-right));
+  bottom: max(18px, env(safe-area-inset-bottom));
+  z-index: 110;
+  font: 16px/1.45 var(--f-body, Arial, sans-serif);
+  color: var(--agri-text);
+  color-scheme: light;
+}
+#agri-support *, #agri-support *::before, #agri-support *::after { box-sizing: border-box; }
+#agri-support [hidden] { display: none !important; }
+#agri-support button, #agri-support textarea { font: inherit; }
+#agri-support button, #agri-support a { -webkit-tap-highlight-color: transparent; }
+#agri-support :focus-visible { outline: 3px solid var(--agri-gold); outline-offset: 4px; }
+#agri-support .agri-launcher {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 66px;
+  gap: 6px;
+  padding: 7px 76px 7px 16px;
+  border: 1px solid rgba(237,180,62,.6);
+  border-radius: 20px;
+  background: var(--agri-green);
+  color: var(--agri-paper);
+  box-shadow: 0 6px 24px rgba(0,0,0,.24);
+  cursor: pointer;
+  text-align: left;
+}
+#agri-support .agri-launcher-copy { display: grid; gap: 2px; }
+#agri-support .agri-launcher-copy strong { color: var(--agri-gold); font-size: 19px; }
+#agri-support .agri-launcher-copy > span { font-size: 13px; }
+#agri-support .agri-launcher-portrait {
+  position: absolute;
+  bottom: 0;
+  right: 2px;
+  width: 73px;
+  height: 89px;
+  overflow: hidden;
+  border-radius: 0 0 18px 0;
+  pointer-events: none;
+}
+#agri-support .agri-launcher-portrait img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; display: block; }
+#agri-support .agri-panel {
+  width: 360px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 36px);
+  max-height: calc(100dvh - 36px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--agri-paper);
+  border: 1px solid rgba(18,22,14,.16);
+  border-radius: 22px;
+  box-shadow: 0 12px 50px rgba(0,0,0,.3);
+}
+#agri-support .agri-header { display: flex; align-items: center; gap: 12px; padding: 14px 14px 12px; background: var(--agri-green); color: var(--agri-paper); }
+#agri-support .agri-avatar { flex: 0 0 60px; width: 60px; height: 64px; overflow: hidden; border-radius: 14px; background: var(--agri-paper); }
+#agri-support .agri-avatar img { display: block; width: 100%; height: 110px; object-fit: cover; object-position: top; }
+#agri-support .agri-header h2 { margin: 0 0 4px; font: 800 23px/1.1 var(--f-display, Arial, sans-serif); letter-spacing: 0; color: var(--agri-gold); }
+#agri-support .agri-header p { margin: 0; font-size: 13px; }
+#agri-support .agri-close { align-self: flex-start; margin-left: auto; flex: 0 0 36px; width: 36px; height: 36px; border: 1px solid rgba(255,255,255,.35); border-radius: 10px; background: transparent; color: var(--agri-paper); font-size: 26px; line-height: 1; cursor: pointer; }
+#agri-support .agri-content { padding: 16px; }
+#agri-support .agri-greeting { margin: 0; padding: 13px 14px; background: var(--cotton-2, #E6EADC); border-radius: 4px 15px 15px; font-size: 15px; line-height: 1.5; }
+#agri-support .agri-team { margin: 9px 2px 18px; font-size: 12px; color: var(--muted-l, #576050); }
+#agri-support label { display: block; margin-bottom: 7px; font-weight: 700; font-size: 14px; }
+#agri-support textarea { display: block; width: 100%; min-height: 108px; max-height: 230px; resize: vertical; padding: 11px 12px; background: #fff; color: var(--agri-text); border: 1px solid #A1A994; border-radius: 11px; font-size: 16px; line-height: 1.5; }
+#agri-support textarea::placeholder { color: var(--muted-l, #576050); opacity: 1; }
+#agri-support .agri-send { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; padding: 13px 14px; border-radius: 10px; background: var(--agri-gold); color: var(--agri-text); text-decoration: none; font-size: 15px; font-weight: 700; }
+#agri-support .agri-send[aria-disabled="true"] { opacity: .55; cursor: default; }
+#agri-support .agri-handoff { margin: 10px 0 0; color: var(--muted-l, #576050); font-size: 12px; line-height: 1.5; }
+@media (max-width: 600px) {
+  #agri-support { right: max(12px, env(safe-area-inset-right)); bottom: max(12px, env(safe-area-inset-bottom)); }
+  #agri-support .agri-launcher { min-height: 56px; padding: 6px 66px 6px 13px; border-radius: 17px; }
+  #agri-support .agri-launcher-copy strong { font-size: 17px; }
+  #agri-support .agri-launcher-copy > span { font-size: 12px; }
+  #agri-support .agri-launcher-portrait { width: 64px; height: 78px; border-radius: 0 0 15px 0; }
+  #agri-support .agri-panel { width: 350px; max-width: calc(100vw - 24px); max-height: calc(100dvh - 24px); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  #agri-support .agri-launcher-portrait { animation: agri-hello 650ms ease-out 1; transform-origin: 50% 100%; }
+  @keyframes agri-hello { 0% { transform: rotate(-5deg); } 55% { transform: rotate(3deg); } 100% { transform: rotate(0); } }
+}
