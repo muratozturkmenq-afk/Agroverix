@@ -49,7 +49,7 @@ function loadLocations(){
 loadLocations();
 function destination(){
  const next=new URLSearchParams(location.search).get('next');
- if(next){const url=new URL(next,location.href);if(url.origin===location.origin&&['/tarla-bilgileri.html','/uretim-kayitlari.html','/tarla-detay.html','/index.html','/yonetici.html','/alisveris-stok.html','/stok.html','/sezon-sonu-tahmini.html','/hasat-satis.html'].includes(url.pathname))return url.pathname+url.search+url.hash;}
+ if(next){const url=new URL(next,location.href);if(url.origin===location.origin&&['/tarla-bilgileri.html','/uretim-kayitlari.html','/tarla-detay.html','/index.html','/yonetici.html','/alisveris-stok.html','/stok.html','/sezon-sonu-tahmini.html','/hasat-satis.html','/personel.html'].includes(url.pathname))return url.pathname+url.search+url.hash;}
  return 'index.html';
 }
 function setMode(next){

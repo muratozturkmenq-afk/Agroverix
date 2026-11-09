@@ -3,7 +3,7 @@ import {ready as regionalReady,client as regionalClient} from './regional-contex
 await regionalReady;
 const I=window.AgroIntl;
 const __avt=s=>I.t(s);
-import { bindReportButtons } from './reports.js?v=expense-export-v2';
+import { bindReportButtons } from './reports.js?v=personnel-v1';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
 import { farmFinance, appendMetric, fmt } from './farm-finance.js?v=international-v1';
 const cfg=window.AGROVERIX_SUPABASE||{},hero=document.querySelector('#hero-farm-cards');
@@ -14,7 +14,7 @@ const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className
 function notice(copy){const card=el('div','hero-farm-card');card.append(el('b','hero-farm-name',__avt("Tarla Maliyet Özeti")),el('p','hero-farm-note',copy));hero.replaceChildren(card);}
 function renderHero(farms,records){
  hero.replaceChildren();if(!farms.length){notice(__avt("İlk tarlanı eklediğinde maliyetlerin burada görünecek."));return;}
- farms.forEach(farm=>{const c=farmFinance(farm,records),wrap=el('article','hero-farm-card'),card=el('a','hero-farm-open');card.href='tarla-detay.html?rev=actual-only-v2&farm='+encodeURIComponent(farm.id);card.append(el('b','hero-farm-name hero-farm-title',farm.name+' - '+(c.season.crop||farm.crop)+' ('+fmt(areaDisplay(c.area))+' '+I.t(__avt("da"))+')'),el('small','hero-farm-note',String(farm.season_year)+__avt(" sezonu")));
+ farms.forEach(farm=>{const c=farmFinance(farm,records),wrap=el('article','hero-farm-card'),card=el('a','hero-farm-open');card.href='tarla-detay.html?rev=personnel-v1&farm='+encodeURIComponent(farm.id);card.append(el('b','hero-farm-name hero-farm-title',farm.name+' - '+(c.season.crop||farm.crop)+' ('+fmt(areaDisplay(c.area))+' '+I.t(__avt("da"))+')'),el('small','hero-farm-note',String(farm.season_year)+__avt(" sezonu")));
  const actual=c.actual.revenue!==null,result=actual?c.actual:c.expected,metrics=el('div','hero-farm-values');
  appendMetric(metrics,__avt("Toplam Maliyet"),c.total,__avt("TL"),'hero-farm-metric');appendMetric(metrics,__avt("Dekara Maliyet"),c.perDecare,__avt("TL/da"),'hero-farm-metric');appendMetric(metrics,__avt("Kg Başına Maliyet"),c.costKg,__avt("TL/kg"),'hero-farm-metric');
  appendMetric(metrics,(actual?__avt("Gerçek"):__avt("Tahmini"))+__avt(" Kâr / Zarar"),result.profit,__avt("TL"),'hero-farm-metric');

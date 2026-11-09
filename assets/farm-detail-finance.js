@@ -5,7 +5,7 @@ const I=window.AgroIntl;
 const __avt=s=>I.t(s);
 import {formatDetailNumber as fmt,setDetailInputValue as setNumberInputValue,readDetailInputValue,bindDetailInput} from './detail-number-format.js?v=first-render-v2';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
-import { farmFinance,seasonFor,appendMetric as sharedMetric,appendSupportMetrics as sharedSupportMetrics,operationLabels,serviceTypes } from './farm-finance.js?v=detail-decimals-v1';
+import { farmFinance,seasonFor,appendMetric as sharedMetric,appendSupportMetrics as sharedSupportMetrics,operationLabels,serviceTypes } from './farm-finance.js?v=personnel-v1';
 import { costPerDecare } from './operation-cost.js?v=international-v1';
 import { locationLabels } from './location-labels.js?v=international-v1';
 const $=id=>document.getElementById(id),params=new URLSearchParams(location.search),farmId=params.get('farm'),cfg=window.AGROVERIX_SUPABASE||{};
@@ -20,6 +20,7 @@ function render(){
  $('farm-title').textContent=farm.name;$('farm-crop').textContent=season?.crop||farm.crop;$('farm-area').textContent=fmt(areaDisplay(c.area));$('farm-location').textContent=locationLabels(farm,admin);
  $('farm-per-decare').textContent=c.perDecare===null?'—':fmt(perAreaDisplay(c.perDecare));$('farm-total').textContent=c.total===null?'—':fmt(c.total);
  $('farm-cost-note').textContent=c.missing?c.missing+__avt(" eski masraf kaydında hesaplama bilgisi eksik. Kayıtları Düzenle ile düzelt."):year+__avt(" sezonu · ")+c.rows.length+__avt(" masraf · ")+(season?.tenure==='rented'?__avt("Kiralık · ")+fmt(c.rent)+__avt(" TL sezonluk kira dahil."):__avt("Mülk · Kira yok."));
+ if(c.personnel>0)$('farm-cost-note').textContent+=' · '+fmt(c.personnel)+' '+I.t('TL')+' personel gideri dahil.';
  $('edit-records-toggle').disabled=false;$('edit-records-toggle').textContent=editing?__avt("Düzenlemeyi Kapat"):__avt("Kayıtları Düzenle");$('edit-farm').hidden=!editing;$('edit-farm').href='tarla-bilgileri.html?edit='+farm.id+'&year='+year;
  $('add-operation').href='uretim-kayitlari.html?farm='+farm.id+'&year='+year;
  $('new-season').href='tarla-bilgileri.html?edit='+farm.id+'&year='+(Math.max(...farm.farmer_seasons.map(s=>s.season_year))+1);
@@ -33,11 +34,11 @@ function render(){
  const list=$('farm-records');list.replaceChildren();$('farm-empty').hidden=c.rows.length>0;
  if(c.rent>0){const row=element('article','','farm-detail-record');row.append(element('b',__avt("Sezonluk Kira")),element('b',fmt(c.rent)+__avt(" TL")));list.append(row);}
  c.rows.forEach(r=>{
-  const row=element('article','','farm-detail-record'),info=element('div',''),cost=element('div','','farm-detail-record-cost');info.append(element('b',operationLabels[r.operation_type]||r.operation_type));
+  const row=element('article','','farm-detail-record'),info=element('div',''),cost=element('div','','farm-detail-record-cost');info.append(element('b',r.personnel_expense_id?'Personel Gideri · '+r.product:operationLabels[r.operation_type]||r.operation_type));
   const parts=[new Date(r.operation_date+'T12:00:00').toLocaleDateString(I.locale)];
   if(!serviceTypes.has(r.operation_type)||r.inventory_item_id){if(r.product)parts.push(r.product);if(r.quantity)parts.push((r.cost_basis==='field_total'?__avt("Toplam kullanım: "):__avt("Dekara kullanım: "))+fmt(r.cost_basis==='field_total'?r.quantity:perAreaDisplay(r.quantity))+' '+I.t(r.quantity_unit)+(r.inventory_package_quantity?' × '+fmt(r.inventory_package_quantity)+' '+I.t(r.inventory_package_unit):''));}
   if(r.notes)parts.push(r.notes);info.append(element('small',parts.join(' · ')));const per=costPerDecare(r,c.area);cost.append(element('b',per===null?__avt("Hesaplanamadı"):fmt(per*c.area)+__avt(" TL")),element('small',per===null?__avt("Maliyet bilgisini düzenle"):fmt(perAreaDisplay(per))+__avt(" TL/da")));
-  const edit=element('a',__avt("Bu Kaydı Düzenle"),'auth-back farm-detail-record-edit');edit.href='uretim-kayitlari.html?farm='+farmId+'&edit='+r.id;edit.hidden=!editing;row.append(info,cost,edit);list.append(row);
+  const edit=element('a',__avt("Bu Kaydı Düzenle"),'auth-back farm-detail-record-edit');edit.href=r.personnel_expense_id?'personel.html?edit='+encodeURIComponent(r.personnel_expense_id):'uretim-kayitlari.html?farm='+farmId+'&edit='+r.id;edit.hidden=!editing;row.append(info,cost,edit);list.append(row);
  });
  const u=new URL(location.href);u.searchParams.set('year',year);history.replaceState(null,'',u);
 }

@@ -14,6 +14,7 @@ export function farmFinance(farm, records, year = farm.season_year, overrides = 
   const values = rows.map(r => costPerDecare(r,area));
   const missing = values.filter(v => v === null).length;
   const operations = values.reduce((sum,v) => sum + (v ?? 0)*area,0);
+  const personnel=rows.filter(r=>r.personnel_expense_id).reduce((n,r)=>n+Number(r.total_cost||0),0);
   const rent = season.tenure === 'rented' ? Number(season.rent_total || 0) : 0;
   const total = missing ? null : operations + rent;
   function result(yieldPerDecare, price, supportAmount, saleTotals=null) {
@@ -30,7 +31,7 @@ export function farmFinance(farm, records, year = farm.season_year, overrides = 
   const actualFromSales=Number(season.harvest_sale_count||0)>0;
   const actualYield=actualFromSales?Number(season.harvest_sale_kg)/area:season.actual_yield,actualPrice=actualFromSales?Number(season.harvest_sale_total)/Number(season.harvest_sale_kg):season.actual_price;
   const expected=result(season.expected_yield,season.expected_price,season.expected_support),actual=result(actualYield,actualPrice,season.actual_support,actualFromSales?{kg:season.harvest_sale_kg,total:season.harvest_sale_total}:null);
-  return {season,area,actualFromSales,actualYield,actualPrice,rows,missing,operations,rent,total,perDecare:total !== null && area>0 ? total/area : null,expected,actual,
+  return {season,area,actualFromSales,actualYield,actualPrice,rows,missing,operations,personnel,rent,total,perDecare:total !== null && area>0 ? total/area : null,expected,actual,
     costKg:actual.kg !== null ? actual.costKg : expected.costKg,kgBasis:actual.kg !== null ? __avt("Gerçek verimle") : __avt("Tahmini verimle")};
 }
 export function appendMetric(parent,label,value,unit='',className='finance-metric',numberFormat=fmt) {

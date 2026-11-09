@@ -185,7 +185,7 @@ function renderRecords(rows) {
     const content = document.createElement("div");
     content.className = "production-record-content";
     const title = document.createElement("b");
-    title.textContent = labels[record.operation_type] || __avt("Diğer işlem");
+    title.textContent = record.personnel_expense_id ? 'Personel Gideri · '+record.product : labels[record.operation_type] || __avt("Diğer işlem");
     const detail = document.createElement("small");
     const farm = farms.find((item) => item.id === record.farm_id);
     const quantity = record.quantity ? formatMoney(record.cost_basis==="field_total"?record.quantity:perAreaDisplay(record.quantity)) + " " + I.t(record.quantity_unit || "")+(record.inventory_package_quantity?" × "+formatMoney(record.inventory_package_quantity)+" "+I.t(record.inventory_package_unit):"") : "";
@@ -206,7 +206,7 @@ function renderRecords(rows) {
     edit.type = "button"; edit.textContent = __avt("Bu Kaydı Düzenle"); edit.hidden = !editingRecords;
     edit.addEventListener("click", () => editRecord(record));
     const remove = document.createElement("button");
-    remove.type = "button"; remove.textContent = "Sil";
+    remove.type = "button"; remove.textContent = "Sil"; remove.hidden=Boolean(record.personnel_expense_id);
     remove.addEventListener("click", async () => {
       if (!window.confirm(__avt("Bu üretim kaydını silmek istiyor musun?"))) return;
       const { error } = await client.from("farmer_operations").delete().eq("id", record.id).eq("user_id", session.user.id);
@@ -255,6 +255,7 @@ async function loadRecords() {
   }
 }
 function editRecord(record) {
+  if(record.personnel_expense_id){location.assign('personel.html?edit='+encodeURIComponent(record.personnel_expense_id));return;}
   $("#operation-id").value = record.id;
   $("#operation-farm").value = record.farm_id;
   $("#records-filter").value = record.farm_id;
