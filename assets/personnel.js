@@ -5,6 +5,8 @@ import {allocatePersonnel,personnelTotal,payrollMonths,duePersonnelMonths,remain
 const I=window.AgroIntl,$=id=>document.getElementById(id),money=n=>I.money(n),num=n=>I.num(n,{minimumFractionDigits:2,maximumFractionDigits:2});
 let session=null,farms=[],expenses=[],allocations=[],schedules=[],adjustments=[],editing=null,editingAdjustment=null,adjustmentRequestId=crypto.randomUUID(),requestId=crypto.randomUUID(),saving=false,loading=false,refreshQueued=false,generation=0,requestedEditOpened=false;
 const requestedEdit=new URLSearchParams(location.search).get('edit');
+const currentYear=()=>Number(new Intl.DateTimeFormat('en-US',{timeZone:'Europe/Istanbul',year:'numeric'}).format(new Date()));
+$('personnel-year').replaceChildren(new Option(String(currentYear()),String(currentYear())));$('personnel-year').value=String(currentYear());
 const inputs={salary:$('personnel-salary'),insurance:$('personnel-insurance'),other_cost:$('personnel-other')};
 Object.values(inputs).forEach(input=>{bindNumberInput(input,{maximumFractionDigits:2});input.addEventListener('blur',()=>{const n=parseNumberInput(input.value);if(Number.isFinite(n)){input.value=num(n);}});});
 $('personnel-date').value=today();$('personnel-start-date').value=today();$('personnel-adjustment-date').value=today();bindNumberInput($('personnel-adjustment-amount'),{maximumFractionDigits:2});
@@ -36,11 +38,11 @@ function preview(){
  const list=node('ul');rows.forEach(r=>list.append(node('li',r.name+' - '+r.crop+': '+money(r.amount))));target.append(list);
  target.append(node('small','Bu tutar seçilen tarlaların '+year()+' sezon maliyetine eklenecek.'));
 }
-function resetForm(){editing=null;$('personnel-months').disabled=false;$('personnel-start-date').disabled=false;$('personnel-employment').disabled=false;requestId=crypto.randomUUID();$('personnel-form').reset();$('personnel-date').value=today();$('personnel-start-date').value=today();$('personnel-form-title').textContent='Çalışma Planı Ekle';$('personnel-save').textContent='Çalışma Planını Kaydet →';$('personnel-cancel').hidden=true;say('',false,$('personnel-save-status'));renderFarms([]);}
+function resetForm(){editing=null;$('personnel-months').disabled=false;$('personnel-start-date').disabled=false;$('personnel-employment').disabled=false;requestId=crypto.randomUUID();$('personnel-form').reset();$('personnel-date').value=today();$('personnel-start-date').value=today();$('personnel-form-title').textContent='Personel Ödemeleri';$('personnel-save').textContent='Personel Ödemeleri →';$('personnel-cancel').hidden=true;say('',false,$('personnel-save-status'));renderFarms([]);}
 function edit(row){
  showPersonnelTab('plan');editing=row;requestId=crypto.randomUUID();$('personnel-start-date').value=row.expense_date;$('personnel-months').value='1';$('personnel-months').disabled=true;$('personnel-start-date').disabled=true;$('personnel-employment').value=row.employment_type||'temporary';$('personnel-employment').disabled=true;$('personnel-year').value=String(row.season_year);$('personnel-name').value=row.person_name;$('personnel-date').value=row.expense_date;$('personnel-notes').value=row.notes||'';
  Object.entries(inputs).forEach(([key,input])=>{const value=key==='other_cost'?row.base_other_cost??row.other_cost:row[key];setNumberInputValue(input,value);input.value=num(Number(value));});
- $('personnel-form-title').textContent=row.is_void?'Bu Ayın Kaydını Yeniden Etkinleştir':'Bu Ayın Giderini Düzenle';$('personnel-save').textContent='Bu Ayı Kaydet →';$('personnel-cancel').hidden=false;
+ $('personnel-form-title').textContent=row.is_void?'Bu Ayın Kaydını Yeniden Etkinleştir':'Bu Ayın Giderini Düzenle';$('personnel-save').textContent='Personel Ödemeleri →';$('personnel-cancel').hidden=false;
  renderFarms(row.selected_farm_ids||[]);renderRecords();$('personnel-person-filter').value=row.person_name;renderRecords();$('personnel-month-filter').value=(row.period_month||row.expense_date).slice(0,7);renderRecords();renderSchedules();say('Kaydettiğinde tarla payları yeniden hesaplanır.',false,$('personnel-save-status'));$('personnel-form-title').scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
 }
 function renderRecords(){
@@ -68,8 +70,8 @@ async function refresh(){
   await client.rpc('agroverix_refresh_personnel_due').then(result=>{if(result.error)throw result.error;});
   const [f,e,a,plans,payments]=await Promise.all([client.from('farmer_farms').select('*,farmer_seasons(*)').eq('user_id',uid).order('created_at'),all('farmer_personnel_expenses'),all('farmer_personnel_allocations'),all('farmer_personnel_schedules'),all('farmer_personnel_adjustments')]);if(f.error)throw f.error;if(run!==generation||session?.user.id!==uid)return;
   farms=f.data||[];expenses=e;allocations=a;schedules=plans;adjustments=payments;
-  const current=$('personnel-year').value,years=[...new Set([...farms.flatMap(f=>f.farmer_seasons.map(s=>Number(s.season_year))),...expenses.map(e=>Number(e.season_year)),...schedules.map(e=>Number(e.season_year))])].sort((a,b)=>b-a);if(!years.length)years.push(new Date().getFullYear());
-  $('personnel-year').replaceChildren(...years.map(y=>new Option(String(y),String(y))));$('personnel-year').value=years.includes(Number(current))?current:String(years.includes(new Date().getFullYear())?new Date().getFullYear():years[0]);
+  const current=$('personnel-year').value,years=[...new Set([currentYear(),...farms.flatMap(f=>f.farmer_seasons.map(s=>Number(s.season_year))),...expenses.map(e=>Number(e.season_year)),...schedules.map(e=>Number(e.season_year))])].sort((a,b)=>b-a);if(!years.length)years.push(currentYear());
+  $('personnel-year').replaceChildren(...years.map(y=>new Option(String(y),String(y))));$('personnel-year').value=years.includes(Number(current))?current:String(years.includes(currentYear())?currentYear():years[0]);
   $('personnel-fields').disabled=saving;$('personnel-year').disabled=saving;renderFarms();renderRecords();renderSchedules();renderAdjustmentOptions();say('Personel kayıtların ve zamanı gelen aylık giderlerin güncel.');
   if(requestedEdit&&!requestedEditOpened){requestedEditOpened=true;const row=expenses.find(e=>e.id===requestedEdit);if(row)edit(row);else say('Personel kaydı bulunamadı veya hesabına ait değil.',true);}
  }catch(error){if(run===generation)say(errorText(error),true);}
