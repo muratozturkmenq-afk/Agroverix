@@ -13,5 +13,5 @@ export function payrollMonths(start,count){
  const [y,m]=start.split('-').map(Number);if(m<1||m>12||y<2000||y>2200)return [];
  const months=Array.from({length:Number(count)},(_,i)=>{const d=new Date(Date.UTC(y,m-1+i,1));return d.toISOString().slice(0,7);});return months.at(-1)>'2200-12'?[]:months;
 }
-export const duePersonnelMonths=(start,count,today)=>payrollMonths(start,count).filter(m=>m<=String(today).slice(0,7));
+export const duePersonnelMonths=(start,count,today)=>payrollMonths(start.slice(0,7),count).filter(m=>m<=String(today).slice(0,7)&&(m!==start.slice(0,7)||start.length===7||start<=String(today)));
 export const remainingPersonnelPay=e=>Math.round((Number(e.salary||0)+Number(e.extra_pay||0)-Number(e.advance_total||0))*100)/100;

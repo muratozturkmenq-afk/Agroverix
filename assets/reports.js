@@ -5,7 +5,7 @@ import { downloadWorkbook } from './xlsx-report.js?v=expense-export-v2';
 import { farmFinance, operationLabels } from './farm-finance.js?v=personnel-v1';
 import { costPerDecare } from './operation-cost.js?v=international-v1';
 const I=window.AgroIntl;
-import {personnelReportSheets} from './personnel-report.js?v=payroll-v1';
+import {personnelReportSheets} from './personnel-report.js?v=payroll-v2';
 import {expenseReportSheets} from './expense-report.js?v=expense-export-v1';
 const tables={profiles:'farmer_profiles',farms:'farmer_farms',seasons:'farmer_seasons',operations:'farmer_operations',harvest_sales:'farmer_harvest_sales',harvest_receipts:'farmer_harvest_receipts',inventory_items:'farmer_inventory_items',inventory_purchases:'farmer_inventory_purchases',inventory_payments:'farmer_inventory_payments',personnel_expenses:'farmer_personnel_expenses',personnel_allocations:'farmer_personnel_allocations',personnel_schedules:'farmer_personnel_schedules',personnel_adjustments:'farmer_personnel_adjustments'};
 export async function reportData(client,user,{administrator=false,userId=null}={}){
