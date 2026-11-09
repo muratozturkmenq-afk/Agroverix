@@ -3,7 +3,7 @@ import {ready as regionalReady,client as regionalClient} from './regional-contex
 await regionalReady;
 const I=window.AgroIntl;
 const __avt=s=>I.t(s);
-import { bindReportButtons } from './reports.js?v=staff-export-v1';
+import { bindReportButtons } from './reports.js?v=season-export-v1';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
 import { farmFinance, appendMetric, fmt } from './farm-finance.js?v=international-v1';
 const cfg=window.AGROVERIX_SUPABASE||{},hero=document.querySelector('#hero-farm-cards');
@@ -28,7 +28,7 @@ if(!cfg.url||!cfg.publishableKey)guest();else{
  async function load(session,{quiet=false}={}){activeSession=session;if(!quiet)bindReportButtons(client,session);const request=++generation;if(!session){signature=null;guest();return;}
   const [f,r]=await Promise.all([client.from('farmer_farms').select('*,farmer_seasons(*)').eq('user_id',session.user.id).order('created_at'),client.from('farmer_operations').select('*').eq('user_id',session.user.id)]);
   if(request!==generation)return;if(f.error||r.error){notice(__avt("Tarla özeti yüklenemedi. Sayfayı yenileyerek tekrar dene."));return;}
-  const farms=f.data||[],records=r.data||[],nextSignature=JSON.stringify([session.user.id,farms,records]);if(quiet&&nextSignature===signature)return;signature=nextSignature;renderHero(farms,records);bindReportButtons(client,session);
+  const farms=f.data||[],records=r.data||[],nextSignature=JSON.stringify([session.user.id,farms,records]);if(quiet&&nextSignature===signature)return;signature=nextSignature;renderHero(farms,records);bindReportButtons(client,session,{farms});
   const navLogin=document.querySelector('.nav-in > a.btn');if(navLogin){navLogin.textContent=__avt("Çıkış yap");navLogin.onclick=async e=>{e.preventDefault();await client.auth.signOut();location.assign('index.html');};}
  }
  async function refresh(){if(!activeSession||document.hidden||pendingLoad)return;pendingLoad=load(activeSession,{quiet:true});try{await pendingLoad;}finally{pendingLoad=null;}}

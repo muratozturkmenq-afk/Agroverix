@@ -38,3 +38,9 @@
 
 /* Reduce the home footer height without resizing its content. */
 .home-fields-page .foot{padding-block:10px 12px}
+
+/* Export scope stays with the report button and fits narrow screens. */
+.home-fields-page .home-report-season{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:14px;font-weight:700;color:var(--cotton);min-width:0}
+.home-fields-page .home-report-season select{min-width:0;max-width:65%;min-height:42px;padding:8px 12px;border:1px solid rgba(241,243,234,.4);border-radius:8px;background:var(--ink);color:var(--cotton);font:inherit;color-scheme:dark}
+.home-fields-page .home-report-season select:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.home-fields-page .home-report-help{font-size:12px;line-height:1.45;color:rgba(241,243,234,.78);overflow-wrap:anywhere}
