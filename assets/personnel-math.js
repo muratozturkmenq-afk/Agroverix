@@ -8,3 +8,10 @@ export function allocatePersonnel(total,farms){
  return rows.map(({cents,remainder,...f})=>({...f,amount:cents/100}));
 }
 export const personnelTotal=values=>['salary','insurance','other_cost'].reduce((n,key)=>n+Math.round(Number(values[key]||0)*100),0)/100;
+export function payrollMonths(start,count){
+ if(!/^\d{4}-\d{2}$/.test(start)||!Number.isInteger(Number(count))||count<1||count>12)return [];
+ const [y,m]=start.split('-').map(Number);if(m<1||m>12||y<2000||y>2200)return [];
+ const months=Array.from({length:Number(count)},(_,i)=>{const d=new Date(Date.UTC(y,m-1+i,1));return d.toISOString().slice(0,7);});return months.at(-1)>'2200-12'?[]:months;
+}
+export const duePersonnelMonths=(start,count,today)=>payrollMonths(start,count).filter(m=>m<=String(today).slice(0,7));
+export const remainingPersonnelPay=e=>Math.round((Number(e.salary||0)+Number(e.extra_pay||0)-Number(e.advance_total||0))*100)/100;
