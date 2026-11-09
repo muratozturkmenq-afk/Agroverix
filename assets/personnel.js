@@ -2,7 +2,8 @@ import {ready,client} from './regional-context.js?v=stable-tr-v1';
 import {bindNumberInput,parseNumberInput,setNumberInputValue} from './number-input.js?v=international-v1';
 import {today} from './inventory-data.js?v=international-v1';
 import {allocatePersonnel,personnelTotal,payrollMonths,duePersonnelMonths,remainingPersonnelPay} from './personnel-math.js?v=payroll-v2';
-const I=window.AgroIntl,$=id=>document.getElementById(id),money=n=>I.money(n),num=n=>I.num(n,{minimumFractionDigits:2,maximumFractionDigits:2});
+// Keep personnel and farm-share displays at two decimals, including on the first render.
+const I=window.AgroIntl,$=id=>document.getElementById(id),num=n=>Number(n).toLocaleString(I.locale,{minimumFractionDigits:2,maximumFractionDigits:2}),money=n=>num(n)+' '+I.currencyLabel();
 let session=null,farms=[],expenses=[],allocations=[],schedules=[],adjustments=[],editing=null,editingAdjustment=null,adjustmentRequestId=crypto.randomUUID(),requestId=crypto.randomUUID(),saving=false,loading=false,refreshQueued=false,generation=0,requestedEditOpened=false;
 const requestedEdit=new URLSearchParams(location.search).get('edit');
 const currentYear=()=>Number(new Intl.DateTimeFormat('en-US',{timeZone:'Europe/Istanbul',year:'numeric'}).format(new Date()));
