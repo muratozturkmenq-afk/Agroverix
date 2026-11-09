@@ -5,7 +5,7 @@ import { downloadWorkbook } from './xlsx-report.js?v=expense-export-v2';
 import { farmFinance, operationLabels } from './farm-finance.js?v=personnel-v1';
 import { costPerDecare } from './operation-cost.js?v=international-v1';
 const I=window.AgroIntl;
-import {personnelReportSheets} from './personnel-report.js?v=payroll-v2';
+import {personnelReportSheets} from './personnel-report.js?v=staff-export-v1';
 import {expenseReportSheets} from './expense-report.js?v=expense-export-v1';
 const tables={profiles:'farmer_profiles',farms:'farmer_farms',seasons:'farmer_seasons',operations:'farmer_operations',harvest_sales:'farmer_harvest_sales',harvest_receipts:'farmer_harvest_receipts',inventory_items:'farmer_inventory_items',inventory_purchases:'farmer_inventory_purchases',inventory_payments:'farmer_inventory_payments',personnel_expenses:'farmer_personnel_expenses',personnel_allocations:'farmer_personnel_allocations',personnel_schedules:'farmer_personnel_schedules',personnel_adjustments:'farmer_personnel_adjustments'};
 export async function reportData(client,user,{administrator=false,userId=null}={}){
@@ -75,12 +75,13 @@ function baseReportSheets(data,{year='',smsOnly=false}={}){
 }
 export function saveReport(data,options={}){const date=new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Istanbul'}).format(new Date());downloadWorkbook(reportSheets(data,options),'AgroVerix-'+(options.smsOnly?'SMS-Izinleri':'Rapor')+'-'+date+'.xlsx');}
 export function bindReportButtons(client,session){
- document.querySelectorAll('[data-excel-export]').forEach(button=>{button.disabled=!session;button.onclick=async()=>{const status=button.closest('.hero-farm-card')?.querySelector('[data-excel-status]')||document.querySelector('#excel-status');const say=t=>{if(status)status.textContent=t;};button.disabled=true;say(__avt("Kendi kayıtların hazırlanıyor…"));try{const {data}=await client.auth.getSession();if(!data.session)throw new Error(__avt("Önce giriş yap."));let rows=await reportData(client,data.session.user);const farmId=button.dataset.excelFarm;if(farmId){const farm=rows.farms.find(f=>f.id===farmId);if(!farm)throw new Error(__avt("Tarla kaydı bulunamadı."));rows={...rows,farms:[farm],seasons:rows.seasons.filter(s=>s.farm_id===farmId),operations:rows.operations.filter(o=>o.farm_id===farmId),reportFarm:farm.name,reportFarmId:farm.id};}saveReport(rows,{year:document.querySelector('#excel-year')?.value||''});say(__avt("Excel raporun indirildi."));}catch(e){say(e.message);}finally{button.disabled=false;}};});
+ document.querySelectorAll('[data-excel-export]').forEach(button=>{button.disabled=!session;button.onclick=async()=>{const status=button.closest('.hero-farm-card')?.querySelector('[data-excel-status]')||document.querySelector('#excel-status');const say=t=>{if(status)status.textContent=t;};button.disabled=true;say(__avt("Kendi kayıtların hazırlanıyor…"));try{const {data}=await client.auth.getSession();if(!data.session)throw new Error(__avt("Önce giriş yap."));let rows=await reportData(client,data.session.user);const farmId=button.dataset.excelFarm;if(farmId){const farm=rows.farms.find(f=>f.id===farmId);if(!farm)throw new Error(__avt("Tarla kaydı bulunamadı."));rows={...rows,farms:[farm],seasons:rows.seasons.filter(s=>s.farm_id===farmId),operations:rows.operations.filter(o=>o.farm_id===farmId),reportFarm:farm.name,reportFarmId:farm.id};}saveReport(rows,{year:document.querySelector('#excel-year')?.value||''});say(__avt("Excel raporun indirildi. Personel özeti, maaş/sigorta, avans, ek ödeme ve tarla dağılımları dahil."));}catch(e){say(e.message);}finally{button.disabled=false;}};});
  const link=document.querySelector('#admin-link');if(link){link.hidden=true;if(session)client.rpc('is_agroverix_admin').then(({data,error})=>{link.hidden=!!error||!data;});}
 }
 
 export function reportSheets(data,options={}){
  const list=baseReportSheets(data,options),ownerCurrency=id=>data.accounts.find(a=>a.user_id===id)?.currency||'TRY';
+ const personnelIndex=list.findIndex(sheet=>sheet.name==='Personel Özeti');if(personnelIndex>=0){const [overview]=list.splice(personnelIndex,1);list.splice(Math.min(3,list.length),0,overview);}
  const seasons=seasonResults(data,options.year||''),crops=cropResults(data,options.year||'');
  if(data.administrator){
   list.filter(sheet=>['Tarla Sezon Hesabı','Bitki Özeti'].includes(sheet.name)).forEach(sheet=>{

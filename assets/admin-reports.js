@@ -4,7 +4,7 @@ await regionalReady;
 const I=window.AgroIntl;
 const __avt=s=>I.t(s);
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
-import { reportData,saveReport,seasonResults,filterReportData } from './reports.js?v=payroll-v2';
+import { reportData,saveReport,seasonResults,filterReportData } from './reports.js?v=staff-export-v1';
 import { fmt,appendMetric } from './farm-finance.js?v=international-v1';
 const $=id=>document.getElementById(id),cfg=window.AGROVERIX_SUPABASE||{};let client,session,scopeData=null;
 const money=(n,code=I.currency)=>n===null?'—':I.money(n,code);
@@ -18,7 +18,7 @@ function fillFilters(data){const year=$('admin-year').value,crop=$('admin-crop')
 async function load(){status(__avt("Yetkili rapor verileri yükleniyor…"));scopeData=await reportData(client,session.user,{administrator:true,userId:$('admin-farmer').value||null});fillFilters(scopeData);render();status(__avt("Güncel veriler yüklendi."));return filtered(scopeData);}
 async function action(button,run){button.disabled=true;try{await run();}catch(error){status(error.message||__avt("İşlem tamamlanamadı."));}finally{button.disabled=false;}}
 $('admin-load').onclick=()=>action($('admin-load'),load);
-$('admin-export').onclick=()=>action($('admin-export'),async()=>{status('Tüm üyelerin bütün kayıtları hazırlanıyor…');const data=await reportData(client,session.user,{administrator:true});saveReport(data);status('Tüm üyelerin bütün sezonları, masrafları ve stokları Excel olarak indirildi.');});
+$('admin-export').onclick=()=>action($('admin-export'),async()=>{status('Tüm üyelerin bütün kayıtları hazırlanıyor…');const data=await reportData(client,session.user,{administrator:true});saveReport(data);status('Tüm üyelerin bütün sezonları, masrafları, stokları ve personel bilgileri Excel olarak indirildi.');});
 $('admin-scope-export').onclick=()=>action($('admin-scope-export'),async()=>{const data=await load();saveReport(data,{year:$('admin-year').value});status('Seçili kapsamdaki bilgiler Excel olarak indirildi.');});
 $('admin-sms-export').onclick=()=>action($('admin-sms-export'),async()=>{const data=await load();saveReport(data,{smsOnly:true});status(__avt("SMS iletişim izni kayıtlı telefon listesi indirildi. SMS gönderilmedi."));});
 ['admin-year','admin-crop'].forEach(id=>$(id).addEventListener('change',render));$('admin-farmer').addEventListener('change',()=>{scopeData=null;$('admin-summary').replaceChildren();$('admin-season-rows').replaceChildren();status(__avt("Yeni kapsamı görmek için Analizi Yükle düğmesine bas."));});

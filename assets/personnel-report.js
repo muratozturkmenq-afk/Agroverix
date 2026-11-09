@@ -10,5 +10,21 @@ export function personnelReportSheets(data,{year=''}={}){
  const scheduleRows=(data.personnel_schedules||[]).filter(p=>(!year||Number(p.season_year)===Number(year))&&(!data.reportFarmId||(p.selected_farm_ids||[]).includes(data.reportFarmId)));
  const schedules={name:'Personel Çalışma Planları',headers:[...heads,'Personelin Adı Soyadı','Çalışma Şekli','Başlangıç Tarihi','Çalışma Süresi (Ay)','Sezon','Aylık Maaş (TL)','Aylık Sigorta (TL)','Aylık Diğer Gider (TL)','Durum','Son Oluşan Ay','Bekleyen Kayıt Açıklaması','Plan No'],rows:scheduleRows.map(p=>[...prefix(p),p.person_name,p.employment_type==='permanent'?'Daimi':'Geçici',p.start_date||p.start_month,Number(p.month_count),Number(p.season_year),Number(p.salary),Number(p.insurance),Number(p.other_cost),p.is_active?'Etkin':'Durduruldu',p.last_posted_month||'',p.last_error||'',p.id])};
  const adjustments={name:'Personel Avans ve Ek Ödeme',headers:[...heads,'Personelin Adı Soyadı','Ay','Sezon','İşlem Türü','Ödeme Tarihi','Tutar (TL)','Durum','Personel Kaydı Durumu','Açıklama','Kayıt No','Personel Kayıt No'],rows:(data.personnel_adjustments||[]).filter(a=>allowed.has(a.expense_id)).map(a=>{const e=allowed.get(a.expense_id);return [...prefix(a),e.person_name,(e.period_month||e.expense_date||'').slice(0,7),Number(e.season_year),a.kind==='advance'?'Avans':'Ek Ödeme',a.entry_date,Number(a.amount),a.is_void?'İptal Edildi':'Etkin',e.is_void?'İptal Edildi':'Etkin',a.notes||'',a.id,a.expense_id];})};
- return [expenseSheet,allocationSheet,schedules,adjustments];
+ // A single overview mirrors the personnel page; detailed source sheets follow it.
+ const groups=new Map(),currency=row=>row.currency||owners.get(row.user_id)?.currency||'TRY';
+ const group=row=>{
+  const key=JSON.stringify([row.user_id,currency(row),Number(row.season_year),row.person_name]);
+  if(!groups.has(key))groups.set(key,{source:row,types:new Set(),first:'',last:'',plans:0,months:new Set(),cancelled:0,salary:0,insurance:0,other:0,extra:0,cost:0,advance:0,remaining:0,allocated:0});
+  const g=groups.get(key);g.types.add(row.employment_type==='permanent'?'Daimi':'Geçici');
+  const date=row.start_date||row.start_month||row.expense_date||'';if(date&&(!g.first||date<g.first))g.first=date;return g;
+ };
+ const cents=n=>Math.round(Number(n||0)*100);
+ scheduleRows.forEach(p=>{group(p).plans++;});
+ expenses.forEach(e=>{const g=group(e);if(e.is_void){g.cancelled++;return;}
+  g.months.add((e.period_month||e.expense_date||'').slice(0,7));if(e.expense_date>g.last)g.last=e.expense_date;
+  g.salary+=cents(e.salary);g.insurance+=cents(e.insurance);g.other+=cents(e.base_other_cost??e.other_cost);g.extra+=cents(e.extra_pay);g.cost+=cents(e.total_cost);g.advance+=cents(e.advance_total);g.remaining+=cents(e.salary)+cents(e.extra_pay)-cents(e.advance_total);
+ });
+ (data.personnel_allocations||[]).filter(a=>allowed.has(a.expense_id)&&(!data.reportFarmId||a.farm_id===data.reportFarmId)).forEach(a=>{const e=allowed.get(a.expense_id);if(!e.is_void)group(e).allocated+=cents(a.amount);});
+ const overview={name:'Personel Özeti',headers:[...heads,'Personelin Adı Soyadı','Sezon','Çalışma Şekli','Başlangıç Tarihi','Son Gider Tarihi','Çalışma Planı Kayıt Sayısı','Gideri Oluşan Ay Sayısı','Toplam Maaş (TL)','Toplam Sigorta (TL)','Toplam Diğer Gider (TL)','Toplam Ek Ödeme (TL)','Toplam Personel Maliyeti (TL)','Verilen Avans (TL)','Kalan Maaş ve Ek Ödeme (TL)','Seçilen Tarlalara Eklenen Tutar (TL)','İptal Edilen Aylık Kayıt Sayısı'],rows:[...groups.values()].sort((a,b)=>String(a.source.user_id).localeCompare(String(b.source.user_id))||Number(a.source.season_year)-Number(b.source.season_year)||a.source.person_name.localeCompare(b.source.person_name,'tr')).map(g=>[...prefix(g.source),g.source.person_name,Number(g.source.season_year),[...g.types].join(' / '),g.first,g.last,g.plans,g.months.size,...['salary','insurance','other','extra','cost','advance','remaining','allocated'].map(k=>g[k]/100),g.cancelled])};
+ return [expenseSheet,allocationSheet,schedules,adjustments,overview];
 }
