@@ -34,3 +34,12 @@
 
 /* Expense months and plant growth share the same seasonal timeline. */
 .crop-months button small{display:block;font-size:8px;line-height:1.2}.crop-months button:disabled{opacity:.45;cursor:default}.crop-months button:focus-visible{outline:2px solid #678947;outline-offset:1px}
+
+/* A compact Excel group with its season selector beside the downloads. */
+.admin-page .admin-filters{grid-template-columns:2fr 1fr}
+.admin-page .admin-excel-controls{display:grid;grid-template-columns:minmax(0,1fr) 140px;align-items:end;gap:10px;width:100%;max-width:570px;margin-top:16px}
+.admin-excel-buttons{display:flex;flex-wrap:wrap;gap:8px;min-width:0}
+.admin-excel-controls .auth-back{width:auto;min-height:44px;padding:10px 12px;white-space:normal}
+.admin-excel-controls>label{display:grid;gap:5px;min-width:0;font-size:12px}
+.admin-excel-controls select{width:100%;min-width:0;min-height:44px;border:1px solid #bec8ad;border-radius:6px;padding:8px;background:#fffdf6;color:#20251a;font:inherit}
+@media(max-width:760px){.admin-page .admin-filters{grid-template-columns:1fr}.admin-page .admin-excel-controls{grid-template-columns:minmax(0,1fr) minmax(112px,.8fr);align-items:center}.admin-excel-buttons{display:grid;gap:8px}.admin-excel-controls .auth-back{width:100%;padding:9px 8px;font-size:12px}.admin-excel-controls>label{align-self:center}}

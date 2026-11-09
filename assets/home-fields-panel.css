@@ -44,3 +44,9 @@
 .home-fields-page .home-report-season select{min-width:0;max-width:65%;min-height:42px;padding:8px 12px;border:1px solid rgba(241,243,234,.4);border-radius:8px;background:var(--ink);color:var(--cotton);font:inherit;color-scheme:dark}
 .home-fields-page .home-report-season select:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .home-fields-page .home-report-help{font-size:12px;line-height:1.45;color:rgba(241,243,234,.78);overflow-wrap:anywhere}
+
+/* Keep the download and season controls together, including on phones. */
+.home-fields-page .home-report-controls{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);align-items:end;gap:10px;width:100%}
+.home-fields-page .home-report-controls>.btn{min-height:44px;padding:10px 12px;font-size:13px;white-space:normal}
+.home-fields-page .home-report-controls .home-report-season{flex-direction:column;align-items:stretch;gap:5px;font-size:12px}
+.home-fields-page .home-report-controls .home-report-season select{width:100%;max-width:none;min-height:44px}
