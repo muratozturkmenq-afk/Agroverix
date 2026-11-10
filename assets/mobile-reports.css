@@ -43,3 +43,7 @@
 .admin-excel-controls select{width:100%;min-width:0;min-height:44px;border:1px solid #bec8ad;border-radius:6px;padding:8px;background:#fffdf6;color:#20251a;font:inherit}
 .admin-excel-controls #admin-scope-export{grid-column:1}
 @media(max-width:760px){.admin-page .admin-filters{grid-template-columns:1fr}.admin-excel-controls .auth-back{padding:9px 8px;font-size:12px}}
+
+/* Keep the report year compact without a visible caption. */
+.admin-excel-controls>label{width:50%;min-width:72px;gap:0}
+.admin-excel-controls select{padding-inline:6px}

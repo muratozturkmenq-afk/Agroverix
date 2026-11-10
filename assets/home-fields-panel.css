@@ -50,3 +50,7 @@
 .home-fields-page .home-report-controls>.btn{min-height:44px;padding:10px 12px;font-size:13px;white-space:normal}
 .home-fields-page .home-report-controls .home-report-season{flex-direction:column;align-items:stretch;gap:5px;font-size:12px}
 .home-fields-page .home-report-controls .home-report-season select{width:100%;max-width:none;min-height:44px}
+
+/* Compact season choice; its accessible name is on the select. */
+.home-fields-page .home-report-controls .home-report-season{width:50%;min-width:72px;gap:0}
+.home-fields-page .home-report-controls .home-report-season select{padding-inline:6px}
