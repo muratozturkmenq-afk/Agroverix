@@ -56,3 +56,10 @@
 .home-fields-page .home-report-controls .home-report-season select{padding-inline:6px}
 
 @media(max-width:600px){.home-fields-page .home-report-controls>.btn{min-height:52px;padding:11px 12px;font-size:13px}.home-fields-page .home-report-controls .home-report-season select{min-height:52px}}
+
+/* Share the shortcut grid's row height, including when labels wrap on phones. */
+.home-fields-page .hero-field-actions>a[href="hasat-satis.html"]{grid-column:1/-1}
+.home-fields-page .hero-field-actions>.home-report-controls{grid-column:1/-1;height:100%;align-items:stretch}
+.home-fields-page .home-report-controls>.btn{height:100%;justify-content:center;text-align:center}
+.home-fields-page .home-report-controls .home-report-season{height:100%}
+.home-fields-page .home-report-controls .home-report-season select{height:100%}
