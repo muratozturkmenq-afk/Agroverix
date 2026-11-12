@@ -3,7 +3,7 @@ import {ready as regionalReady,client as regionalClient} from './regional-contex
 await regionalReady;
 const I=window.AgroIntl;
 const __avt=s=>I.t(s);
-import {expenseCategories,categoryKind,categoryLabel} from './expense-categories.js?v=international-v1';
+import {expenseCategories,categoryKind,categoryLabel,normalizeSupplier} from './expense-categories.js?v=international-v1';
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
 import {bindNumberInput,parseNumberInput,setNumberInputValue} from './number-input.js?v=international-v1';
 import {units,fmt,money,converted,loadInventory,readAll,today,stockError} from './inventory-data.js?v=international-v1';
@@ -112,16 +112,30 @@ async function removePurchase(p,button){
  try{const {error}=await client.from('farmer_inventory_purchases').delete().eq('id',p.id).eq('user_id',session.user.id).select('id').single();if(error)throw error;if($('#purchase-id').value===p.id)resetForm();await refresh();message(__avt("Masraf silindi, stok güncellendi."));}
  catch(error){message(stockError(error),true);}finally{saving=false;button.disabled=false;}
 }
+function fillPurchaseFilters(){
+ const products=new Map(),suppliers=new Map(),itemMap=new Map(items.map(item=>[item.id,item]));
+ purchases.forEach(p=>{
+  const key=p.item_id||'__missing__',item=itemMap.get(p.item_id);
+  products.set(key,item?itemLabel(item)+(item.base_unit?' ('+I.t(item.base_unit)+')':''):__avt("Ürün bilgisi bulunamadı"));
+  const supplier=normalizeSupplier(p.supplier);suppliers.set(supplier,String(p.supplier||'').trim()||__avt("Firma / bayi bilgisi yok"));
+ });
+ for(const [id,options,caption] of [['purchase-product-filter',products,'Tüm Ürünler'],['purchase-supplier-filter',suppliers,'Tüm Firma ve Bayiler']]){
+  const select=$('#'+id),previous=select.value;
+  select.replaceChildren(new Option(__avt(caption),''));
+  [...options].sort((a,b)=>a[1].localeCompare(b[1],'tr')).forEach(([value,label])=>select.add(new Option(label,value)));
+  select.value=options.has(previous)?previous:'';select.disabled=!session||!purchases.length;
+ }
+}
 function renderPurchases(){
- const query=$('#purchase-search').value.trim().toLocaleLowerCase('tr-TR'),list=$('#purchase-history-list');list.replaceChildren();
- const rows=purchases.filter(p=>{const item=items.find(i=>i.id===p.item_id);return ((item?itemLabel(item):__avt("Ürün"))+' '+p.supplier).toLocaleLowerCase('tr-TR').includes(query);});
+ const product=$('#purchase-product-filter').value,supplier=$('#purchase-supplier-filter').value,list=$('#purchase-history-list');list.replaceChildren();
+ const rows=purchases.filter(p=>(!product||(p.item_id||'__missing__')===product)&&(!supplier||normalizeSupplier(p.supplier)===supplier));
  rows.slice().sort((a,b)=>b.purchase_date.localeCompare(a.purchase_date)||a.id.localeCompare(b.id)).forEach(p=>{
   const item=items.find(i=>i.id===p.item_id),card=el('article',undefined,'purchase-list-card');card.append(el('h3',item?(categoryKind(item.category)==='service'?item.name:itemLabel(item)):__avt("Ürün bilgisi bulunamadı")),el('p',categoryLabel(item?.category)),el('p',(categoryKind(item?.category)==='service'?__avt("Firma Adı: "):__avt("Bayi Adı: "))+p.supplier),el('p',__avt("Masraf Tarihi: ")+date(p.purchase_date)),el('p',__avt("Alınan Miktar: ")+fmt(p.purchased_quantity)+' '+I.t(p.purchased_unit)+(p.package_quantity?' × '+fmt(p.package_quantity)+' '+p.package_unit:'')),el('strong',money(p.total_cost)));
   if(paymentsReady)card.append(el('p',__avt("Ödenen: ")+money(p.paid_total)+__avt(" · Kalan Borç: ")+money((Math.round(Number(p.total_cost)*100)-Math.round(Number(p.paid_total)*100))/100)));
   const actions=el('div',undefined,'stock-row-actions'),remove=button('Sil',()=>removePurchase(p,remove)),pay=button(__avt("Ödeme Girişi"),()=>{ledger.selectPurchase(p.id);showInventoryView('payment',{scroll:true});});pay.disabled=!paymentsReady;
   actions.append(button(__avt("Masrafı Düzenle"),()=>editPurchase(p)),pay,remove);card.append(actions);list.append(card);
  });
- $('#purchase-history-empty').hidden=rows.length>0;$('#purchase-history-empty').textContent=purchases.length?__avt("Aramana uygun masraf bulunamadı."):__avt("Henüz masraf kaydı yok. İlk masrafını kaydettiğinde burada görünür.");
+ $('#purchase-history-empty').hidden=rows.length>0;$('#purchase-history-empty').textContent=purchases.length?__avt("Seçimine uygun masraf bulunamadı."):__avt("Henüz masraf kaydı yok. İlk masrafını kaydettiğinde burada görünür.");
 }
 async function refresh(){
  if(!session||!client)return;if(loading){refreshQueued=true;return;}loading=true;const run=generation,uid=session.user.id;$('#inventory-refresh').disabled=true;
@@ -129,7 +143,7 @@ async function refresh(){
   const [stock,paymentRows]=await Promise.all([loadInventory(client,uid),readAll(client,'farmer_inventory_payments',uid).catch(()=>null)]);
   if(run!==generation||session?.user.id!==uid)return;
   items=stock.items;purchases=stock.purchases;payments=paymentRows||[];paymentsReady=paymentRows!==null&&purchases.every(p=>'paid_total' in p);ready=true;$('#purchase-fields').disabled=false;
-  populateItems();renderPurchases();$('#inventory-total').textContent=money(purchases.reduce((n,p)=>n+Number(p.total_cost),0));
+  populateItems();fillPurchaseFilters();renderPurchases();$('#inventory-total').textContent=money(purchases.reduce((n,p)=>n+Number(p.total_cost),0));
   $('#inventory-paid').textContent=paymentsReady?money(purchases.reduce((n,p)=>n+Math.round(Number(p.paid_total)*100),0)/100):'—';$('#inventory-debt').textContent=paymentsReady?money(purchases.reduce((n,p)=>n+Math.round(Number(p.total_cost)*100)-Math.round(Number(p.paid_total)*100),0)/100):'—';
   ledger.update({session,purchases,items,payments,available:paymentsReady});
   message(__avt("Güncel masraf ve ödeme kayıtları · ")+new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}));
@@ -137,11 +151,11 @@ async function refresh(){
  }catch(error){if(run===generation){ready=false;paymentsReady=false;$('#purchase-fields').disabled=true;updateForm();ledger.update({session,purchases,items,payments,available:false});message(stockError(error),true);}}
  finally{loading=false;$('#inventory-refresh').disabled=false;if(refreshQueued){refreshQueued=false;refresh();}}
 }
-$('#purchase-search').addEventListener('input',renderPurchases);$('#inventory-refresh').addEventListener('click',refresh);
+['purchase-product-filter','purchase-supplier-filter'].forEach(id=>$('#'+id).addEventListener('change',renderPurchases));$('#inventory-refresh').addEventListener('click',refresh);
 window.addEventListener('focus',()=>{if(session&&!saving)refresh();});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&session&&!saving)refresh();});
 setInterval(()=>{if(!document.hidden&&session&&!saving)refresh();},30000);
-function account(next){generation++;if(channel){client.removeChannel(channel);channel=null;}session=next;ready=false;paymentsReady=false;items=[];purchases=[];payments=[];requestedEditOpened=false;resetForm();ledger.update({session,purchases,items,payments,available:false});$('#purchase-fields').disabled=true;$('#purchase-history-list').replaceChildren();$('#purchase-history-empty').hidden=false;$('#purchase-history-empty').textContent=__avt("Masrafların giriş yaptıktan sonra burada görünür.");['inventory-total','inventory-paid','inventory-debt'].forEach(id=>$('#'+id).textContent='—');$('#inventory-auth').hidden=Boolean(session);message('',false,$('#purchase-status'));if(session){
+function account(next){generation++;if(channel){client.removeChannel(channel);channel=null;}session=next;ready=false;paymentsReady=false;items=[];purchases=[];payments=[];fillPurchaseFilters();requestedEditOpened=false;resetForm();ledger.update({session,purchases,items,payments,available:false});$('#purchase-fields').disabled=true;$('#purchase-history-list').replaceChildren();$('#purchase-history-empty').hidden=false;$('#purchase-history-empty').textContent=__avt("Masrafların giriş yaptıktan sonra burada görünür.");['inventory-total','inventory-paid','inventory-debt'].forEach(id=>$('#'+id).textContent='—');$('#inventory-auth').hidden=Boolean(session);message('',false,$('#purchase-status'));if(session){
  refresh();channel=client.channel('inventory-'+session.user.id);['farmer_inventory_items','farmer_inventory_purchases','farmer_inventory_payments'].forEach(table=>channel.on('postgres_changes',{event:'*',schema:'public',table,filter:'user_id=eq.'+session.user.id},()=>{if(!saving)refresh();}));channel.subscribe();
  }else message(__avt("Giriş yaptıktan sonra masraf ve ödemelerini kaydedebilirsin."));}
 if(cfg.url&&cfg.publishableKey){client=(regionalClient||createClient(cfg.url,cfg.publishableKey));const {data,error}=await client.auth.getSession();if(error){message(__avt("Oturum alınamadı. Lütfen tekrar giriş yap."),true);$('#inventory-auth').hidden=false;}else account(data.session);client.auth.onAuthStateChange((event,next)=>{if(['SIGNED_IN','SIGNED_OUT'].includes(event)&&next?.user.id!==session?.user.id)setTimeout(()=>account(next),0);});}
