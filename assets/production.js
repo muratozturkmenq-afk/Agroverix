@@ -3,7 +3,7 @@ import {ready as regionalReady,client as regionalClient} from './regional-contex
 await regionalReady;
 const I=window.AgroIntl;
 const __avt=s=>I.t(s);
-import {categoryLabel} from './expense-categories.js?v=international-v1';
+import {categoryLabel,categoryKind} from './expense-categories.js?v=international-v1';
 import { parseNumberInput, bindNumberInput, setNumberInputValue } from './number-input.js?v=international-v1';
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm";
 import { farmFinance, seasonFor, serviceTypes, operationLabels } from "./farm-finance.js?v=international-v1";
@@ -28,6 +28,7 @@ const legacyProductValue='__legacy_product__',manualServiceValue='__manual_servi
 function manualService(){return $('#expense-category').value==='service'&&$('#operation-inventory-item').value===manualServiceValue;}
 function editingRecord(){return records.find(r=>r.id===$('#operation-id').value);}
 function selectedProduct(){return inventoryItems.find(i=>i.id===$('#operation-inventory-item').value);}
+function amountExpense(){const item=selectedProduct();return Boolean(item&&(categoryKind(item.category)==='service'||item.category==='fuel'&&item.base_unit==='adet'));}
 function purchasedBrandLabel(item){
  const brand=String(item.brand||'').trim(),name=String(item.name||'').trim();
  return categoryLabel(item.category)+' · '+name+(brand?' · '+brand:'');
@@ -46,7 +47,7 @@ function populateStockOptions(preferred){
  select.value=previous;select.disabled=false;
 }
 function updatePackageFields(guess=false){
- const pack=['torba','şişe'].includes($('#operation-unit').value)&&!manualService();
+ const pack=['torba','şişe'].includes($('#operation-unit').value)&&!manualService()&&!amountExpense();
  const field=$('#operation-package-quantity'),unit=$('#operation-package-unit'),item=selectedProduct(),previous=unit.value;
  $('#operation-package-fields').hidden=!pack;field.disabled=!pack;field.required=pack;unit.disabled=!pack;unit.required=pack;
  if(!pack)return;
@@ -69,9 +70,10 @@ function updateStockSelection(fill=false){
  }else $('#operation-stock-hint').textContent=manual?__avt("Masraf kaydı seçmeden tutarı elle giriyorsun. Bu giriş ürün stoğundan veya dağıtılmamış giderden düşülmez."):$('#operation-inventory-item').value===legacyProductValue?__avt("Eski kaydın maliyetini elle düzenleyebilirsin."):!session?__avt("Hesabına giriş yaptığında ürün ve gider kayıtların burada görünür."):!inventoryReady?__avt("Masraf kayıtları yüklenemedi. Sayfayı yenile."):__avt("Masraf Ekle bölümünde kaydettiğin ürünü veya gideri seç.");
  $('#operation-product-field').hidden=false;
  $('#operation-inventory-item').required=true;
- $('#operation-quantity-field').hidden=manual;
- ['operation-quantity','operation-unit'].forEach(id=>{$('#'+id).required=!manual;$('#'+id).disabled=manual;});
- if(fill){$('#operation-package-quantity').value='';if(!item)$('#operation-total-cost').value='';}
+ const amountMode=amountExpense();$('#operation-service-amount-field').hidden=!amountMode;$('#operation-service-amount').disabled=!amountMode;$('#operation-service-amount').required=amountMode;
+ $('#operation-quantity-field').hidden=manual||amountMode;
+ ['operation-quantity','operation-unit'].forEach(id=>{$('#'+id).required=!manual&&!amountMode;$('#'+id).disabled=manual||amountMode;});
+ if(fill){$('#operation-service-amount').value='';$('#operation-package-quantity').value='';if(!item)$('#operation-total-cost').value='';}
  updatePackageFields(fill);updateCostPreview();
 }
 async function loadStock(){
@@ -90,6 +92,7 @@ async function loadStock(){
 }
 $('#operation-inventory-item').addEventListener('change',()=>updateStockSelection(true));
 bindNumberInput($('#operation-package-quantity'),{maximumFractionDigits:6});
+bindNumberInput($('#operation-service-amount'),{maximumFractionDigits:2});
 bindNumberInput($('#operation-quantity'),{maximumFractionDigits:6});bindNumberInput($('#operation-total-cost'),{maximumFractionDigits:2});
 function selectCategory(type=''){
  const service=$('#expense-category').value==='service',select=$('#operation-type');
@@ -270,6 +273,7 @@ function editRecord(record) {
   [...stockSelect.options].filter(o=>o.value===legacyProductValue).forEach(o=>o.remove());
   addLegacyProductOption(stockSelect,record);
   if(record.inventory_item_id&&![...stockSelect.options].some(o=>o.value===record.inventory_item_id))stockSelect.add(new Option(__avt("Kayıtlı stok bağlantısı"),record.inventory_item_id));
+  setNumberInputValue($('#operation-service-amount'),record.total_cost??'');
   stockSelect.value=record.inventory_item_id||(serviceTypes.has(record.operation_type)?manualServiceValue:legacyProductValue);updateStockSelection();
   $("#operation-unit").value = String(record.quantity_unit || "").replace(/\/da$/, "");
   setNumberInputValue($("#operation-package-quantity"),record.inventory_package_quantity??"");
@@ -300,15 +304,17 @@ function clearForm() {
 function updateCostPreview() {
  const preview=$('#operation-cost-preview'),farm=activeFarm(),item=selectedProduct(),manual=manualService(),legacy=$('#operation-inventory-item').value===legacyProductValue;
  const field=$('#operation-total-cost'),note=$('#operation-pricing-note'),automatic=Boolean(item&&autoCostReady);
- $('#service-note').textContent=manual?__avt("Elle girilen tutar bu tarlanın maliyetine eklenir. Kayıtlı giderden paylaştırmak için listeden ilgili gideri seç."):__avt("Kayıtlı bakım, elektrik, nakliye veya başka gideri seçip bu tarlaya ayırdığın miktarı gir. 1 adet girilmiş giderin yarısı için 0,5 adet kullanabilirsin.");
+ $('#service-note').textContent=manual?__avt("Elle girilen tutar bu tarlanın maliyetine eklenir. Kayıtlı giderden paylaştırmak için listeden ilgili gideri seç."):__avt("Kayıtlı gideri seç, bu tarlaya ayırdığın TL tutarını gir. Aynı gideri farklı tarlalara paylaştırabilirsin.");
  field.readOnly=!manual&&!legacy;field.placeholder=field.readOnly?__avt("Otomatik hesaplanır"):__avt("Örn. 1.000");note.classList.remove('is-error');
  $('#operation-cost-label').textContent=__avt("Bu Uygulamanın Maliyeti (TL) *");
  if(automatic){
-  if(!$('#operation-date').value||!$('#operation-quantity').value.trim()){field.value='';note.textContent=__avt("İşlem tarihi ve kullanılan toplam miktar girildiğinde maliyet hesaplanır.");preview.textContent=__avt("Uygulama maliyeti = kullanılan miktar × kayıtlı birim maliyet.");return;}
+  if(!$('#operation-date').value||!(amountExpense()?$('#operation-service-amount').value.trim():$('#operation-quantity').value.trim())){field.value='';note.textContent=__avt("İşlem tarihi ve kullanılan toplam miktar girildiğinde maliyet hesaplanır.");preview.textContent=__avt("Uygulama maliyeti = kullanılan miktar × kayıtlı birim maliyet.");return;}
   const result=currentAutomaticCost();
   if(result.error){field.value='';note.textContent=result.error;note.classList.add('is-error');preview.textContent=__avt("Gider, birim, miktar ve ambalaj içeriğini kontrol et.");return;}
+  if(amountExpense()){setNumberInputValue($('#operation-quantity'),result.quantity);$('#operation-unit').value=item.base_unit;}
   setNumberInputValue(field,result.total);
   note.textContent=fmt(result.quantity)+' '+I.t(item.base_unit)+' × '+fmt(result.unitCost)+' TL/'+item.base_unit+' = '+formatMoney(result.total)+__avt(" TL · ")+(result.stored?__avt("Kayıtta saklanan birim maliyet."):__avt("İşlem tarihine kadar olan masrafların ağırlıklı birim maliyeti."));
+  if(amountExpense())note.textContent='Bu tarlaya ayrılan tutar: '+formatMoney(result.total)+' TL. Kalan gider tutarını başka tarlalara dağıtabilirsin.';
  }else{
   if(!manual&&!legacy)field.value='';
   note.textContent=manual?__avt("Bu tarlaya ait toplam uygulama tutarını elle gir."):legacy?__avt("Önceki kaydın maliyetini elle düzenleyebilir veya kayıtlı bir gider seçebilirsin."):item?__avt("Otomatik maliyet servisi yüklenemedi. Sayfayı yenile."):__avt("Kayıtlı ürün veya gideri seç, kullanılan miktarı gir.");
@@ -316,7 +322,20 @@ function updateCostPreview() {
  const raw=field.value.trim(),total=parseNumberInput(raw),area=Number(farm?(seasonFor(farm,Number($('#operation-season').value))?.area_decare||farm.area_decare):0);
  preview.textContent=farm&&raw&&Number.isFinite(total)&&total>=0&&area>0?__avt("Dekara maliyet: ")+formatMoney(perAreaDisplay(total/area))+__avt(" TL/da · ")+farm.name+__avt(" için toplam ")+formatMoney(total)+__avt(" TL"):__avt("Dekara maliyeti görmek için tarla seç ve uygulama miktarını/tutarını gir.");
 }$("#operation-farm").addEventListener("change", () => { renderSeasons(); $("#records-filter").value=$("#operation-farm").value; updateCostPreview(); updateSummary(); });
-function currentAutomaticCost(){return automaticOperationCost({itemId:$('#operation-inventory-item').value,quantity:parseNumberInput($('#operation-quantity').value),unit:$('#operation-unit').value,date:$('#operation-date').value,purchases:inventoryPurchases,oldRecord:records.find(r=>r.id===$('#operation-id').value),packageQuantity:parseNumberInput($('#operation-package-quantity').value),packageUnit:$('#operation-package-unit').value,itemBaseUnit:selectedProduct()?.base_unit});}
+function currentAutomaticCost(){if(amountExpense())return amountAllocationCost();return automaticOperationCost({itemId:$('#operation-inventory-item').value,quantity:parseNumberInput($('#operation-quantity').value),unit:$('#operation-unit').value,date:$('#operation-date').value,purchases:inventoryPurchases,oldRecord:records.find(r=>r.id===$('#operation-id').value),packageQuantity:parseNumberInput($('#operation-package-quantity').value),packageUnit:$('#operation-package-unit').value,itemBaseUnit:selectedProduct()?.base_unit});}
+
+function amountAllocationCost(){
+ const item=selectedProduct(),desired=parseNumberInput($('#operation-service-amount').value),date=$('#operation-date').value,old=editingRecord();
+ const probe=automaticOperationCost({itemId:item.id,quantity:1,unit:item.base_unit,date,purchases:inventoryPurchases,oldRecord:old,itemBaseUnit:item.base_unit});
+ if(probe.error)return probe;if(!(desired>0&&Number.isFinite(desired)))return {error:'Bu tarlaya ayrılan masraf tutarını sıfırdan büyük gir.'};
+ if(!(probe.unitCost>0))return {error:'Bu giderin kayıtlı bedeli sıfır. Önce masraf tutarını kontrol et.'};
+ const quantity=Math.round(desired/probe.unitCost*1000)/1000;
+ const result=automaticOperationCost({itemId:item.id,quantity,unit:item.base_unit,date,purchases:inventoryPurchases,oldRecord:old,itemBaseUnit:item.base_unit});
+ if(result.error)return result;
+ if(Math.abs(result.total-desired)>.005)return {error:'Bu eski giderin miktar birimiyle girilen tutar tam paylaştırılamıyor. Masraf kaydının birim bilgisini kontrol et veya uygun bir tutar gir.'};
+ return result;
+}
+
 $('#operation-date').addEventListener('change',()=>{updatePackageFields(!$('#operation-package-quantity').value);updateCostPreview();});
 $('#operation-date').addEventListener('input',updateCostPreview);
 $("#operation-season").addEventListener("change",()=>{updateCostPreview();updateSummary();});
@@ -386,7 +405,7 @@ form.addEventListener("submit", async (event) => {
   message(__avt("Uygulama kaydedildi. Ana sayfadaki maliyet özetine yönlendiriliyorsun…"));
   window.location.assign("index.html");
 });
-["operation-quantity", "operation-unit", "operation-total-cost", "operation-package-quantity", "operation-package-unit"].forEach((id) => {
+["operation-service-amount", "operation-quantity", "operation-unit", "operation-total-cost", "operation-package-quantity", "operation-package-unit"].forEach((id) => {
   $("#" + id).addEventListener("input", updateCostPreview);
   $("#" + id).addEventListener("change", updateCostPreview);
 });

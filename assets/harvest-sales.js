@@ -128,6 +128,7 @@ function renderCompanies(){
  $('receipt-buyer-hint').textContent=entryGroup?__avt("Kalan alacak: ")+money((entryGroup.total-entryGroup.paid)/100)+__avt(". Tahsilat tarihine kadar olan satış bedeli kadar kayıt yapabilirsin."):__avt("Tahsilat girmek için firmayı seç. Geçmiş ödemeleri sağdaki firma seçiminden görebilirsin.");
  buyers.forEach(g=>{
   const row=node('article',undefined,'dealer-balance-row harvest-company-row');row.setAttribute('aria-label',g.name+__avt(" firma hesabı"));
+  const open=()=>{if(saving)return;$('receipt-detail-buyer').value=g.key;renderCompanies();$('harvest-company-detail').scrollIntoView({block:'nearest',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});};row.tabIndex=0;row.setAttribute('role','button');row.setAttribute('aria-expanded',String(group?.key===g.key));row.addEventListener('click',open);row.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();open();}});
   const name=node('span',undefined,'dealer-name');name.append(node('small',__avt("Satılan Firma")),node('strong',g.name));row.append(name);
   [[__avt("Toplam Satış"),g.total],[__avt("Tahsil Edilen"),g.paid],[__avt("Kalan Alacak"),g.total-g.paid]].forEach(([label,value])=>{const cell=node('span');cell.append(node('small',label),node('b',money(value/100)));row.append(cell);});list.append(row);
  });

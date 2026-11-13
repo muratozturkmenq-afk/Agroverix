@@ -47,3 +47,11 @@
 /* Keep the report year compact without a visible caption. */
 .admin-excel-controls>label{width:50%;min-width:72px;gap:0}
 .admin-excel-controls select{padding-inline:6px}
+
+/* Keep each field forecast in a single compact input row. */
+.forecast-page .sim-forecast-form,.forecast-main .sim-forecast-form{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;max-width:520px}
+.forecast-main .sim-forecast-form>.sim-input{min-width:0}
+.forecast-main .sim-forecast-form .sim-input input{width:100%;min-width:0;padding:8px 6px}
+.forecast-main .sim-forecast-form>.sim-assumption,.forecast-main .sim-forecast-form>.btn{grid-column:1/-1}
+.forecast-main .sim-forecast-form .sim-input label{font-size:11px;line-height:1.35;display:block;min-height:44px}
+.harvest-company-row[role="button"]{cursor:pointer}.harvest-company-row[aria-expanded="true"]{outline:2px solid #678947;outline-offset:2px}

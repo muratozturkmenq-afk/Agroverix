@@ -3,6 +3,7 @@ const I=window.AgroIntl;
 const __avt=s=>I.t(s);
 (function(){
  'use strict';
+ document.querySelectorAll('.nav-links a[href^="personel.html"],.mobile-page-links a[href^="personel.html"],.nav-links a[href="stok.html"],.mobile-page-links a[href="stok.html"]').forEach(link=>link.remove());
  var nav=document.getElementById('nav'),menu=document.getElementById('mobile-page-menu'),summary=document.getElementById('nav-toggle');
  if(!nav||!menu||!summary)return;
  var mobile=window.matchMedia('(max-width:1100px)'),reduced=window.matchMedia('(prefers-reduced-motion:reduce)');

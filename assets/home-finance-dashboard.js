@@ -19,7 +19,7 @@ function renderHero(farms,records){
  appendMetric(metrics,__avt("Toplam Maliyet"),c.total,__avt("TL"),'hero-farm-metric');appendMetric(metrics,__avt("Dekara Maliyet"),c.perDecare,__avt("TL/da"),'hero-farm-metric');appendMetric(metrics,__avt("Kg Başına Maliyet"),c.costKg,__avt("TL/kg"),'hero-farm-metric');
  appendMetric(metrics,(actual?__avt("Gerçek"):__avt("Tahmini"))+__avt(" Kâr / Zarar"),result.profit,__avt("TL"),'hero-farm-metric');
  appendMetric(metrics,__avt("Kâr / Zarar Oranı"),result.percent,'%','hero-farm-metric');
- appendMetric(metrics,(actual?__avt("Gerçekleşen"):__avt("Tahmini"))+__avt(" Destekleme"),result.support,__avt("TL"),'hero-farm-metric');
+ if(!actual)appendMetric(metrics,__avt("Tahmini Destekleme"),result.support,__avt("TL"),'hero-farm-metric');
  card.append(metrics);card.append(el('small','hero-farm-note',c.missing?__avt("Eski masraf bilgileri eksik; detaydan düzenle."):c.costKg===null?__avt("Kg maliyeti için Sezon Sonu Tahmini sayfasına verim gir."):c.kgBasis));card.append(el('span','hero-farm-action',__avt("Tarla ve Sezon Detayı →")));wrap.append(card);const actualLink=el('a','hero-farm-season-link',__avt("Sezon Sonu Gerçekleşen →"));actualLink.href=card.href+'&year='+encodeURIComponent(farm.season_year)+'#season-end';wrap.append(actualLink);hero.append(wrap);});
 }
 function guest(){notice(__avt("Kendi tarlalarını ve maliyetlerini görmek için giriş yap."));}

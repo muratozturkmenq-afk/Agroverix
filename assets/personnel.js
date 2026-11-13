@@ -5,7 +5,7 @@ import {allocatePersonnel,personnelTotal,payrollMonths,duePersonnelMonths,remain
 // Keep personnel and farm-share displays at two decimals, including on the first render.
 const I=window.AgroIntl,$=id=>document.getElementById(id),num=n=>Number(n).toLocaleString(I.locale,{minimumFractionDigits:2,maximumFractionDigits:2}),money=n=>num(n)+' '+I.currencyLabel();
 let session=null,farms=[],expenses=[],allocations=[],schedules=[],adjustments=[],editing=null,editingAdjustment=null,adjustmentRequestId=crypto.randomUUID(),requestId=crypto.randomUUID(),saving=false,loading=false,refreshQueued=false,generation=0,requestedEditOpened=false;
-const requestedEdit=new URLSearchParams(location.search).get('edit');
+const requestedEdit=new URLSearchParams(location.search).get('personnelEdit')||(!document.getElementById('purchase-form')?new URLSearchParams(location.search).get('edit'):null);
 const currentYear=()=>Number(new Intl.DateTimeFormat('en-US',{timeZone:'Europe/Istanbul',year:'numeric'}).format(new Date()));
 $('personnel-year').replaceChildren(new Option(String(currentYear()),String(currentYear())));$('personnel-year').value=String(currentYear());
 const inputs={salary:$('personnel-salary'),insurance:$('personnel-insurance'),other_cost:$('personnel-other')};

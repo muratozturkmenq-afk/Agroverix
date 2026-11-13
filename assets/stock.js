@@ -77,8 +77,9 @@ function renderProducts(tracked,query){
   const sellers=el('div',undefined,'stock-row-dealers');sellers.append(el('span',__avt("Bayi: ")));
   const names=dealers(totals.receipts);if(!names.length)sellers.append(document.createTextNode(__avt("Bayi kaydı bulunamadı")));
   names.forEach(name=>sellers.append(el('span',name)));
-  const service=categoryKind(item.category)==='service';
-  const numbers=quantityRow([[service?__avt("Kaydedilen Miktar"):__avt("Alınan Miktar"),fmt(totals.purchased)+' '+I.t(item.base_unit)],[service?__avt("Tarlalara Dağıtılan"):__avt("Kullanılan Miktar"),fmt(totals.used)+' '+I.t(item.base_unit)],[service?__avt("Dağıtılmamış Miktar"):__avt("Kalan Miktar"),fmt(totals.remaining)+' '+I.t(item.base_unit)]]);
+  const service=categoryKind(item.category)==='service'||item.category==='fuel'&&item.base_unit==='adet',amountBased=service&&totals.purchased>0&&Math.abs(totals.cost/totals.purchased-1)<1e-8;
+  const amountOrQuantity=value=>amountBased?money(value):fmt(value)+' '+I.t(item.base_unit);
+  const numbers=quantityRow([[amountBased?__avt("Kaydedilen Tutar"):service?__avt("Kaydedilen Miktar"):__avt("Alınan Miktar"),amountOrQuantity(totals.purchased)],[service?__avt("Tarlalara Dağıtılan"):__avt("Kullanılan Miktar"),amountOrQuantity(totals.used)],[amountBased?__avt("Dağıtılmamış Tutar"):service?__avt("Dağıtılmamış Miktar"):__avt("Kalan Miktar"),amountOrQuantity(totals.remaining)]]);
   const summary=el('div',undefined,'stock-row-summary');summary.append(head,numbers,sellers);
   body.append(el('h4',__avt("Tarla Kullanımları · ")+totals.uses.length+__avt(" uygulama")),applicationRows(totals,item),purchaseHistory(totals.receipts,item));card.append(summary,body);categoryNodes.get(item.category).append(card);
  });

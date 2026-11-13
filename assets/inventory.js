@@ -7,8 +7,8 @@ import {expenseCategories,categoryKind,categoryLabel,normalizeSupplier} from './
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
 import {bindNumberInput,parseNumberInput,setNumberInputValue} from './number-input.js?v=international-v1';
 import {units,fmt,money,converted,loadInventory,readAll,today,stockError} from './inventory-data.js?v=international-v1';
-import {createPaymentLedger} from './inventory-payments.js?v=international-v1';
-import {showInventoryView} from './inventory-views.js?v=international-v1';
+import {createPaymentLedger} from './inventory-payments.js?v=page-reorg-v1';
+import {showInventoryView} from './inventory-views.js?v=page-reorg-v1';
 
 const $=s=>document.querySelector(s),form=$('#purchase-form'),cfg=window.AGROVERIX_SUPABASE||{};
 let client=null,session=null,items=[],purchases=[],loading=false,refreshQueued=false,generation=0,ready=false,saving=false,channel=null;
@@ -24,11 +24,12 @@ const date=value=>new Date(value+'T12:00:00').toLocaleDateString(I.locale);
 function el(tag,text,className){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(className)n.className=className;return n;}
 function message(text,error=false,target=$('#inventory-status')){target.textContent=text;target.classList.toggle('is-error',error);}
 function button(text,action){const b=el('button',text,'inventory-button');b.type='button';b.addEventListener('click',action);return b;}
+function expenseService(item){return categoryKind(item?.category)==='service'||item?.category==='fuel'&&item.base_unit==='adet';}
 function itemLabel(item){return item.name+(item.brand?' · '+item.brand:'');}
 function matchingItem(){
  const unit=['torba','şişe'].includes($('#purchase-unit').value)?$('#purchase-package-unit').value:$('#purchase-unit').value;
  const normalize=value=>String(value||'').trim().toLocaleLowerCase('tr-TR');
- return items.find(i=>normalize(i.name)===normalize($('#purchase-name').value)&&normalize(i.brand)===normalize($('#purchase-kind').value==='service'?'':$('#purchase-brand').value)&&i.base_unit===units[unit]?.[0]&&i.category===$('#purchase-category').value);
+ return items.find(i=>normalize(i.name)===normalize($('#purchase-name').value)&&normalize(i.brand)===normalize($('#purchase-brand').value)&&i.base_unit===units[unit]?.[0]&&i.category===$('#purchase-category').value);
 }
 function purchaseCategories(kind,selected){
  const select=$('#purchase-category');select.replaceChildren();
@@ -54,15 +55,18 @@ $('#purchase-category').addEventListener('change',()=>{
 purchaseCategories('stock','fertilizer');
 function populateItems(){updateForm();}
 function updateForm(){
+ const serviceMode=$('#purchase-kind').value==='service',oldService=purchases.find(p=>p.id===$('#purchase-id').value);
+ if(serviceMode){$('#purchase-price-mode').value='total';if(!oldService){$('#purchase-unit').value='adet';setNumberInputValue($('#purchase-quantity'),Math.max(1,numeric('purchase-price')||0));}}
+ ['purchase-quantity','purchase-unit','purchase-price-mode'].forEach(id=>{const field=$('#'+id);field.closest('.profile-field').hidden=serviceMode;field.required=!serviceMode;});
  const pack=['torba','şişe'].includes($('#purchase-unit').value),existing=matchingItem();
  $('#purchase-category').disabled=false;
  const service=$('#purchase-kind').value==='service',fuel=$('#purchase-category').value==='fuel';
  $('#purchase-supplier-field').hidden=service;$('#purchase-supplier').disabled=service;$('#purchase-supplier').required=!service;
  $('#purchase-brand').required=service;$('#purchase-brand-label').textContent=service?__avt("Firma Adı *"):__avt("Firma Adı");
- $('#purchase-service-hint').hidden=!service||fuel;
+ $('#purchase-service-hint').hidden=!service;$('#purchase-service-hint').textContent='Toplam gider tutarını gir. Tarlalara ayrılacak tutarları Uygulama Girişi sayfasında belirle.';
  $('#purchase-quantity-label').textContent=service&&!fuel?__avt("Uygulamalara Dağıtılacak Miktar *"):__avt("Alınan Miktar *");
  $('#purchase-name').placeholder=service&&!fuel?__avt("Örn. traktör bakımı veya elektrik faturası"):__avt("Örn. DAP gübresi veya mazot");
- $('#package-fields').hidden=!pack;$('#purchase-package').required=pack;$('#purchase-package').disabled=!pack;$('#purchase-package-unit').disabled=!pack;
+ $('#package-fields').hidden=service||!pack;$('#purchase-package').required=pack;$('#purchase-package').disabled=!pack;$('#purchase-package-unit').disabled=!pack;
  const unitPrice=$('#purchase-price-mode').value==='unit';
  $('#purchase-price-label').textContent=unitPrice?__avt("Masrafın Adet Alış Fiyatı (TL) *"):__avt("Masraf Toplamı (TL) *");
  const q=numeric('purchase-quantity'),p=numeric('purchase-price'),factor=pack?numeric('purchase-package'):1,unit=pack?$('#purchase-package-unit').value:$('#purchase-unit').value;
@@ -72,7 +76,7 @@ function updateForm(){
  if(item&&units[unit]?.[0]!==item.base_unit)text+=__avt(" · Bu ürün için ")+item.base_unit+__avt(" ile uyumlu birim seç.");
  const old=purchases.find(p=>p.id===$('#purchase-id').value),paid=Number(old?.paid_total||0);
  if(paymentsReady&&Number.isFinite(total)&&total>=0&&Number.isFinite(paid))text+=__avt(" · Ödenen: ")+money(paid)+__avt(" · Kalan Borç: ")+money(total-paid);
- $('#purchase-preview').textContent=text;
+ $('#purchase-preview').textContent=service?'Masrafın toplam tutarı: '+money(total)+'. Uygulama Girişi sayfasında bu tutarı tarlalara paylaştırabilirsin.':text;
 }
 form.addEventListener('input',updateForm);form.addEventListener('change',updateForm);
 function resetForm(){form.reset();purchaseCategories('stock','fertilizer');purchaseRequestId=crypto.randomUUID();$('#purchase-id').value='';$('#purchase-date').value=today();$('#purchase-title').textContent=__avt("Masraf Ekle");$('#purchase-save').textContent=__avt("Masrafı Kaydet →");$('#purchase-cancel').hidden=true;updateForm();}
@@ -80,13 +84,13 @@ $('#purchase-cancel').addEventListener('click',()=>{resetForm();message('',false
 function editPurchase(p){
  showInventoryView('purchase');
  const item=items.find(i=>i.id===p.item_id);if(!item){message(__avt("Masrafın ürün bilgileri yüklenemedi. Sayfayı yenile."),true);return;}
- $('#purchase-kind').value=categoryKind(item.category);purchaseCategories(categoryKind(item.category),item.category);
- $('#purchase-id').value=p.id;$('#purchase-name').value=item.name;$('#purchase-brand').value=categoryKind(item.category)==='service'?p.supplier:item.brand;$('#purchase-category').value=item.category;$('#purchase-supplier').value=p.supplier;$('#purchase-date').value=p.purchase_date;$('#purchase-unit').value=p.purchased_unit;$('#purchase-package-unit').value=p.package_unit||'kg';$('#purchase-price-mode').value='total';
+ $('#purchase-kind').value=expenseService(item)?'service':'stock';purchaseCategories($('#purchase-kind').value,item.category);
+ $('#purchase-id').value=p.id;$('#purchase-name').value=item.name;$('#purchase-brand').value=expenseService(item)?p.supplier:item.brand;$('#purchase-category').value=item.category;$('#purchase-supplier').value=p.supplier;$('#purchase-date').value=p.purchase_date;$('#purchase-unit').value=p.purchased_unit;$('#purchase-package-unit').value=p.package_unit||'kg';$('#purchase-price-mode').value='total';
  setNumberInputValue($('#purchase-quantity'),p.purchased_quantity);setNumberInputValue($('#purchase-package'),p.package_quantity??'');setNumberInputValue($('#purchase-price'),p.total_cost);$('#purchase-note').value=p.notes||'';
  $('#purchase-title').textContent=__avt("Masrafı Düzenle");$('#purchase-save').textContent=__avt("Değişiklikleri Kaydet →");$('#purchase-cancel').hidden=false;updateForm();message(__avt("Kaydettiğinde stok fark kadar güncellenir."),false,$('#purchase-status'));form.scrollIntoView({behavior:'smooth',block:'start'});
 }
 form.addEventListener('submit',async event=>{
- event.preventDefault();if(saving||!session||!ready)return;
+ event.preventDefault();if(saving||!session||!ready)return;updateForm();
  const q=numeric('purchase-quantity'),p=numeric('purchase-price'),pack=['torba','şişe'].includes($('#purchase-unit').value),pq=pack?numeric('purchase-package'):null,unit=pack?$('#purchase-package-unit').value:$('#purchase-unit').value;
  const service=$('#purchase-kind').value==='service',total=purchaseTotal(q,p);
  let item=matchingItem();
@@ -98,7 +102,7 @@ form.addEventListener('submit',async event=>{
  if(item&&units[unit]?.[0]!==item.base_unit){message(__avt("Seçilen ürünün stok birimi ")+item.base_unit+__avt(". Uyumlu bir masraf birimi seç."),true,$('#purchase-status'));return;}
  const old=purchases.find(p=>p.id===$('#purchase-id').value);
  if(old&&Math.round(total*100)<Math.round(Number(old.paid_total||0)*100)){message(__avt("Masraf bedeli kaydedilmiş ödemelerden az olamaz. Önce ödeme kayıtlarını kontrol et."),true,$('#purchase-status'));return;}
- const payload={id:$('#purchase-id').value||null,item_id:item?.id||null,name:$('#purchase-name').value.trim(),brand:service?'':$('#purchase-brand').value.trim(),category:$('#purchase-category').value,supplier:(service?$('#purchase-brand'):$('#purchase-supplier')).value.trim(),purchase_date:$('#purchase-date').value,purchased_quantity:q,purchased_unit:$('#purchase-unit').value,package_quantity:pq,package_unit:pack?$('#purchase-package-unit').value:null,total_cost:Number(total.toFixed(2)),notes:$('#purchase-note').value.trim()};
+ const payload={id:$('#purchase-id').value||null,item_id:item?.id||null,name:$('#purchase-name').value.trim(),brand:service?(priorItem?.brand??$('#purchase-brand').value.trim()):$('#purchase-brand').value.trim(),category:$('#purchase-category').value,supplier:(service?$('#purchase-brand'):$('#purchase-supplier')).value.trim(),purchase_date:$('#purchase-date').value,purchased_quantity:q,purchased_unit:$('#purchase-unit').value,package_quantity:pq,package_unit:pack?$('#purchase-package-unit').value:null,total_cost:Number(total.toFixed(2)),notes:$('#purchase-note').value.trim()};
  saving=true;$('#purchase-save').disabled=true;message(__avt("Masraf ve stok kaydediliyor…"),false,$('#purchase-status'));
  try{const {data,error}=paymentsReady?await client.rpc('agroverix_save_purchase_and_payment',{p_purchase:payload,p_payment:null,p_request_id:purchaseRequestId}):await client.rpc('agroverix_save_inventory_purchase',{p_purchase:payload});if(error)throw error;resetForm();message(__avt("Masraf kaydedildi. Ödeme girmek için Ödeme Girişi düğmesini seç."),false,$('#purchase-status'));await refresh();if(data)ledger.selectPurchase(data);}
  catch(error){message(stockError(error),true,$('#purchase-status'));}
@@ -130,7 +134,7 @@ function renderPurchases(){
  const product=$('#purchase-product-filter').value,supplier=$('#purchase-supplier-filter').value,list=$('#purchase-history-list');list.replaceChildren();
  const rows=purchases.filter(p=>(!product||(p.item_id||'__missing__')===product)&&(!supplier||normalizeSupplier(p.supplier)===supplier));
  rows.slice().sort((a,b)=>b.purchase_date.localeCompare(a.purchase_date)||a.id.localeCompare(b.id)).forEach(p=>{
-  const item=items.find(i=>i.id===p.item_id),card=el('article',undefined,'purchase-list-card');card.append(el('h3',item?(categoryKind(item.category)==='service'?item.name:itemLabel(item)):__avt("Ürün bilgisi bulunamadı")),el('p',categoryLabel(item?.category)),el('p',(categoryKind(item?.category)==='service'?__avt("Firma Adı: "):__avt("Bayi Adı: "))+p.supplier),el('p',__avt("Masraf Tarihi: ")+date(p.purchase_date)),el('p',__avt("Alınan Miktar: ")+fmt(p.purchased_quantity)+' '+I.t(p.purchased_unit)+(p.package_quantity?' × '+fmt(p.package_quantity)+' '+p.package_unit:'')),el('strong',money(p.total_cost)));
+  const item=items.find(i=>i.id===p.item_id),card=el('article',undefined,'purchase-list-card');card.append(el('h3',item?(expenseService(item)?item.name:itemLabel(item)):__avt("Ürün bilgisi bulunamadı")),el('p',categoryLabel(item?.category)),el('p',(expenseService(item)?__avt("Firma Adı: "):__avt("Bayi Adı: "))+p.supplier),el('p',__avt("Masraf Tarihi: ")+date(p.purchase_date)),el('p',__avt("Alınan Miktar: ")+fmt(p.purchased_quantity)+' '+I.t(p.purchased_unit)+(p.package_quantity?' × '+fmt(p.package_quantity)+' '+p.package_unit:'')),el('strong',money(p.total_cost)));
   if(paymentsReady)card.append(el('p',__avt("Ödenen: ")+money(p.paid_total)+__avt(" · Kalan Borç: ")+money((Math.round(Number(p.total_cost)*100)-Math.round(Number(p.paid_total)*100))/100)));
   const actions=el('div',undefined,'stock-row-actions'),remove=button('Sil',()=>removePurchase(p,remove)),pay=button(__avt("Ödeme Girişi"),()=>{ledger.selectPurchase(p.id);showInventoryView('payment',{scroll:true});});pay.disabled=!paymentsReady;
   actions.append(button(__avt("Masrafı Düzenle"),()=>editPurchase(p)),pay,remove);card.append(actions);list.append(card);
