@@ -66,4 +66,4 @@
 
 .home-fields-page .finance-hero-title{font-size:clamp(34px,4.4vw,64px)!important}
 .home-fields-page .hero-field-actions>a[href="tarla-bilgileri.html"]{grid-column:1/-1}
-@media(max-width:600px){.home-fields-page .finance-hero-title{font-size:clamp(30px,8.4vw,46px)!important}}
+@media(max-width:600px){.home-fields-page .finance-hero-title{font-size:clamp(26px,7.3vw,36px)!important}}

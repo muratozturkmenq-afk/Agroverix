@@ -4,7 +4,7 @@ const __avt=s=>I.t(s);
 import {bindNumberInput,parseNumberInput,setNumberInputValue} from './number-input.js?v=international-v1';
 import {money,today,stockError,fmt} from './inventory-data.js?v=international-v1';
 import {normalizeSupplier,categoryLabel} from './expense-categories.js?v=international-v1';
-import {showInventoryView} from './inventory-views.js?v=page-reorg-v1';
+import {showInventoryView} from './inventory-views.js?v=page-reorg-v2';
 
 const $=s=>document.querySelector(s),cents=value=>Math.round(Number(value||0)*100);
 const date=value=>new Date(value+'T12:00:00').toLocaleDateString(I.locale);

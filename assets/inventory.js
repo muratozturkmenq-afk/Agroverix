@@ -7,8 +7,8 @@ import {expenseCategories,categoryKind,categoryLabel,normalizeSupplier} from './
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
 import {bindNumberInput,parseNumberInput,setNumberInputValue} from './number-input.js?v=international-v1';
 import {units,fmt,money,converted,loadInventory,readAll,today,stockError} from './inventory-data.js?v=international-v1';
-import {createPaymentLedger} from './inventory-payments.js?v=page-reorg-v1';
-import {showInventoryView} from './inventory-views.js?v=page-reorg-v1';
+import {createPaymentLedger} from './inventory-payments.js?v=page-reorg-v2';
+import {showInventoryView} from './inventory-views.js?v=page-reorg-v2';
 
 const $=s=>document.querySelector(s),form=$('#purchase-form'),cfg=window.AGROVERIX_SUPABASE||{};
 let client=null,session=null,items=[],purchases=[],loading=false,refreshQueued=false,generation=0,ready=false,saving=false,channel=null;
