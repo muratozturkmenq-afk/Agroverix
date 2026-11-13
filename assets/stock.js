@@ -38,13 +38,14 @@ function quantityRow(values){
  const dl=el('dl',undefined,'stock-quantity-grid');values.forEach(([label,value])=>metric(dl,label,value));return dl;
 }
 function detailTotal(label,value){const box=el('div',undefined,'stock-row-total');box.append(el('span',label),el('b',value));return box;}
+function amountBasedItem(item){if(!(categoryKind(item?.category)==='service'||item?.category==='fuel'&&item.base_unit==='adet'))return false;const rows=purchases.filter(p=>p.item_id===item.id),q=rows.reduce((n,p)=>n+Number(p.quantity),0),cost=rows.reduce((n,p)=>n+Number(p.total_cost),0);return q>0&&Math.abs(cost/q-1)<1e-8;}
 function applicationRows(totals,item){
  const uses=el('div',undefined,'stock-usage-list');
  totals.uses.slice().sort((a,b)=>a.operation_date.localeCompare(b.operation_date)||a.id.localeCompare(b.id)).forEach(record=>{
   const row=el('article',undefined,'stock-usage'),values=el('dl',undefined,'stock-usage-metrics'),farm=farms.find(f=>f.id===record.farm_id),total=applicationTotal(record);
   const field=el('div');field.append(el('dt',__avt("Tarla Adı")));const fieldValue=el('dd');
   if(farm){const link=el('a',farm.name);link.href='tarla-detay.html?farm='+encodeURIComponent(farm.id)+'&year='+encodeURIComponent(record.season_year);fieldValue.append(link);}else fieldValue.textContent=__avt("Tarla kaydı bulunamadı");
-  field.append(fieldValue);values.append(field);metric(values,__avt("Uygulama Tarihi"),date(record.operation_date));metric(values,__avt("Kullanılan Miktar"),fmt(record.inventory_quantity)+' '+I.t(item.base_unit));metric(values,__avt("Uygulama Tutarı"),total===null?__avt("Maliyet bilgisi eksik"):money(total));
+  field.append(fieldValue);values.append(field);metric(values,__avt("Uygulama Tarihi"),date(record.operation_date));if(!amountBasedItem(item))metric(values,__avt("Kullanılan Miktar"),fmt(record.inventory_quantity)+' '+I.t(item.base_unit));metric(values,__avt("Uygulama Tutarı"),total===null?__avt("Maliyet bilgisi eksik"):money(total));
   const a=el('a',__avt("Uygulama Kaydını Aç →"));a.href='uretim-kayitlari.html?edit='+encodeURIComponent(record.id);
   row.append(values,el('p',(operationLabels[record.operation_type]||__avt("Uygulama"))+' · '+record.season_year+__avt(" sezonu")+(record.notes?' · '+record.notes:'')),a);uses.append(row);
  });
@@ -55,7 +56,7 @@ function purchaseHistory(receipts,item){
  const history=el('details',undefined,'stock-receipts');history.append(el('summary',__avt("Masraf Kayıtları · ")+receipts.length+__avt(" kayıt")));
  receipts.slice().sort((a,b)=>b.purchase_date.localeCompare(a.purchase_date)||b.id.localeCompare(a.id)).forEach(p=>{
   const row=el('article',undefined,'stock-receipt'),b=el('b',p.supplier||__avt("Bayi belirtilmemiş"));
-  row.append(b,el('p',__avt("Masraf Tarihi: ")+date(p.purchase_date)),el('p',fmt(p.purchased_quantity)+' '+I.t(p.purchased_unit)+(p.package_quantity?' × '+fmt(p.package_quantity)+' '+p.package_unit:'')+' · '+fmt(p.quantity)+' '+(item?.base_unit||'')),el('p',__avt("Masraf Tutarı: ")+money(p.total_cost)));
+  row.append(b,el('p',__avt("Masraf Tarihi: ")+date(p.purchase_date)),el('p',amountBasedItem(item)?__avt('Tutar bazında tarlalara paylaştırılır.'):fmt(p.purchased_quantity)+' '+I.t(p.purchased_unit)+(p.package_quantity?' × '+fmt(p.package_quantity)+' '+p.package_unit:'')+' · '+fmt(p.quantity)+' '+(item?.base_unit||'')),el('p',__avt("Masraf Tutarı: ")+money(p.total_cost)));
   if(p.notes)row.append(el('p',p.notes));const a=el('a',__avt("Masraf Kaydını Aç →"));a.href='alisveris-stok.html?edit='+encodeURIComponent(p.id)+'#alisveris-ekle';row.append(a);history.append(row);
  });return history;
 }

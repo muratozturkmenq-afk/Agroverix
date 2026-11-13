@@ -32,3 +32,5 @@
 .inventory-main-tabs{grid-template-columns:repeat(3,minmax(0,1fr));max-width:720px}.inventory-main-tabs button{min-width:0;white-space:normal;font-size:15px;padding:10px 8px}.embedded-section-title{font:750 28px/1.25 Archivo,sans-serif;color:#f4f4e8;margin:22px 0 14px}#personel-giderleri{min-width:0}#personel-giderleri .personnel-summary{margin-top:12px}#personel-giderleri .personnel-summary article{color:#f4f4e8}
 
 .production-page-switch{margin:18px auto;max-width:480px;width:calc(100% - 32px);position:static}#stock-panel{padding-top:1px;min-width:0}#stock-panel .inventory-layout{width:100%;box-sizing:border-box}#stock-panel .inventory-intro h1{font-size:32px}
+
+#personel-giderleri{scroll-margin-top:110px}
