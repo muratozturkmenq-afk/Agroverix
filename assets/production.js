@@ -70,7 +70,7 @@ function updateStockSelection(fill=false){
  }else $('#operation-stock-hint').textContent=manual?__avt("Masraf kaydı seçmeden tutarı elle giriyorsun. Bu giriş ürün stoğundan veya dağıtılmamış giderden düşülmez."):$('#operation-inventory-item').value===legacyProductValue?__avt("Eski kaydın maliyetini elle düzenleyebilirsin."):!session?__avt("Hesabına giriş yaptığında ürün ve gider kayıtların burada görünür."):!inventoryReady?__avt("Masraf kayıtları yüklenemedi. Sayfayı yenile."):__avt("Masraf Ekle bölümünde kaydettiğin ürünü veya gideri seç.");
  $('#operation-product-field').hidden=false;
  $('#operation-inventory-item').required=true;
- const amountMode=amountExpense();$('#operation-service-amount-field').hidden=!amountMode;$('#operation-service-amount').disabled=!amountMode;$('#operation-service-amount').required=amountMode;
+ const amountMode=amountExpense();$('#operation-service-amount-field').querySelector('label').textContent=__avt('Bu Tarlaya Ayrılan Masraf Tutarı (TL) *');$('#operation-service-amount-field').hidden=!amountMode;$('#operation-service-amount').disabled=!amountMode;$('#operation-service-amount').required=amountMode;
  $('#operation-quantity-field').hidden=manual||amountMode;
  ['operation-quantity','operation-unit'].forEach(id=>{$('#'+id).required=!manual&&!amountMode;$('#'+id).disabled=manual||amountMode;});
  if(fill){$('#operation-service-amount').value='';$('#operation-package-quantity').value='';if(!item)$('#operation-total-cost').value='';}
@@ -314,7 +314,7 @@ function updateCostPreview() {
   if(amountExpense()){setNumberInputValue($('#operation-quantity'),result.quantity);$('#operation-unit').value=item.base_unit;}
   setNumberInputValue(field,result.total);
   note.textContent=fmt(result.quantity)+' '+I.t(item.base_unit)+' × '+fmt(result.unitCost)+' TL/'+item.base_unit+' = '+formatMoney(result.total)+__avt(" TL · ")+(result.stored?__avt("Kayıtta saklanan birim maliyet."):__avt("İşlem tarihine kadar olan masrafların ağırlıklı birim maliyeti."));
-  if(amountExpense())note.textContent='Bu tarlaya ayrılan tutar: '+formatMoney(result.total)+' TL. Kalan gider tutarını başka tarlalara dağıtabilirsin.';
+  if(amountExpense())note.textContent='Bu tarlaya ayrılan tutar: '+formatMoney(result.total)+' '+I.currencyLabel()+'. Kalan gider tutarını başka tarlalara dağıtabilirsin.';
  }else{
   if(!manual&&!legacy)field.value='';
   note.textContent=manual?__avt("Bu tarlaya ait toplam uygulama tutarını elle gir."):legacy?__avt("Önceki kaydın maliyetini elle düzenleyebilir veya kayıtlı bir gider seçebilirsin."):item?__avt("Otomatik maliyet servisi yüklenemedi. Sayfayı yenile."):__avt("Kayıtlı ürün veya gideri seç, kullanılan miktarı gir.");
