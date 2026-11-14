@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="assets/farm-finance.css?v=seasons-v1">
 <link rel="stylesheet" href="assets/mobile-reports.css?v=readable-labels-v2">
 <link rel="stylesheet" href="assets/inventory.css?v=page-reorg-v2">
+<link rel="stylesheet" href="assets/stock.css?v=inventory-lots-v1">
 
 <link rel="icon" href="/favicon.svg?v=logo-20261028" type="image/svg+xml">
 <link rel="icon" href="/favicon.ico?v=logo-20261028" sizes="32x32 48x48 64x64">
@@ -22,7 +23,7 @@
 <meta name="apple-mobile-web-app-title" content="AgroVerix">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<link rel="stylesheet" href="assets/regional.css?v=international-v1">
+<link rel="stylesheet" href="assets/regional.css?v=button-contrast-v1">
 <script src="assets/i18n.js?v=stable-tr-v1"></script>
 <link rel="stylesheet" href="assets/site-contact.css?v=contact-v1">
 <link rel="stylesheet" href="assets/agri-support.css?v=agri-v2">
@@ -95,14 +96,14 @@
  <section class="inventory-intro"><div><p class="eyebrow" data-i18n="Alınan, kullanılan ve kalan">Alınan, kullanılan ve kalan</p><h1><span data-i18n="Ürünler">Ürünler </span><em data-i18n="ve Stokların">ve Stokların</em></h1><p data-i18n="İlaç, gübre, tohum ve mazot stoklarını ayrı başlıklarda; diğer giderlerin kalan paylarını kendi kaleminde gör. Ürün adına dokunarak tarla kullanımlarını ve miktar detaylarını görebilirsin.">İlaç, gübre, tohum ve mazot stoklarını ayrı başlıklarda; diğer giderlerin kalan paylarını kendi kaleminde gör. Ürün adına dokunarak tarla kullanımlarını ve miktar detaylarını görebilirsin.</p></div></section>
  <div id="inventory-auth" class="inventory-notice" role="status" hidden><span data-i18n="Stok bilgilerin hesabına özeldir. Ürünlerini görmek için">Stok bilgilerin hesabına özeldir. Ürünlerini görmek için </span><a href="ciftci-bilgi.html?next=stok.html" data-i18n="giriş yap">giriş yap</a>.</div>
  <p id="inventory-status" class="inventory-status" role="status" aria-live="polite" data-i18n="Stokların yükleniyor…">Stokların yükleniyor…</p>
- <section class="inventory-stock" aria-labelledby="stock-title"><div class="inventory-section-head stock-head"><div><span class="profile-kicker" data-i18n="ÜRÜN BAZINDA TAKİP">ÜRÜN BAZINDA TAKİP</span><h2 id="stock-title" data-i18n="Stoklarım">Stoklarım</h2></div><button id="inventory-refresh" class="inventory-button" type="button" data-i18n="Yenile ↻">Yenile ↻</button></div><p class="stock-view-hint" data-i18n="Ürün adına dokunarak detayını açabilirsin.">Ürün adına dokunarak detayını açabilirsin.</p><div class="profile-field inventory-search"><label for="inventory-search" data-i18n="Ürün, Firma veya Bayi Ara">Ürün, Firma veya Bayi Ara</label><input id="inventory-search" type="search" placeholder="Stokta ara…" data-i18n-placeholder="Stokta ara…"></div><div id="stock-panel-product"><div id="stock-list" class="stock-product-list"></div><div id="stock-empty" class="inventory-empty" hidden><span aria-hidden="true">＋</span><h3 data-i18n="Henüz stok ürünü yok">Henüz stok ürünü yok</h3><p data-i18n="Masraflarını kaydettiğinde ürünlerin ve kalan miktarları burada görünür.">Masraflarını kaydettiğinde ürünlerin ve kalan miktarları burada görünür.</p><a class="inventory-button stock-empty-link" href="alisveris-stok.html" data-i18n="Masraf ve Ödeme →">Masraf ve Ödeme →</a></div></div>
+ <section class="inventory-stock" aria-labelledby="stock-title"><div class="inventory-section-head stock-head"><div><span class="profile-kicker" data-i18n="ÜRÜN BAZINDA TAKİP">ÜRÜN BAZINDA TAKİP</span><h2 id="stock-title" data-i18n="Stoklarım">Stoklarım</h2></div><div class="stock-total-value"><span>Toplam Stok Tutarı</span><strong id="stock-total-value">—</strong><small>Kalan ürünlerin alım maliyeti</small></div><button id="inventory-refresh" class="inventory-button" type="button" data-i18n="Yenile ↻">Yenile ↻</button></div><p class="stock-view-hint" data-i18n="Alımları tarih ve giriş birimiyle gör. Alım satırına dokunarak hangi tarlada kullanıldığını açabilirsin.">Alımları tarih ve giriş birimiyle gör. Alım satırına dokunarak hangi tarlada kullanıldığını açabilirsin.</p><div class="profile-field inventory-search"><label for="inventory-search" data-i18n="Ürün, Firma veya Bayi Ara">Ürün, Firma veya Bayi Ara</label><input id="inventory-search" type="search" placeholder="Stokta ara…" data-i18n-placeholder="Stokta ara…"></div><div id="stock-panel-product"><div id="stock-list" class="stock-product-list"></div><div id="stock-empty" class="inventory-empty" hidden><span aria-hidden="true">＋</span><h3 data-i18n="Henüz stok ürünü yok">Henüz stok ürünü yok</h3><p data-i18n="Masraflarını kaydettiğinde ürünlerin ve kalan miktarları burada görünür.">Masraflarını kaydettiğinde ürünlerin ve kalan miktarları burada görünür.</p><a class="inventory-button stock-empty-link" href="alisveris-stok.html" data-i18n="Masraf ve Ödeme →">Masraf ve Ödeme →</a></div></div>
  <details id="unlinked-section" class="inventory-unlinked" hidden><summary data-i18n="Önceki Uygulamaları Stokla Eşleştir">Önceki Uygulamaları Stokla Eşleştir</summary><p data-i18n="Önceki uygulamaları doğru ürünle eşleştir. Eşleştirilen miktar stoktan düşer. Makine ve işçilik bu listeye dahil değildir.">Önceki uygulamaları doğru ürünle eşleştir. Eşleştirilen miktar stoktan düşer. Makine ve işçilik bu listeye dahil değildir.</p><div id="unlinked-list"></div></details></section>
- <p class="inventory-footnote" data-i18n="Ürünlerin alınan, kullanılan ve kalan miktarları ortak stok üzerinden hesaplanır. Kullanım tutarları, tarlaya kaydedilen uygulama maliyetleridir.">Ürünlerin alınan, kullanılan ve kalan miktarları ortak stok üzerinden hesaplanır. Kullanım tutarları, tarlaya kaydedilen uygulama maliyetleridir.</p>
+ <p class="inventory-footnote" data-i18n="Stok bütün sezonları kapsar. Miktarlar alımda girilen birimle gösterilir. Eski alım seçimi olmayan kullanımlar ilk alınandan başlayarak dağıtılır; kayıtlı tarla maliyetleri değiştirilmez.">Stok bütün sezonları kapsar. Miktarlar alımda girilen birimle gösterilir. Eski alım seçimi olmayan kullanımlar ilk alınandan başlayarak dağıtılır; kayıtlı tarla maliyetleri değiştirilmez.</p>
 </div></section>
 <script src="assets/supabase-config.js?v=international-v1"></script>
-<script type="module" src="assets/production.js?v=page-reorg-v3"></script>
+<script type="module" src="assets/production.js?v=inventory-lots-v1"></script>
 <script type="module" src="assets/regional-boot.js?v=stable-tr-v1"></script>
 <footer class="site-contact-footer"><p class="site-contact-line"><span>İletişim:</span> <a href="mailto:agroverixinfo@gmail.com">agroverixinfo@gmail.com</a></p></footer>
 <script defer src="assets/agri-support.js?v=greeting-v1"></script>
-<script type="module" src="assets/application-panels.js?v=page-reorg-v2"></script></body>
+<script type="module" src="assets/application-panels.js?v=inventory-lots-v1"></script></body>
 </html>
