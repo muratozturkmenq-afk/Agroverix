@@ -5,6 +5,7 @@ const I=window.AgroIntl;
 const __avt=s=>I.t(s);
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
 import { renderSimulators } from './season-simulator.js?v=international-v1';
+import {currentReportYear,seasonFarms} from './season-scope.js?v=season-scope-v1';
 const cfg=window.AGROVERIX_SUPABASE||{},container=document.querySelector('#farm-simulators'),message=document.querySelector('#sim-message'),login=document.querySelector('.nav-in > a.btn');
 function clearSimulators(){container.querySelectorAll('.crop-timeline-visual').forEach(v=>v.dispose?.());container.replaceChildren();}
 function guest(){clearSimulators();message.textContent=__avt("Kendi tarlaların için sezon sonu tahmini yapmak ve tahminlerini saklamak için hesabına giriş yap.");}
@@ -20,9 +21,10 @@ else{
   const [farmsResult,recordsResult]=await Promise.all([client.from('farmer_farms').select('*,farmer_seasons(*)').eq('user_id',session.user.id).order('created_at'),client.from('farmer_operations').select('*').eq('user_id',session.user.id)]);
   if(request!==generation)return;
   if(farmsResult.error||recordsResult.error){message.textContent=__avt("Sezon bilgileri yüklenemedi. Sayfayı yenileyerek tekrar dene.");return;}
-  const farms=farmsResult.data||[],records=recordsResult.data||[],nextSignature=JSON.stringify([session.user.id,farms,records]);
+  const year=currentReportYear(),farms=seasonFarms(farmsResult.data||[],year),records=(recordsResult.data||[]).filter(r=>String(r.season_year)===year),nextSignature=JSON.stringify([session.user.id,year,farms,records]);
   if(quiet&&signature===nextSignature)return;signature=nextSignature;
   renderSimulators(farms,records,client,session.user,()=>{});
+  message.textContent=farms.length?year+' sezonunun ekili tarlaları gösteriliyor.':year+' sezonunda kayıtlı ekili tarla yok.';
  }
  async function refresh(){if(!activeSession||document.hidden||pendingLoad)return;pendingLoad=load(activeSession,{quiet:true});try{await pendingLoad;}finally{pendingLoad=null;}}
  function subscribe(session){if(channel){client.removeChannel(channel);channel=null;}if(!session)return;channel=client.channel('season-forecast-'+session.user.id);['farmer_operations','farmer_seasons','farmer_farms'].forEach(table=>channel.on('postgres_changes',{event:'*',schema:'public',table,filter:'user_id=eq.'+session.user.id},()=>{clearTimeout(refreshTimer);refreshTimer=setTimeout(refresh,350);}));channel.subscribe();}

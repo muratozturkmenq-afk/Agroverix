@@ -6,19 +6,20 @@ import {money,today,stockError,fmt} from './inventory-data.js?v=international-v1
 import {normalizeSupplier,categoryLabel} from './expense-categories.js?v=international-v1';
 import {showInventoryView} from './inventory-views.js?v=page-reorg-v2';
 
+import {seasonPurchases} from './season-scope.js?v=season-scope-v1';
 const $=s=>document.querySelector(s),cents=value=>Math.round(Number(value||0)*100);
 const date=value=>new Date(value+'T12:00:00').toLocaleDateString(I.locale);
 function el(tag,text,className){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(className)n.className=className;return n;}
 function button(text,action){const b=el('button',text,'inventory-button');b.type='button';b.addEventListener('click',action);return b;}
 function message(text,error=false){$('#payment-status').textContent=text;$('#payment-status').classList.toggle('is-error',error);}
 export function createPaymentLedger({getClient,refresh,getSaving,setSaving,onEditPurchase}){
- let session=null,purchases=[],items=[],payments=[],available=false,requestId=crypto.randomUUID(),editing=null;
+ let seasonYear=null,session=null,purchases=[],items=[],payments=[],available=false,requestId=crypto.randomUUID(),editing=null;
  const form=$('#payment-form'),select=$('#payment-purchase');
  bindNumberInput($('#payment-amount'),{maximumFractionDigits:2});$('#payment-date').value=today();
  const name=p=>{const item=items.find(i=>i.id===p.item_id);return item?item.name+(item.brand?' · '+item.brand:''):__avt("Masraf");};
  const debt=p=>Math.max(0,cents(p.total_cost)-cents(p.paid_total))/100;
- function suppliers(){
-  const groups=new Map();purchases.forEach(p=>{const key=normalizeSupplier(p.supplier),g=groups.get(key)||{key,name:p.supplier,rows:[],total:0,paid:0};g.rows.push(p);g.total+=cents(p.total_cost);g.paid+=cents(p.paid_total);groups.set(key,g);});
+ function suppliers(rows=purchases){
+  const groups=new Map();rows.forEach(p=>{const key=normalizeSupplier(p.supplier),g=groups.get(key)||{key,name:p.supplier,rows:[],total:0,paid:0};g.rows.push(p);g.total+=cents(p.total_cost);g.paid+=cents(p.paid_total);groups.set(key,g);});
   return [...groups.values()].sort((a,b)=>a.name.localeCompare(b.name,'tr'));
  }
  function selected(){return suppliers().find(g=>g.key===select.value);}
@@ -43,10 +44,11 @@ export function createPaymentLedger({getClient,refresh,getSaving,setSaving,onEdi
  }
  function open(group,record){
   reset(group.key);showInventoryView('payment');
-  if(record){editing=record;$('#payment-id').value=record.id;setNumberInputValue($('#payment-amount'),record.amount/100);$('#payment-date').value=record.date;$('#payment-note').value=record.notes;$('#payment-title').textContent=__avt("Ödemeyi Düzenle");$('#payment-save').textContent=__avt("Değişiklikleri Kaydet →");$('#payment-cancel').hidden=false;options(group.key);}
+  if(record){record=paymentGroups(suppliers().find(g=>g.key===group.key)).find(r=>r.id===record.id)||record;editing=record;$('#payment-id').value=record.id;setNumberInputValue($('#payment-amount'),record.amount/100);$('#payment-date').value=record.date;$('#payment-note').value=record.notes;$('#payment-title').textContent=__avt("Ödemeyi Düzenle");$('#payment-save').textContent=__avt("Değişiklikleri Kaydet →");$('#payment-cancel').hidden=false;options(group.key);}
   render();message(record?__avt("Kaydettiğinde ödeme ve bayi borcu birlikte güncellenir."):__avt("Ödenen tutarı ve tarihi gir."));form.scrollIntoView({behavior:'smooth',block:'center'});
  }
  async function remove(record,control){
+  const full=suppliers().find(g=>g.key===select.value);if(full)record=paymentGroups(full).find(r=>r.id===record.id)||record;
   if(getSaving()||!session)return;
   if(!confirm(__avt("Bu ödeme kaydı silinsin mi? Tutar, ilgili masrafların kalan borcuna geri eklenecek.")))return;
   setSaving(true);control.disabled=true;const key=select.value;
@@ -58,10 +60,10 @@ export function createPaymentLedger({getClient,refresh,getSaving,setSaving,onEdi
  function metrics(parent,values){const row=el('div',undefined,'ledger-amounts');values.forEach(([label,value])=>{const item=el('div');item.append(el('span',label),el('b',value));row.append(item);});parent.append(row);}
  function render(){
   const supplierList=$('#supplier-balances'),list=$('#purchase-ledger');supplierList.replaceChildren();list.replaceChildren();
-  const groups=suppliers(),group=selected();
+  const groups=suppliers(seasonPurchases(purchases,seasonYear)),group=groups.find(g=>g.key===select.value),entryGroup=selected();
   $('#supplier-title').textContent=group?group.name+__avt(" · Bayi Hesabı"):__avt("Bayi Hesapları");
   $('#dealer-detail-title').textContent=group?group.name+__avt(" · Masraflar ve Ödemeler"):__avt("Bayi Masrafları ve Ödemeleri");
-  $('#payment-dealer-hint').textContent=group?__avt("Kalan borç: ")+money((group.total-group.paid)/100)+__avt(". Ödeme, en eski açık masraftan başlayarak dağıtılır."):__avt("Bayi/firma seçtiğinde masrafları sağ tarafta görünür.");
+  $('#payment-dealer-hint').textContent=entryGroup?'Tüm sezonlardaki kalan borç: '+money((entryGroup.total-entryGroup.paid)/100)+'. Ödeme en eski açık masraftan başlayarak dağıtılır. Sağdaki kayıtlar '+seasonYear+' sezonunun masraflarına aittir.':__avt("Bayi/firma seçtiğinde masrafları sağ tarafta görünür.");
   if(!available){$('#supplier-empty').hidden=false;$('#ledger-empty').hidden=false;return;}
   (group?[group]:groups).forEach(g=>{
    const row=button('',()=>{if(editing)return;select.value=g.key;render();});row.classList.add('dealer-balance-row');row.setAttribute('aria-label',g.name+__avt(" bayi detayları"));row.setAttribute('aria-pressed',String(group?.key===g.key));
@@ -86,7 +88,7 @@ export function createPaymentLedger({getClient,refresh,getSaving,setSaving,onEdi
    const card=el('article',undefined,'stock-row'),info=el('div');info.append(el('h4',date(record.date)+' · '+money(record.amount/100)),el('p',record.notes||__avt("Bayi ödemesi")));
    const details=el('details');details.append(el('summary',record.rows.length+__avt(" masraftan düşüldü")));
    record.rows.forEach(row=>{const p=purchases.find(p=>p.id===row.purchase_id);details.append(el('p',(p?date(p.purchase_date)+' · '+name(p):__avt("Masraf"))+' · '+money(row.amount)));});
-   info.append(details);const actions=el('div',undefined,'stock-row-actions'),del=button('Sil',()=>remove(record,del));actions.append(button(__avt("Düzenle"),()=>open(group,record)),del);card.append(info,actions);history.append(card);
+   const fullGroup=suppliers().find(g=>g.key===group.key),fullRecord=fullGroup&&paymentGroups(fullGroup).find(r=>r.id===record.id);if(fullRecord&&fullRecord.amount!==record.amount)info.append(el('p','Bu sezonun masraflarına düşen pay gösteriliyor. Ödemenin tamamı: '+money(fullRecord.amount/100)+'. Düzenleme tüm ödemeyi değiştirir.'));info.append(details);const actions=el('div',undefined,'stock-row-actions'),del=button('Sil',()=>remove(record,del));actions.append(button(__avt("Düzenle"),()=>open(group,record)),del);card.append(info,actions);history.append(card);
   });
   if(!records.length)history.append(el('p',__avt("Bu bayi için henüz ödeme kaydı yok."),'payment-help'));list.append(history);
  }
@@ -111,7 +113,7 @@ export function createPaymentLedger({getClient,refresh,getSaving,setSaving,onEdi
  });
  return {
   update(data){
-   const changed=session?.user.id!==data.session?.user.id;session=data.session;purchases=data.purchases||[];items=data.items||[];payments=data.payments||[];available=Boolean(session&&data.available);
+   const changed=session?.user.id!==data.session?.user.id;session=data.session;seasonYear=data.seasonYear;purchases=data.purchases||[];items=data.items||[];payments=data.payments||[];available=Boolean(session&&data.available);
    if(changed){reset();message('');}
    if(editing&&!payments.some(p=>(p.payment_group_id||p.id)===editing.id)){reset(select.value);message(__avt("Düzenlenen ödeme artık bulunmuyor. Liste güncellendi."));}
    $('#payment-fields').disabled=!available;$('#payment-availability').textContent=!session?__avt("Ödeme ve bayi hesaplarını görmek için giriş yap."):available?__avt("Bayi/firma seçerek ödemeni kaydet. Sağ tarafta seçtiğin bayinin masrafları ve ödemeleri görünür."):__avt("Ödeme bilgileri yüklenemedi. Sayfayı yenileyerek tekrar dene.");
