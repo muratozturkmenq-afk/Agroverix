@@ -67,3 +67,12 @@
 .home-fields-page .finance-hero-title{font-size:clamp(34px,4.4vw,64px)!important}
 .home-fields-page .hero-field-actions>a[href="tarla-bilgileri.html"]{grid-column:1/-1}
 @media(max-width:600px){.home-fields-page .finance-hero-title{font-size:clamp(26px,7.3vw,36px)!important}}
+
+/* Home summaries follow one agricultural season, independently of the report scope. */
+.home-fields-page .home-summary-season{display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--cotton);font-size:14px;font-weight:700;flex:none}
+.home-fields-page .home-summary-season select{width:110px;min-height:42px;border:1px solid #ffffff66;border-radius:8px;background:var(--ink);color:var(--cotton);color-scheme:dark;padding:8px 12px;font:inherit}
+.home-fields-page .home-summary-season select:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.home-fields-page .hero-field-actions{display:block}
+.home-fields-page .home-report-controls{width:274px;max-width:100%;grid-template-columns:minmax(0,166px) minmax(72px,98px)}
+.home-fields-page .home-report-footer #admin-link{width:220px;max-width:100%;align-self:flex-start;justify-content:center;text-align:center}
+@media(max-width:600px){.home-fields-page .home-report-controls{width:245px;grid-template-columns:minmax(0,163px) 72px}.home-fields-page .home-report-footer #admin-link{width:163px}}

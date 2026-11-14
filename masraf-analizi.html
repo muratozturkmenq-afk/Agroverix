@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="tr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Masraf Analizi · AgroVerix</title><meta name="theme-color" content="#0D100B">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Sans:ital,wght@0,400..700;1,400&family=Martian+Mono:wght@400..600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css"><link rel="stylesheet" href="assets/profile.css?v=compact-record-actions-v1">
+<link rel="stylesheet" href="assets/farm-detail.css?v=harvest-link-v2"><link rel="stylesheet" href="assets/farm-finance.css?v=support-v1">
+<link rel="stylesheet" href="assets/regional.css?v=international-v1"><link rel="stylesheet" href="assets/expense-analysis.css?v=home-season-v1">
+<link rel="stylesheet" href="assets/site-contact.css?v=contact-v1"><link rel="stylesheet" href="assets/agri-support.css?v=agri-v2">
+<link rel="icon" href="/favicon.svg?v=logo-20261028" type="image/svg+xml">
+<script src="assets/i18n.js?v=stable-tr-v1"></script>
+</head><body class="profile-page farm-detail-page expense-analysis-page">
+<header class="profile-top">
+<a class="brand" href="index.html" aria-label="AgroVerix ana sayfa"><img class="home-logo" src="assets/images/agroverix-logo-horizontal-light.svg?v=logo-transparent-20261028" width="1024" height="360" alt="AgroVerix — Cebimdeki Tarlam"></a>
+<span class="profile-step">MASRAF ANALİZİ</span><a class="profile-back" id="analysis-home" href="index.html">← Ana Sayfaya Dön</a>
+</header>
+<main class="farm-detail-layout">
+<section class="farm-detail-card">
+<p class="profile-kicker">TARLA VE SEZON</p><h1 id="analysis-title">Masraf Analizi</h1>
+<p>Uygulama kayıtlarından tarlanın masraf dağılımını gör.</p>
+<div class="analysis-toolbar"><label for="analysis-year">Sezon <select id="analysis-year" disabled></select></label>
+<a class="auth-back" id="analysis-detail" hidden>Tarla ve Sezon Detayı →</a><button class="auth-back" id="analysis-refresh" type="button" disabled>Yenile</button></div>
+<p id="analysis-status" role="status" aria-live="polite">Tarla bilgileri yükleniyor…</p>
+<a class="auth-back" id="analysis-login" hidden>Giriş Yap →</a>
+</section>
+<div id="analysis-content" hidden>
+<section class="farm-detail-card"><h2>Sezon Maliyeti</h2><div class="finance-grid" id="analysis-metrics"></div>
+<p class="analysis-note">Pasta grafiği yalnızca bu tarlaya yazılan uygulama ve personel giderlerini gösterir. Sezonluk kira toplam maliyete ayrıca eklenir. Depodaki kullanılmamış ürünler ve borç ödemeleri yeniden maliyet sayılmaz.</p></section>
+<section class="farm-detail-card"><h2>Uygulama Masraflarının Dağılımı</h2>
+<div class="analysis-chart-layout"><figure class="analysis-figure"><div id="analysis-chart"></div><figcaption id="analysis-chart-caption"></figcaption></figure>
+<div class="analysis-table-wrap"><table class="analysis-table"><caption>Masraf cinsine göre tutar ve pay</caption><thead><tr><th scope="col">Masraf</th><th scope="col">Tutar</th><th scope="col">Pay</th></tr></thead><tbody id="analysis-rows"></tbody></table></div></div></section>
+<section class="farm-detail-card"><h2>Masraf Yorumları</h2><ul class="analysis-insights" id="analysis-insights"></ul>
+<p class="analysis-note">Yorumlar yalnızca seçilen sezonun kayıtlarına dayanır. Bölgesel fiyat veya verim karşılaştırması içermez.</p></section>
+</div></main>
+<footer class="site-contact-footer"><p class="site-contact-line">İletişim: <a href="mailto:agroverixinfo@gmail.com">agroverixinfo@gmail.com</a></p></footer>
+<script src="assets/supabase-config.js?v=international-v1"></script>
+<script type="module" src="assets/expense-analysis.js?v=home-season-v1"></script><script type="module" src="assets/regional-boot.js?v=stable-tr-v1"></script>
+<script defer src="assets/agri-support.js?v=greeting-v1"></script>
+</body></html>

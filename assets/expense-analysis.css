@@ -1,0 +1,30 @@
+/* Expense charts use the established soil, wheat and data palette. */
+:root{--analysis-gold:var(--gold,#f0b631);--analysis-blue:var(--blue,#a8b8ed);--analysis-green:#657c45;--analysis-orange:#c97536;--analysis-purple:#8072ad;--analysis-teal:#397f7b;--analysis-rose:#aa6068;--analysis-gray:#73786e}
+.expense-analysis-page .farm-detail-layout{max-width:1060px}
+.expense-analysis-page h1{font-size:clamp(26px,4vw,38px);overflow-wrap:anywhere}
+.expense-analysis-page h2{font-size:22px;margin-bottom:16px}
+.expense-analysis-page #analysis-content{display:grid;gap:18px;min-width:0}
+.expense-analysis-page [hidden]{display:none!important}
+.analysis-toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:18px}
+.analysis-toolbar label{display:flex;align-items:center;gap:10px;font-weight:700}
+.analysis-toolbar select{font:inherit;min-height:42px;padding:7px 12px;border:1px solid #a6ac98;border-radius:8px;background:var(--paper,#fffdf6);color:var(--ink)}
+.analysis-toolbar .auth-back{min-height:42px;display:inline-flex;align-items:center;width:auto}
+.analysis-chart-layout{display:grid;grid-template-columns:minmax(210px,.9fr) minmax(0,1.1fr);align-items:center;gap:24px}
+.analysis-figure{margin:0;text-align:center;min-width:0}
+#analysis-chart svg{display:block;width:min(100%,300px);height:auto;margin:auto}
+#analysis-chart .analysis-empty{padding:32px 16px;border:1px dashed #a6ac98;border-radius:12px}
+.analysis-figure figcaption{font-size:14px;margin-top:10px;line-height:1.5}
+.analysis-table-wrap{min-width:0}
+.analysis-table{width:100%;border-collapse:collapse;font-size:15px}
+.analysis-table caption{text-align:left;font-weight:700;margin-bottom:10px}
+.analysis-table th,.analysis-table td{padding:12px 5px;border-bottom:1px solid #d5d8cd;text-align:left;vertical-align:top}
+.analysis-table th:first-child{width:42%;overflow-wrap:anywhere}
+.analysis-table td{font-variant-numeric:tabular-nums}
+.analysis-table td:last-child,.analysis-table th:last-child{text-align:right}
+.analysis-swatch{display:inline-block;width:10px;height:10px;margin-right:6px;border-radius:50%;background:var(--swatch)}
+.analysis-note{font-size:14px;line-height:1.6;margin-top:16px;color:#53604e}
+.analysis-insights{padding-left:21px;margin:0;line-height:1.65}
+.analysis-insights li+li{margin-top:9px}
+.expense-analysis-page .finance-metric{min-width:0}
+.expense-analysis-page .finance-metric strong{overflow-wrap:anywhere}
+@media(max-width:600px){.analysis-chart-layout{grid-template-columns:1fr;gap:20px}.expense-analysis-page .farm-detail-layout{padding-inline:12px}.expense-analysis-page .farm-detail-card{padding:18px 14px}.analysis-table{font-size:13px}.analysis-table th,.analysis-table td{padding:10px 3px}.analysis-table th:first-child{width:37%}.expense-analysis-page .finance-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.analysis-toolbar{gap:8px}.analysis-toolbar .auth-back{font-size:13px}}
