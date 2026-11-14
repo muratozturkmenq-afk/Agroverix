@@ -74,7 +74,10 @@ function lotList(lots,item){
  const list=el('div',undefined,'stock-lots');
  lots.slice().sort((a,b)=>a.purchase_date.localeCompare(b.purchase_date)||a.id.localeCompare(b.id)).forEach(lot=>{
   const detail=el('details',undefined,'stock-lot'),summary=el('summary');
-  summary.append(quantityRow([['Alım Tarihi',date(lot.purchase_date)],['Alış Fiyatı',purchaseUnitPrice(lot)],['Alım Miktarı',originalQuantity(lot,lot.quantity)],['Toplam Tutar',money(lot.total_cost)]]),el('p','Bayi: '+(lot.supplier||'Belirtilmemiş'),'stock-lot-supplier'));
+  const values=[['Alım Tarihi',date(lot.purchase_date)],['Alış Fiyatı',purchaseUnitPrice(lot)],['Alım Miktarı',originalQuantity(lot,lot.quantity)]];
+  if(lots.length===1){values.push(['Kalan Miktar',originalQuantity(lot,lot.remaining)]);summary.className='stock-single-purchase';}
+  values.push(['Toplam Tutar',money(lot.total_cost)]);
+  summary.append(quantityRow(values),el('p','Bayi: '+(lot.supplier||'Belirtilmemiş'),'stock-lot-supplier'));
   detail.append(summary,quantityRow([['Kullanılan Miktar',originalQuantity(lot,lot.used)],['Kalan Miktar',originalQuantity(lot,lot.remaining)]]));
   if(lot.legacyUsed>0)detail.append(el('p','Eski kayıtlarda alım seçimi tutulmadığından '+originalQuantity(lot,lot.legacyUsed)+' kullanım ilk alımdan başlayarak dağıtılmıştır.','stock-lot-note'));
   const uses=lot.uses.map(x=>({...x.record,lot_quantity:x.quantity}));
@@ -83,7 +86,7 @@ function lotList(lots,item){
 }
 function purchaseTotalsRow(lots){
  const totals=productPurchaseSummary(lots),section=el('section',undefined,'stock-purchase-totals');
- section.append(el('h4','Ürün Toplamı'),quantityRow([['Toplam Miktar',totals.quantities],['Ortalama Fiyat',totals.prices],['Toplam Tutar',money(totals.cost)]]));
+ section.append(el('h4','Ürün Toplamı'),quantityRow([['Toplam Miktar',totals.quantities],['Kalan Miktar',unitTotals(lots,'remaining')],['Ortalama Fiyat',totals.prices],['Toplam Tutar',money(totals.cost)]]));
  if(totals.mixed)section.append(el('p','Farklı birim ve ambalajların miktarları ve ortalama fiyatları ayrı hesaplanır.','stock-lot-note'));
  return section;
 }
