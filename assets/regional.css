@@ -4,3 +4,7 @@
 [role="tablist"] button[role="tab"][aria-selected="false"]{background:var(--action-tab-surface);border:1px solid var(--action-tab-border);color:var(--action-tab-label);box-shadow:inset 0 1px 0 #ffffff18}
 [role="tablist"] button[role="tab"][aria-selected="false"]:hover{background:var(--action-tab-hover);border-color:var(--gold);color:var(--action-tab-label)}
 [role="tablist"] button[role="tab"]:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+
+/* Visible season captions contrast with their own page surface. */
+.season-choice-caption,.profile-page .profile-field>label.season-choice-caption{font-size:20px;font-weight:800;line-height:1.35;color:var(--season-label-color,var(--ink,#12160e));opacity:1;letter-spacing:0}
+.home-summary-season,.season-scope-toolbar,.personnel-toolbar{--season-label-color:var(--gold-2,#f7d27a)}

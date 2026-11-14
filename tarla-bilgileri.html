@@ -44,7 +44,7 @@
 <meta name="apple-mobile-web-app-title" content="AgroVerix">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<link rel="stylesheet" href="assets/regional.css?v=button-contrast-v1">
+<link rel="stylesheet" href="assets/regional.css?v=season-labels-v1">
 <script src="assets/i18n.js?v=stable-tr-v1"></script>
 <link rel="stylesheet" href="assets/site-contact.css?v=contact-v1">
 <link rel="stylesheet" href="assets/agri-support.css?v=agri-v2">
@@ -76,7 +76,7 @@
       <fieldset class="profile-section">
         <legend><span>01</span><span data-i18n="Ürün ve alan"> Ürün ve alan</span></legend>
         <div class="farm-entry-grid">
-          <div class="profile-field wide"><label for="farm-season-year"><span data-i18n="Sezon Yılı">Sezon Yılı </span><b>*</b></label><input id="farm-season-year" type="number" min="2000" max="2200" step="1" required><small data-i18n="Yeni yıl için aynı tarlayı düzenleyip yeni sezon yılını yaz. Önceki sezonun masrafları ve sonuçları saklanır.">Yeni yıl için aynı tarlayı düzenleyip yeni sezon yılını yaz. Önceki sezonun masrafları ve sonuçları saklanır.</small></div>
+          <div class="profile-field wide"><label for="farm-season-year"><span class="season-choice-caption" data-i18n="Sezon Yılı">Sezon Yılı </span><b>*</b></label><input id="farm-season-year" type="number" min="2000" max="2200" step="1" required><small data-i18n="Yeni yıl için aynı tarlayı düzenleyip yeni sezon yılını yaz. Önceki sezonun masrafları ve sonuçları saklanır.">Yeni yıl için aynı tarlayı düzenleyip yeni sezon yılını yaz. Önceki sezonun masrafları ve sonuçları saklanır.</small></div>
           <div class="profile-field"><label for="farm-entry-name"><span data-i18n="Tarla adı / parsel">Tarla adı / parsel </span><b>*</b></label><input id="farm-entry-name" required maxlength="80" placeholder="Örn. Kuzey tarla veya Parsel 1" data-i18n-placeholder="Örn. Kuzey tarla veya Parsel 1"></div>
           <div class="profile-field"><label for="farm-entry-crop"><span data-i18n="Yetiştirdiğin ürün">Yetiştirdiğin ürün </span><b>*</b></label><input id="farm-entry-crop" type="text" list="farm-entry-crop-suggestions" maxlength="100" placeholder="Ürün seç veya adını yaz" pattern=".*\S.*" required data-i18n-placeholder="Ürün seç veya adını yaz"><datalist id="farm-entry-crop-suggestions"><option value="Pamuk" data-crop-tr="Pamuk"><option value="Buğday" data-crop-tr="Buğday"><option value="Mısır" data-crop-tr="Mısır"><option value="Zeytin" data-crop-tr="Zeytin"><option value="Üzüm" data-crop-tr="Üzüm"><option value="Ayçiçeği" data-crop-tr="Ayçiçeği"><option value="Arpa" data-crop-tr="Arpa"></datalist></div>
           <div class="profile-field"><label for="farm-entry-area"><span data-i18n="Tarla alanı (dekar)">Tarla alanı (dekar) </span><b>*</b></label><input id="farm-entry-area" type="text" inputmode="decimal" pattern="[0-9]+([.,][0-9]+)?" placeholder="Örn. 20" required data-i18n-placeholder="Örn. 20"></div>
