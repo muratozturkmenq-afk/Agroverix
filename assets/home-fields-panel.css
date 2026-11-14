@@ -76,3 +76,7 @@
 .home-fields-page .home-report-controls{width:274px;max-width:100%;grid-template-columns:minmax(0,166px) minmax(72px,98px)}
 .home-fields-page .home-report-footer #admin-link{width:220px;max-width:100%;align-self:flex-start;justify-content:center;text-align:center}
 @media(max-width:600px){.home-fields-page .home-report-controls{width:245px;grid-template-columns:minmax(0,163px) 72px}.home-fields-page .home-report-footer #admin-link{width:163px}}
+
+/* The field entry action belongs beside the home report controls, outside the menu. */
+.home-fields-page .hero-field-actions>.home-add-field{width:166px;max-width:100%;justify-content:center;text-align:center;margin-bottom:10px}
+@media(max-width:600px){.home-fields-page .hero-field-actions>.home-add-field{width:163px}}

@@ -64,12 +64,12 @@ async function load(){
 }
 $('analysis-year').addEventListener('change',render);$('analysis-refresh').addEventListener('click',load);
 window.addEventListener('focus',()=>{if(!document.hidden)load();});document.addEventListener('visibilitychange',()=>{if(!document.hidden)load();});
-if(!farmId||!client){status('Tarla bağlantısı geçersiz. Ana sayfadaki tarla özetinden Masraf Analizi bağlantısını aç.');}
+if(!farmId||!client){status('Tarla bağlantısı geçersiz. Ana sayfadaki tarla özetinden Tarla Masraf Analizi bağlantısını aç.');}
 else{
  const {data}=await client.auth.getSession();session=data.session;
  if(!session){status('Masraf analizini görmek için hesabına giriş yap.');$('analysis-login').href='ciftci-bilgi.html?next='+encodeURIComponent(location.pathname+location.search);$('analysis-login').hidden=false;}
  else{await load();channel=client.channel('expense-analysis-'+farmId);for(const table of ['farmer_operations','farmer_seasons','farmer_farms'])channel.on('postgres_changes',{event:'*',schema:'public',table,filter:'user_id=eq.'+session.user.id},()=>{clearTimeout(refreshTimer);refreshTimer=setTimeout(load,350);});channel.subscribe();}
- client.auth.onAuthStateChange((event)=>{if(event==='SIGNED_OUT'){revision++;session=null;farm=null;records=[];$('analysis-content').hidden=true;$('analysis-title').textContent='Masraf Analizi';$('analysis-detail').hidden=true;$('analysis-year').replaceChildren();$('analysis-year').disabled=true;$('analysis-refresh').disabled=true;status('Oturum kapatıldı. Analizi görmek için tekrar giriş yap.');}});
+ client.auth.onAuthStateChange((event)=>{if(event==='SIGNED_OUT'){revision++;session=null;farm=null;records=[];$('analysis-content').hidden=true;$('analysis-title').textContent='Tarla Masraf Analizi';$('analysis-detail').hidden=true;$('analysis-year').replaceChildren();$('analysis-year').disabled=true;$('analysis-refresh').disabled=true;status('Oturum kapatıldı. Analizi görmek için tekrar giriş yap.');}});
 }
 window.addEventListener('pagehide',()=>{clearTimeout(refreshTimer);if(channel)client.removeChannel(channel);});
 window.addEventListener('pageshow',event=>{if(event.persisted)location.reload();});
