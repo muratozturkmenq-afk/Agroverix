@@ -16,7 +16,7 @@
 .due-date-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
 .due-date-card{min-width:0;padding:16px;border:1px solid var(--due-border);border-radius:10px;}
 .due-date-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
-.due-date-heading h3{margin:0;font-size:18px;color:var(--due-text);overflow-wrap:anywhere;}
+.due-date-heading :is(h3,h4){min-width:0;margin:0;font-size:18px;color:var(--due-text);overflow-wrap:anywhere;}
 .due-date-badge{padding:5px 9px;border-radius:7px;background:var(--due-badge);color:var(--due-muted);font-size:13px;font-weight:700;}
 .is-overdue .due-date-badge{background:var(--due-overdue-bg);color:var(--due-overdue);}
 .is-today .due-date-badge{background:var(--due-today-bg);color:var(--due-today);}
