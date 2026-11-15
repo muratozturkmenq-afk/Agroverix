@@ -1,0 +1,28 @@
+:root{--advice-bg:#11180f;--advice-paper:#fffdf5;--advice-ink:#20301d;--advice-line:#d5dbca;--advice-soft:#edf1e6;--advice-muted:#52644c;--advice-warn:#fff0c9;--advice-white:#f3f3e6;}
+.advice-page{background:var(--advice-bg);color:var(--advice-white);}
+.advice-layout{max-width:1180px;margin:auto;padding:24px 30px 60px;}
+.advice-intro h1{font:750 clamp(30px,4vw,48px)/1.12 Archivo,sans-serif;margin:12px 0;letter-spacing:-1px;}
+.advice-intro>p{max-width:850px;font-size:16px;line-height:1.65;}
+.advice-toolbar{display:flex;flex-wrap:wrap;align-items:end;gap:14px;margin:24px 0 16px;}
+.advice-toolbar label{display:grid;gap:8px;min-width:140px;max-width:100%;font-weight:700;}
+.advice-toolbar label:nth-child(2){flex:1;max-width:430px;}
+.advice-toolbar select{width:100%;min-width:0;min-height:46px;background:var(--advice-paper);color:var(--advice-ink);border:1px solid var(--advice-line);border-radius:8px;padding:10px 12px;font:inherit;}
+.advice-toolbar button,.advice-back{padding:12px 17px;min-height:46px;border:1px solid var(--gold);border-radius:8px;background:var(--gold);color:var(--advice-ink);font-weight:750;font-size:15px;text-decoration:none;}
+.advice-status{min-height:24px;line-height:1.6;font-size:15px;}.advice-status.is-error{background:var(--advice-warn);color:var(--advice-ink);padding:12px;border-radius:8px;}
+.advice-section{margin:14px 0;background:var(--advice-paper);color:var(--advice-ink);border:1px solid var(--advice-line);border-radius:13px;min-width:0;overflow:hidden;}
+.advice-section>summary{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:20px 22px;cursor:pointer;list-style:none;font:750 20px/1.35 Archivo,sans-serif;}
+.advice-section>summary::-webkit-details-marker{display:none;}.advice-section>summary::after{content:'+';font-size:26px;flex:none;}.advice-section[open]>summary::after{content:'−';}
+.advice-section>summary small{font:500 13px/1.5 'Instrument Sans',sans-serif;margin-left:auto;}
+.advice-section[open]>summary{background:var(--advice-soft);border-bottom:1px solid var(--advice-line);}
+.advice-section-body{padding:18px 22px;}.advice-scope-note{margin:0 0 18px;font-size:14px;line-height:1.6;color:var(--advice-muted);}
+.advice-card{border:1px solid var(--advice-line);border-radius:10px;padding:20px;margin:16px 0;min-width:0;overflow-wrap:anywhere;}
+.advice-card.is-warning{background:var(--advice-warn);}.advice-card h3{margin:0 0 14px;font-size:21px;line-height:1.35;}.advice-card h4{font-size:15px;margin:16px 0 7px;}
+.advice-card ul{padding-left:21px;margin:0;}.advice-card li{font-size:15px;line-height:1.65;margin:7px 0;}
+.advice-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:0 0 18px;}
+.advice-metrics>div{min-width:0;padding:12px;background:var(--advice-soft);border-radius:8px;}.advice-metrics dt{font-size:13px;line-height:1.5;color:var(--advice-muted);}.advice-metrics dd{margin:6px 0 0;font-size:21px;font-weight:750;font-variant-numeric:tabular-nums;}
+.advice-record-link{display:inline-block;margin-top:16px;color:var(--advice-ink);font-size:14px;font-weight:700;text-decoration:underline;min-height:32px;}
+.advice-footnote{font-size:13px;line-height:1.7;max-width:950px;margin:24px 0;}.advice-page [hidden]{display:none!important;}.advice-page :focus-visible{outline:3px solid var(--gold);outline-offset:3px;}
+@media(max-width:600px){.advice-layout{padding:18px 16px 40px;}.advice-toolbar label{min-width:0;}.advice-toolbar label:first-child{width:110px;}.advice-toolbar label:nth-child(2){flex-basis:100%;max-width:none;order:1;}.advice-section>summary{padding:16px;font-size:18px;flex-wrap:wrap;gap:8px;}.advice-section>summary span{flex:1;}.advice-section>summary small{display:none;}.advice-section-body{padding:14px;}.advice-card{padding:14px;}.advice-card h3{font-size:19px;}.advice-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}.advice-metrics dd{font-size:18px;}.advice-card li{font-size:14px;}}
+
+.advice-page .profile-top{max-width:1240px;margin:auto;padding:20px 30px;}.advice-page .home-logo{width:180px;height:auto;}
+@media(max-width:600px){.advice-page .profile-top{padding:16px;gap:12px;flex-wrap:wrap;}.advice-page .profile-step{display:none;}}

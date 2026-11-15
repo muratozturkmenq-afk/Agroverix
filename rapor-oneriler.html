@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="tr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rapor ve Öneriler · AgroVerix</title><meta name="theme-color" content="#0D100B">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Sans:ital,wght@0,400..700;1,400&family=Martian+Mono:wght@400..600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css"><link rel="stylesheet" href="assets/profile.css?v=compact-record-actions-v1">
+
+<link rel="stylesheet" href="assets/regional.css?v=season-badges-v1"><link rel="stylesheet" href="assets/advice-report.css?v=advice-v1">
+<link rel="stylesheet" href="assets/site-contact.css?v=contact-v1"><link rel="stylesheet" href="assets/agri-support.css?v=agri-v2">
+<link rel="icon" href="/favicon.svg?v=logo-20261028" type="image/svg+xml">
+<script src="assets/i18n.js?v=stable-tr-v1"></script>
+</head><body class="profile-page advice-page">
+<header class="profile-top">
+<a class="brand" href="index.html" aria-label="AgroVerix ana sayfa"><img class="home-logo" src="assets/images/agroverix-logo-horizontal-light.svg?v=logo-transparent-20261028" width="1024" height="360" alt="AgroVerix — Cebimdeki Tarlam"></a>
+<span class="profile-step">RAPOR VE ÖNERİLER</span><a class="profile-back" id="advice-home" href="index.html">← Ana Sayfaya Dön</a>
+</header>
+<main class="advice-layout">
+<section class="advice-intro"><p class="profile-kicker">TARLA VE SEZON RAPORU</p><h1>Rapor ve Öneriler</h1><p>Kayıtlarını tarla ve sezon bazında değerlendir. Her başlığa dokunarak analizleri, yorumları ve yapabileceğin kontrolleri gör.</p>
+<div class="advice-toolbar"><label for="advice-year"><span class="season-choice-caption">Sezon</span><select id="advice-year" disabled></select></label><label for="advice-farm"><span>Tarla</span><select id="advice-farm" disabled><option value="">Tüm Tarlalar</option></select></label><button id="advice-refresh" type="button" disabled>Yenile</button></div>
+<p id="advice-status" class="advice-status" role="status" aria-live="polite">Rapor hazırlanıyor…</p><a id="advice-login" class="advice-back" href="ciftci-bilgi.html?next=rapor-oneriler.html" hidden>Giriş Yap →</a></section>
+<section id="advice-content" hidden aria-label="Tarla analizleri"><p id="advice-scope"></p><div id="advice-sections"></div></section>
+<p class="advice-footnote">Yorumlar hesabındaki kayıtlardan hesaplanır; kaydetmediğin masraf ve işlemler hesaba girmez. Ortak alım, bayi hesabı, depo ve personel özeti tarla seçsen de açıkça “ortak” veya “genel” olarak gösterilir. Tarla maliyeti; uygulama ve personel payları ile kirayı içerir. Masraf ve Ödeme sayfasındaki tüm alışveriş toplamıyla farklı olabilir. Eksik veri olan başlıklar sonuç üretmez.</p>
+<a class="advice-back" href="index.html">← Ana Sayfaya Dön</a>
+</main>
+<footer class="site-contact-footer"><p class="site-contact-line">İletişim: <a href="mailto:agroverixinfo@gmail.com">agroverixinfo@gmail.com</a></p></footer>
+<script src="assets/supabase-config.js?v=international-v1"></script>
+<script type="module" src="assets/advice-page.js?v=advice-v1"></script><script type="module" src="assets/regional-boot.js?v=stable-tr-v1"></script>
+<script defer src="assets/agri-support.js?v=greeting-v1"></script>
+</body></html>
