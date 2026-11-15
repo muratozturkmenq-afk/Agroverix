@@ -1,4 +1,4 @@
-import {createDueDateTracker} from './account-due-dates.js?v=account-due-v1';
+import {validDueDate,dueDateStatus} from './due-date-model.js?v=account-due-v1';
 import {t,locale,areaDisplay,areaStored,perAreaDisplay,perAreaStored} from './regional-format.js?v=international-v1';
 import {ready as regionalReady,client as regionalClient} from './regional-context.js?v=stable-tr-v1';
 await regionalReady;
@@ -11,8 +11,7 @@ import {currentReportYear,seasonYears,allocateReceiptSeasons} from './season-sco
 let selectedYear=currentReportYear(),receiptAllocation={allocated:[],unallocated:[]};
 const $=id=>document.getElementById(id),cfg=window.AGROVERIX_SUPABASE||{},params=new URLSearchParams(location.search);
 let client=null,session=null,farms=[],sales=[],receipts=[],ready=false,loading=false,queued=false,saving=false,generation=0,channel=null,view='sale',historyMode='company',saleId=crypto.randomUUID(),receiptId=crypto.randomUUID(),editingSale=false,editingReceipt=false,requestedOpened=false;
-const dueDates=createDueDateTracker({root:$('harvest-due-dates'),kind:'receivable',getClient:()=>client});
-function updateDueDates(){dueDates.update({session,year:selectedYear,parties:groups().map(g=>({key:g.key,name:g.name,balance:Math.max(0,g.total-g.paid)/100})),available:ready});}
+let scheduledReceipts=[],schedulesReady=false,plannedReceipt=null,editingPlan=null;
 const num=id=>parseNumberInput($(id).value),day=value=>new Date(value+'T12:00:00').toLocaleDateString(I.locale),cents=value=>Math.round(Number(value||0)*100),key=(farm,year)=>farm+'|'+year;
 const averagePrice=value=>Number(value).toLocaleString(I.locale,{minimumFractionDigits:2,maximumFractionDigits:2});
 function node(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;}
@@ -31,7 +30,7 @@ function groups({all=false}={}){
  (all?receipts:scopedReceipts()).forEach(r=>{const g=result.get(r.buyer_key)||{key:r.buyer_key,name:r.buyer,sales:[],receipts:[],total:0,paid:0};g.receipts.push(r);if(!r.is_void)g.paid+=cents(r.amount);result.set(g.key,g);});
  return [...result.values()].sort((a,b)=>a.name.localeCompare(b.name,'tr'));
 }
-function fieldsState(){['harvest-sale-fields','harvest-receipt-fields'].forEach(id=>$(id).disabled=!ready||saving);$('harvest-refresh').disabled=loading||saving;$('receipt-detail-buyer').disabled=!ready||saving||!groups().length;}
+function fieldsState(){receiptMethod();['harvest-sale-fields','harvest-receipt-fields'].forEach(id=>$(id).disabled=!ready||saving);$('harvest-refresh').disabled=loading||saving;$('receipt-detail-buyer').disabled=!ready||saving||!groups().length;}
 function setView(next,{scroll=false}={}){
  view=next;['sale','receipt'].forEach(k=>{const tab=$('harvest-tab-'+k);tab.setAttribute('aria-selected',String(k===next));tab.tabIndex=k===next?0:-1;});
  $('harvest-sales-panel').hidden=next!=='sale';$('harvest-receipts-panel').hidden=next!=='receipt';
@@ -47,7 +46,42 @@ $('sale-date').value=today();$('receipt-date').value=today();
 function preview(){const q=num('sale-kg'),p=num('sale-price');$('sale-total').value=q>0&&p!==null&&p>=0&&Number.isFinite(q*p)?money(Math.round((q*p+Number.EPSILON)*100)/100):'—';}
 $('harvest-sale-form').addEventListener('input',preview);
 function resetSale(preferred=$('sale-farm').value){$('harvest-sale-form').reset();saleId=crypto.randomUUID();editingSale=false;$('sale-date').value=today();$('sale-farm').value=preferred;$('harvest-sale-title').textContent=__avt("Hasat & Satış Ekle");$('sale-save').textContent=__avt("Satışı Kaydet →");$('sale-cancel').hidden=true;preview();}
-function resetReceipt(preferred=$('receipt-buyer').value){$('harvest-receipt-form').reset();receiptId=crypto.randomUUID();editingReceipt=false;$('receipt-date').value=today();$('receipt-buyer').value=preferred;$('harvest-receipt-title').textContent=__avt("Tahsilat Ekle");$('receipt-save').textContent=__avt("Tahsilatı Kaydet →");$('receipt-cancel').hidden=true;renderCompanies();}
+function resetReceipt(preferred=$('receipt-buyer').value){$('harvest-receipt-form').reset();receiptId=crypto.randomUUID();editingReceipt=false;plannedReceipt=null;editingPlan=null;$('receipt-method').value='cash';$('receipt-date').value=today();$('receipt-buyer').value=preferred;$('harvest-receipt-title').textContent=__avt("Tahsilat Ekle");$('receipt-cancel').hidden=true;receiptMethod();renderCompanies();}
+function receiptMethod(){
+ const deferred=$('receipt-method').value==='deferred';
+ $('receipt-method').disabled=editingReceipt||Boolean(plannedReceipt||editingPlan);$('receipt-buyer').disabled=Boolean(plannedReceipt||editingPlan);$('receipt-amount').readOnly=Boolean(plannedReceipt);
+ $('receipt-date-label').textContent=deferred?'Vade Tarihi ':'Tahsilat Tarihi ';$('receipt-date').max=deferred?'2200-12-31':today();
+ $('receipt-save').textContent=deferred?(editingPlan?'Vadeyi Güncelle →':'Vadeli Tahsilatı Kaydet →'):plannedReceipt?'Tahsilatı Tamamla →':editingReceipt?__avt("Değişiklikleri Kaydet →"):__avt("Tahsilatı Kaydet →");
+ $('receipt-method-hint').textContent=deferred?'Tutar ve vade tarihi kaydedilir; para henüz alınmadığı için kalan alacak değişmez.':plannedReceipt?'Bu tahsilat kaydedildiğinde planlanan tutar firmanın kalan alacağından düşer.':'Nakit tahsilat kaydedildiğinde firmanın kalan alacağı hemen düşer.';
+}
+$('receipt-method').addEventListener('change',()=>{if(editingReceipt||plannedReceipt||editingPlan)return;receiptId=crypto.randomUUID();$('receipt-date').value=$('receipt-method').value==='deferred'?'':today();receiptMethod();say('receipt-status','');});
+const receiptPlanPaid=plan=>receipts.some(r=>r.id===plan.id&&!r.is_void);
+function receiptBalanceAt(group,date){return group.sales.filter(s=>!s.is_void&&s.sale_date<=date).reduce((n,s)=>n+cents(s.total_amount),0)-group.receipts.filter(r=>!r.is_void&&r.receipt_date<=date).reduce((n,r)=>n+cents(r.amount),0);}
+function openReceiptPlan(plan,collect=false){
+ if(saving||!ready||!schedulesReady||receiptPlanPaid(plan))return;
+ const group=groups({all:true}).find(g=>g.key===plan.buyer_key);
+ if(!group){say('receipt-status','Bu vadenin firma hesabı bulunamadı.',true);return;}
+ if(collect&&cents(plan.amount)>receiptBalanceAt(group,today())){say('receipt-status','Vade tutarı güncel alacaktan fazla. Önce vadeli kaydın tutarını düzenle.',true);return;}
+ resetReceipt(group.key);if(collect){plannedReceipt=plan;receiptId=plan.id;}else editingPlan=plan;
+ $('receipt-method').value=collect?'cash':'deferred';$('receipt-detail-buyer').value=group.key;$('receipt-date').value=collect?today():plan.due_date;setNumberInputValue($('receipt-amount'),plan.amount);$('receipt-note').value=plan.notes||'';$('harvest-receipt-title').textContent=collect?'Vadeli Tahsilatı Tamamla':'Vadeli Tahsilatı Düzenle';$('receipt-cancel').hidden=false;fieldsState();renderCompanies();setView('receipt',{scroll:true});say('receipt-status',collect?'Parayı aldığın tarihi kontrol edip kaydet. Tutar kalan alacaktan düşecek.':'Tutarı veya vade tarihini değiştirip kaydedebilirsin.');
+}
+async function removeReceiptPlan(plan){
+ if(saving||!session||receiptPlanPaid(plan)||!confirm('Bu ileri vade kaydı kaldırılsın mı? Firmanın kalan alacağı değişmez.'))return;
+ const run=generation,uid=session.user.id;saving=true;fieldsState();
+ try{const {error}=await client.from('farmer_scheduled_receipts').delete().eq('id',plan.id).eq('user_id',uid).select('id').single();if(error)throw error;if(run!==generation)return;if(editingPlan?.id===plan.id||plannedReceipt?.id===plan.id)resetReceipt();await refresh();say('receipt-status','İleri vade kaydı kaldırıldı.');}
+ catch(error){if(run===generation)say('receipt-status',errorText(error),true);}
+ finally{saving=false;fieldsState();}
+}
+function renderReceiptPlans(){
+ const list=$('receipt-schedules-list');list.replaceChildren();$('receipt-schedules-total').textContent='';
+ $('receipt-schedules-status').textContent=!session?'Vadeli tahsilatlarını görmek için giriş yap.':!schedulesReady?'Vadeli kayıtlar yüklenemedi. Yenile düğmesiyle tekrar dene.':'';
+ if(!ready||!schedulesReady)return;
+ const selected=$('receipt-detail-buyer').value,rows=scheduledReceipts.filter(p=>String(p.season_year)===selectedYear&&(!selected||p.buyer_key===selected)&&!receiptPlanPaid(p)).sort((a,b)=>a.due_date.localeCompare(b.due_date)||a.id.localeCompare(b.id));
+ $('receipt-schedules-total').textContent='Bekleyen: '+money(rows.reduce((n,p)=>n+cents(p.amount),0)/100);
+ for(const p of rows){const notice=dueDateStatus(p.due_date,Number(p.amount),today()),card=node('article',undefined,'due-date-card is-'+notice.state),heading=node('div',undefined,'due-date-heading');heading.append(node('h4',p.buyer),node('span',notice.label,'due-date-badge'));card.append(heading);metrics(card,[['Vade Tarihi',day(p.due_date)],['Tahsil Edilecek Tutar',money(p.amount)]]);if(p.notes)card.append(node('p',p.notes));const actions=node('div',undefined,'stock-row-actions');actions.append(button('Tahsil Edildi',()=>openReceiptPlan(p,true)),button('Düzenle',()=>openReceiptPlan(p)),button('Vadeyi Kaldır',()=>removeReceiptPlan(p)));card.append(actions);list.append(card);}
+ if(!rows.length)list.append(node('p','Bu sezon ve firma seçimi için bekleyen vadeli tahsilat yok.','payment-help'));
+}
+
 $('sale-cancel').addEventListener('click',()=>{resetSale();say('sale-status','');});
 $('receipt-cancel').addEventListener('click',()=>{resetReceipt();say('receipt-status','');});
 function options(){
@@ -78,7 +112,7 @@ function editSale(s){
 }
 function editReceipt(r){
  if(saving)return;r=receipts.find(original=>original.id===r.id)||r;$('receipt-detail-buyer').value=r.buyer_key;resetReceipt(r.buyer_key);receiptId=r.id;editingReceipt=true;$('receipt-date').value=r.receipt_date;setNumberInputValue($('receipt-amount'),r.amount);$('receipt-note').value=r.notes;
- $('harvest-receipt-title').textContent=__avt("Tahsilatı Düzenle");$('receipt-save').textContent=__avt("Değişiklikleri Kaydet →");$('receipt-cancel').hidden=false;setView('receipt',{scroll:true});say('receipt-status',__avt("Bu tahsilatın bilgilerini düzenleyebilirsin."));
+ $('harvest-receipt-title').textContent=__avt("Tahsilatı Düzenle");$('receipt-save').textContent=__avt("Değişiklikleri Kaydet →");$('receipt-cancel').hidden=false;receiptMethod();setView('receipt',{scroll:true});say('receipt-status',__avt("Bu tahsilatın bilgilerini düzenleyebilirsin."));
 }
 async function toggleRecord(record,type){
  if(saving||!ready)return;if(type!=='sale')record=receipts.find(original=>original.id===record.id)||record;
@@ -130,7 +164,7 @@ function renderSales(){
  $('harvest-sale-empty').textContent=session?__avt("Bu görünümde satış kaydı yok. Yeni satış ekleyebilirsin."):__avt("Kayıtlarını görmek için giriş yap.");
 }
 function renderCompanies(){
- const buyers=groups(),group=buyers.find(g=>g.key===$('receipt-detail-buyer').value),entryGroup=groups({all:true}).find(g=>g.key===$('receipt-buyer').value),list=$('harvest-company-list'),details=$('harvest-company-detail');list.replaceChildren();details.replaceChildren();$('harvest-all-buyers').hidden=!group;$('harvest-companies-empty').hidden=buyers.length>0;$('harvest-companies-title').textContent=__avt("Firma Hesapları");
+ renderReceiptPlans();const buyers=groups(),group=buyers.find(g=>g.key===$('receipt-detail-buyer').value),entryGroup=groups({all:true}).find(g=>g.key===$('receipt-buyer').value),list=$('harvest-company-list'),details=$('harvest-company-detail');list.replaceChildren();details.replaceChildren();$('harvest-all-buyers').hidden=!group;$('harvest-companies-empty').hidden=buyers.length>0;$('harvest-companies-title').textContent=__avt("Firma Hesapları");
  $('receipt-buyer-hint').textContent=entryGroup?'Tüm sezonlardan kalan alacak: '+money((entryGroup.total-entryGroup.paid)/100)+'. Tahsilat en eski açık satıştan başlayarak sezonlara yansıtılır.':__avt("Tahsilat girmek için firmayı seç. Geçmiş ödemeleri sağdaki firma seçiminden görebilirsin.");
  buyers.forEach(g=>{
   const row=node('article',undefined,'dealer-balance-row harvest-company-row');row.setAttribute('aria-label',g.name+__avt(" firma hesabı"));
@@ -146,7 +180,7 @@ function renderCompanies(){
  if(!history.length)details.append(node('p',__avt("Bu firmadan henüz tahsilat kaydı yok."),'payment-help'));
 }
 function render(){
- options();renderFarms();renderSales();renderCompanies();updateDueDates();
+ options();renderFarms();renderSales();renderCompanies();renderReceiptPlans();
  const total=activeSales().reduce((n,s)=>n+cents(s.total_amount),0),paid=activeReceipts().reduce((n,r)=>n+cents(r.amount),0);
  $('harvest-total').textContent=money(total/100);$('harvest-collected').textContent=money(paid/100);$('harvest-due').textContent=money((total-paid)/100);
  $('harvest-season-note').textContent=selectedYear+' sezonunun satışları ve bu satışlara düşen tahsilatlar gösteriliyor. Tahsilatlar firmanın en eski açık satışından başlayarak sezonlara dağıtılır.'+(receiptAllocation.unallocated.length?' Bazı tahsilatlar açık satışla eşleştirilemedi; sezon toplamlarına eklenmedi.':'');
@@ -154,7 +188,7 @@ function render(){
 $('receipt-buyer').addEventListener('change',()=>{$('receipt-detail-buyer').value=$('receipt-buyer').value;renderCompanies();});$('receipt-detail-buyer').addEventListener('change',renderCompanies);$('harvest-all-buyers').addEventListener('click',()=>{if(saving)return;$('receipt-detail-buyer').value='';renderCompanies();});
 $('sale-filter').addEventListener('change',renderSales);$('sale-company-filter').addEventListener('change',renderSales);
 ['company','farm'].forEach((kind,index)=>{const tab=$('sales-by-'+kind);tab.addEventListener('click',()=>setSalesMode(kind));tab.addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;event.preventDefault();const next=event.key==='Home'?'company':event.key==='End'?'farm':index?'company':'farm';setSalesMode(next);$('sales-by-'+next).focus();});});['harvest-show-void','harvest-show-void-receipt'].forEach(id=>$(id).addEventListener('change',()=>{const checked=$(id).checked;$('harvest-show-void').checked=checked;$('harvest-show-void-receipt').checked=checked;renderSales();renderCompanies();}));$('harvest-year').addEventListener('change',()=>{
- if(saving||editingSale||editingReceipt){$('harvest-year').value=selectedYear;say('harvest-status','Sezon değiştirmeden önce açık düzenlemeyi kaydet veya iptal et.');return;}
+ if(saving||editingSale||editingReceipt||plannedReceipt||editingPlan){$('harvest-year').value=selectedYear;say('harvest-status','Sezon değiştirmeden önce açık düzenlemeyi kaydet veya iptal et.');return;}
  selectedYear=$('harvest-year').value;render();
 });
 $('harvest-sale-form').addEventListener('submit',async event=>{
@@ -170,26 +204,34 @@ $('harvest-sale-form').addEventListener('submit',async event=>{
 });
 $('harvest-receipt-form').addEventListener('submit',async event=>{
  event.preventDefault();if(!ready||saving||!session)return;
- const group=groups({all:true}).find(g=>g.key===$('receipt-buyer').value),amount=num('receipt-amount');
- if(!group||!$('receipt-date').value||!Number.isFinite(amount)||amount<=0||amount>1e18){say('receipt-status',__avt("Firma, tahsilat tarihi ve sıfırdan büyük tahsilat tutarı gir."),true);return;}
- const payload={id:receiptId,buyer:group.name,receipt_date:$('receipt-date').value,amount,notes:$('receipt-note').value.trim(),is_void:false},run=generation;
- saving=true;fieldsState();say('receipt-status',__avt("Tahsilat kaydediliyor…"));
- try{const {error}=await client.rpc('agroverix_save_harvest_receipt',{p_receipt:payload});if(error)throw error;if(run!==generation)return;$('receipt-detail-buyer').value=group.key;resetReceipt(group.key);await refresh();say('receipt-status',__avt("Tahsilat kaydedildi. Firmanın kalan alacağı güncellendi."));}
+ const group=groups({all:true}).find(g=>g.key===$('receipt-buyer').value),amount=num('receipt-amount'),receiptDate=$('receipt-date').value,deferred=$('receipt-method').value==='deferred';
+ if(!group||!validDueDate(receiptDate)||!Number.isFinite(amount)||amount<=0||amount>1e18){say('receipt-status',__avt("Firma, tahsilat tarihi ve sıfırdan büyük tahsilat tutarı gir."),true);return;}
+ if(!deferred&&receiptDate>today()||deferred&&!editingPlan&&receiptDate<=today()){say('receipt-status',deferred?'İleri vade için bugünden sonraki bir tarih gir.':'Nakit tahsilat için bugün veya geçmiş bir tarih gir.',true);return;}
+ if(deferred&&!schedulesReady){say('receipt-status','Vadeli kayıtlar yüklenemedi. Yenile düğmesiyle tekrar dene.',true);return;}
+ if(deferred&&cents(amount)>receiptBalanceAt(group,receiptDate)){say('receipt-status','Vade tutarı o tarihe kadar firmadan olan kalan alacaktan fazla olamaz.',true);return;}
+ if(plannedReceipt&&cents(amount)!==cents(plannedReceipt.amount)){say('receipt-status','Kayıtlı vade tutarını kullan. Tutarı değiştirmek için önce vadeli kaydı düzenle.',true);return;}
+ const payload={id:plannedReceipt?.id||receiptId,buyer:group.name,receipt_date:receiptDate,amount,notes:$('receipt-note').value.trim(),is_void:false},run=generation,uid=session.user.id;
+ saving=true;fieldsState();say('receipt-status',deferred?'İleri vadeli tahsilat kaydediliyor…':__avt("Tahsilat kaydediliyor…"));
+ try{
+  const result=deferred?await client.from('farmer_scheduled_receipts').upsert({id:editingPlan?.id||receiptId,user_id:uid,buyer:group.name,season_year:Number(editingPlan?.season_year||selectedYear),amount:Number(amount.toFixed(2)),due_date:receiptDate,notes:payload.notes,updated_at:new Date().toISOString()},{onConflict:'id'}).select('id').single():await client.rpc('agroverix_save_harvest_receipt',{p_receipt:payload});
+  if(result.error)throw result.error;if(run!==generation)return;$('receipt-detail-buyer').value=group.key;resetReceipt(group.key);await refresh();say('receipt-status',deferred?'İleri vade kaydedildi. Para henüz alınmadığı için kalan alacak değişmedi.':__avt("Tahsilat kaydedildi. Firmanın kalan alacağı güncellendi."));
+ }
  catch(error){if(run===generation)say('receipt-status',errorText(error),true);}
  finally{saving=false;fieldsState();}
 });
+
 async function refresh(){
  if(!session||!client)return;if(loading){queued=true;return;}loading=true;fieldsState();const run=generation,uid=session.user.id;
  try{
-  const [f,s,r]=await Promise.all([readAll(client,'farmer_farms',uid,'*,farmer_seasons(*)'),readAll(client,'farmer_harvest_sales',uid),readAll(client,'farmer_harvest_receipts',uid)]);
-  if(run!==generation||session?.user.id!==uid)return;farms=f;sales=s;receipts=r;receiptAllocation=allocateReceiptSeasons(sales,receipts);ready=true;render();say('harvest-status',__avt("Güncel hasat, satış ve tahsilat kayıtları · ")+new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}));
+  const [f,s,r,scheduled]=await Promise.all([readAll(client,'farmer_farms',uid,'*,farmer_seasons(*)'),readAll(client,'farmer_harvest_sales',uid),readAll(client,'farmer_harvest_receipts',uid),readAll(client,'farmer_scheduled_receipts',uid).catch(()=>null)]);
+  if(run!==generation||session?.user.id!==uid)return;farms=f;sales=s;receipts=r;scheduledReceipts=scheduled||[];schedulesReady=scheduled!==null;receiptAllocation=allocateReceiptSeasons(sales,receipts);ready=true;if(plannedReceipt||editingPlan){const id=(plannedReceipt||editingPlan).id;if(!scheduledReceipts.some(p=>p.id===id)||receipts.some(r=>r.id===id&&!r.is_void)){resetReceipt();say('receipt-status','Vadeli kayıt başka bir işlemle güncellendi. Liste yenilendi.');}}render();say('harvest-status',__avt("Güncel hasat, satış ve tahsilat kayıtları · ")+new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}));
   if(!requestedOpened){requestedOpened=true;const row=seasonRows().find(r=>r.farm.id===params.get('farm')&&(params.get('year')?Number(params.get('year'))===Number(r.season.season_year):String(r.season.season_year)===selectedYear));if(row){selectedYear=String(row.season.season_year);render();$('sale-farm').value=row.key;$('sale-filter').value=row.key;setSalesMode('farm');$('harvest-year').value=row.season.season_year;renderFarms();renderSales();}}
- }catch(error){if(run===generation){ready=false;updateDueDates();say('harvest-status',errorText(error),true);}}
+ }catch(error){if(run===generation){ready=false;renderReceiptPlans();say('harvest-status',errorText(error),true);}}
  finally{loading=false;fieldsState();if(queued){queued=false;refresh();}}
 }
 function account(next){
- generation++;session=next;selectedYear=currentReportYear();receiptAllocation={allocated:[],unallocated:[]};ready=false;farms=[];sales=[];receipts=[];requestedOpened=false;if(channel){client.removeChannel(channel);channel=null;}
- updateDueDates();options();$('receipt-detail-buyer').value='';$('sale-filter').value='';$('sale-company-filter').value='';resetSale('');resetReceipt('');renderFarms();setSalesMode('company');['harvest-total','harvest-collected','harvest-due'].forEach(id=>$(id).textContent='—');$('harvest-auth').hidden=!!next;fieldsState();say('sale-status','');say('receipt-status','');
+ generation++;session=next;selectedYear=currentReportYear();receiptAllocation={allocated:[],unallocated:[]};ready=false;farms=[];sales=[];receipts=[];scheduledReceipts=[];schedulesReady=false;requestedOpened=false;if(channel){client.removeChannel(channel);channel=null;}
+ renderReceiptPlans();options();$('receipt-detail-buyer').value='';$('sale-filter').value='';$('sale-company-filter').value='';resetSale('');resetReceipt('');renderFarms();setSalesMode('company');['harvest-total','harvest-collected','harvest-due'].forEach(id=>$(id).textContent='—');$('harvest-auth').hidden=!!next;fieldsState();say('sale-status','');say('receipt-status','');
  if(next){refresh();channel=client.channel('harvest-'+next.user.id);['farmer_harvest_sales','farmer_harvest_receipts','farmer_farms','farmer_seasons'].forEach(table=>channel.on('postgres_changes',{event:'*',schema:'public',table,filter:'user_id=eq.'+next.user.id},()=>{if(!saving)refresh();}));channel.subscribe();}
  else say('harvest-status',__avt("Hasat, satış ve tahsilatlarını kaydetmek için giriş yap."));
 }
