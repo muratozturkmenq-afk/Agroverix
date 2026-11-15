@@ -122,13 +122,15 @@ async function removePurchase(p,button){
 }
 function scopedPurchases(){return seasonPurchases(purchases,selectedSeason);}
 function fillSeasonOptions(){const select=$('#purchase-season'),years=seasonYears({purchases,farms:incomeFarms||[]});if(!years.includes(selectedSeason))years.push(selectedSeason);years.sort((a,b)=>b-a);select.replaceChildren(...years.map(y=>new Option(y,y)));select.value=selectedSeason;select.disabled=!session;}
+const summaryNumber=value=>Number(Math.abs(Number(value))<.5?0:value).toLocaleString(I.locale,{minimumFractionDigits:0,maximumFractionDigits:0});
+const summaryMoney=value=>summaryNumber(value)+__avt(" TL");
 function renderIncomeSummary(total){
  const available=Boolean(session&&ready&&incomeFarms!==null),result=available?purchaseSeasonResults(incomeFarms,selectedSeason,total):null;
  for(const kind of ['expected','actual']){
   const row=result?.[kind],prefix='#inventory-'+kind;
   for(const [metric,value] of [['income',row?.income],['profit',row?.profit],['percent',row?.percent]]){
    const node=$(prefix+'-'+metric),valid=value!==null&&value!==undefined&&Number.isFinite(value);
-   node.textContent=!valid?'—':metric==='percent'?Number(value).toLocaleString(I.locale,{minimumFractionDigits:2,maximumFractionDigits:2})+' %':money(value);
+   node.textContent=!valid?'—':metric==='percent'?summaryNumber(value)+' %':summaryMoney(value);
    node.closest('article').classList.toggle('is-loss',valid&&metric!=='income'&&value<0);
    node.closest('article').classList.toggle('is-gain',valid&&metric!=='income'&&value>0);
   }
@@ -139,9 +141,9 @@ function renderIncomeSummary(total){
 function renderSeason(){
  fillSeasonOptions();fillPurchaseFilters();renderPurchases();const rows=scopedPurchases();
  const purchaseTotal=rows.reduce((n,p)=>n+Math.round(Number(p.total_cost)*100),0)/100;
- $('#inventory-total').textContent=money(purchaseTotal);renderIncomeSummary(purchaseTotal);
- $('#inventory-paid').textContent=paymentsReady?money(rows.reduce((n,p)=>n+Math.round(Number(p.paid_total)*100),0)/100):'—';
- $('#inventory-debt').textContent=paymentsReady?money(rows.reduce((n,p)=>n+Math.round(Number(p.total_cost)*100)-Math.round(Number(p.paid_total)*100),0)/100):'—';
+ $('#inventory-total').textContent=summaryMoney(purchaseTotal);renderIncomeSummary(purchaseTotal);
+ $('#inventory-paid').textContent=paymentsReady?summaryMoney(rows.reduce((n,p)=>n+Math.round(Number(p.paid_total)*100),0)/100):'—';
+ $('#inventory-debt').textContent=paymentsReady?summaryMoney(rows.reduce((n,p)=>n+Math.round(Number(p.total_cost)*100)-Math.round(Number(p.paid_total)*100),0)/100):'—';
  ledger.update({session,purchases,items,payments,scheduledPayments,schedulesReady,available:paymentsReady,seasonYear:selectedSeason});
 }
 $('#purchase-season').addEventListener('change',()=>{selectedSeason=$('#purchase-season').value;renderSeason();});
