@@ -1,3 +1,4 @@
+import {validDueDate,dueDateStatus} from './due-date-model.js?v=account-due-v1';
 import {t,locale,areaDisplay,areaStored,perAreaDisplay,perAreaStored} from './regional-format.js?v=international-v1';
 const I=window.AgroIntl;
 const __avt=s=>I.t(s);
@@ -13,7 +14,7 @@ function el(tag,text,className){const n=document.createElement(tag);if(text!==un
 function button(text,action){const b=el('button',text,'inventory-button');b.type='button';b.addEventListener('click',action);return b;}
 function message(text,error=false){$('#payment-status').textContent=text;$('#payment-status').classList.toggle('is-error',error);}
 export function createPaymentLedger({getClient,refresh,getSaving,setSaving,onEditPurchase}){
- let seasonYear=null,session=null,purchases=[],items=[],payments=[],available=false,requestId=crypto.randomUUID(),editing=null;
+ let seasonYear=null,session=null,purchases=[],items=[],payments=[],available=false,requestId=crypto.randomUUID(),editing=null,planned=null,planEditing=null,scheduledPayments=[],schedulesReady=false;
  const form=$('#payment-form'),select=$('#payment-purchase');
  bindNumberInput($('#payment-amount'),{maximumFractionDigits:2});$('#payment-date').value=today();
  const name=p=>{const item=items.find(i=>i.id===p.item_id);return item?item.name+(item.brand?' · '+item.brand:''):__avt("Masraf");};
@@ -28,11 +29,55 @@ export function createPaymentLedger({getClient,refresh,getSaving,setSaving,onEdi
   select.replaceChildren(new Option(groups.length?__avt("Bayi/firma seç"):__avt("Önce masraf kaydet"),''));
   groups.forEach(g=>select.add(new Option(g.name+__avt(" · Kalan ")+money((g.total-g.paid)/100),g.key)));
   if(groups.some(g=>g.key===previous))select.value=previous;
-  select.disabled=Boolean(editing);
+  select.disabled=Boolean(editing||planned||planEditing);
  }
  function reset(preferred=''){
-  form.reset();editing=null;$('#payment-id').value='';requestId=crypto.randomUUID();$('#payment-date').value=today();
-  $('#payment-title').textContent=__avt("Ödeme Ekle");$('#payment-save').textContent=__avt("Ödemeyi Kaydet →");$('#payment-cancel').hidden=true;options(preferred);
+  form.reset();editing=null;planned=null;planEditing=null;$('#payment-method').value='cash';$('#payment-id').value='';requestId=crypto.randomUUID();$('#payment-date').value=today();
+  $('#payment-title').textContent=__avt("Ödeme Ekle");$('#payment-save').textContent=__avt("Ödemeyi Kaydet →");$('#payment-cancel').hidden=true;options(preferred);paymentMethod();
+ }
+ function paymentMethod(){
+  const deferred=$('#payment-method').value==='deferred';
+  $('#payment-method').disabled=Boolean(editing||planned||planEditing);
+  $('#payment-amount').readOnly=Boolean(planned);
+  $('#payment-amount-label').textContent=deferred?'Vadeli Ödeme Tutarı (TL) ':'Ödenen Tutar (TL) ';
+  $('#payment-date-label').textContent=deferred?'Vade Tarihi ':'Ödeme Tarihi ';
+  $('#payment-date').min='2000-01-01';$('#payment-date').max=deferred?'2200-12-31':today();
+  $('#payment-save').textContent=deferred?(planEditing?'Vadeyi Güncelle →':'Vadeli Ödemeyi Kaydet →'):planned?'Ödemeyi Tamamla →':editing?'Değişiklikleri Kaydet →':'Ödemeyi Kaydet →';
+  $('#payment-method-hint').textContent=deferred?'Tutar ve vade tarihi kaydedilir; henüz ödeme yapılmadığı için borçtan düşmez.':planned?'Bu ödeme kaydedildiğinde planlanan tutar borçtan düşer.':__avt("Nakit ödeme kaydedildiğinde kalan borç hemen düşer.");
+ }
+ $('#payment-method').addEventListener('change',()=>{
+  if(editing||planned||planEditing)return;requestId=crypto.randomUUID();
+  $('#payment-date').value=$('#payment-method').value==='deferred'?'':today();paymentMethod();message('');
+ });
+ const isPaid=plan=>payments.some(p=>p.payment_group_id===plan.id);
+ function scopedPlans(){return scheduledPayments.filter(p=>String(p.season_year)===String(seasonYear)&&(!select.value||normalizeSupplier(p.supplier)===select.value)&&!isPaid(p)).sort((a,b)=>a.due_date.localeCompare(b.due_date)||a.id.localeCompare(b.id));}
+ function openPlan(plan,pay=false){
+  if(getSaving()||!available||!schedulesReady||isPaid(plan))return;
+  const key=normalizeSupplier(plan.supplier),group=suppliers().find(g=>g.key===key);
+  if(!group){message('Bu vadenin bayi masrafları bulunamadı.',true);return;}
+  if(pay&&cents(plan.amount)>group.rows.filter(p=>p.purchase_date<=today()).reduce((n,p)=>n+cents(debt(p)),0)){message('Vade tutarı güncel borçtan fazla. Önce vadeli kaydın tutarını düzenle.',true);return;}
+  reset(key);if(pay){planned=plan;requestId=plan.id;}else planEditing=plan;
+  $('#payment-method').value=pay?'cash':'deferred';setNumberInputValue($('#payment-amount'),plan.amount);$('#payment-date').value=pay?today():plan.due_date;$('#payment-note').value=plan.notes||'';
+  $('#payment-title').textContent=pay?'Vadeli Ödemeyi Tamamla':'Vadeli Ödemeyi Düzenle';$('#payment-cancel').hidden=false;options(key);paymentMethod();render();message(pay?'Ödemeyi yaptığın tarihi kontrol edip kaydet. Tutar bayinin borcundan düşecek.':'Tutarı veya vade tarihini değiştirip kaydedebilirsin.');showInventoryView('payment');form.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'});
+ }
+ async function removePlan(plan){
+  if(getSaving()||!session||isPaid(plan)||!confirm('Bu ileri vade kaydı kaldırılsın mı? Bayinin kalan borcu değişmez.'))return;
+  const uid=session.user.id;setSaving(true);
+  try{const {error}=await getClient().from('farmer_scheduled_payments').delete().eq('id',plan.id).eq('user_id',uid).select('id').single();if(error)throw error;if(session?.user.id!==uid)return;if(planEditing?.id===plan.id||planned?.id===plan.id)reset(select.value);await refresh();message('İleri vade kaydı kaldırıldı.');}
+  catch(error){if(session?.user.id===uid)message(stockError(error),true);}
+  finally{setSaving(false);}
+ }
+ function renderPlans(){
+  const list=$('#payment-schedules-list');list.replaceChildren();$('#payment-schedules-total').textContent='';
+  $('#payment-schedules-status').textContent=!session?'Vadeli ödemelerini görmek için giriş yap.':!schedulesReady?'Vadeli kayıtlar yüklenemedi. Sayfanın Yenile düğmesiyle tekrar dene.':'';
+  if(!available||!schedulesReady)return;
+  const rows=scopedPlans();$('#payment-schedules-total').textContent='Bekleyen: '+money(rows.reduce((n,p)=>n+cents(p.amount),0)/100);
+  for(const p of rows){
+   const notice=dueDateStatus(p.due_date,Number(p.amount),today()),card=el('article',undefined,'due-date-card is-'+notice.state),heading=el('div',undefined,'due-date-heading');
+   heading.append(el('h4',p.supplier),el('span',notice.label,'due-date-badge'));card.append(heading);metrics(card,[['Vade Tarihi',date(p.due_date)],['Ödenecek Tutar',money(p.amount)]]);
+   if(p.notes)card.append(el('p',p.notes));const actions=el('div',undefined,'stock-row-actions');actions.append(button('Ödeme Yapıldı',()=>openPlan(p,true)),button('Düzenle',()=>openPlan(p)),button('Vadeyi Kaldır',()=>removePlan(p)));card.append(actions);list.append(card);
+  }
+  if(!rows.length)list.append(el('p','Bu sezon ve firma seçimi için bekleyen vadeli ödeme yok.','payment-help'));
  }
  function paymentGroups(group){
   const ids=new Set(group.rows.map(p=>p.id)),result=new Map();
@@ -45,7 +90,7 @@ export function createPaymentLedger({getClient,refresh,getSaving,setSaving,onEdi
  function open(group,record){
   reset(group.key);showInventoryView('payment');
   if(record){record=paymentGroups(suppliers().find(g=>g.key===group.key)).find(r=>r.id===record.id)||record;editing=record;$('#payment-id').value=record.id;setNumberInputValue($('#payment-amount'),record.amount/100);$('#payment-date').value=record.date;$('#payment-note').value=record.notes;$('#payment-title').textContent=__avt("Ödemeyi Düzenle");$('#payment-save').textContent=__avt("Değişiklikleri Kaydet →");$('#payment-cancel').hidden=false;options(group.key);}
-  render();message(record?__avt("Kaydettiğinde ödeme ve bayi borcu birlikte güncellenir."):__avt("Ödenen tutarı ve tarihi gir."));form.scrollIntoView({behavior:'smooth',block:'center'});
+  paymentMethod();render();message(record?__avt("Kaydettiğinde ödeme ve bayi borcu birlikte güncellenir."):__avt("Ödenen tutarı ve tarihi gir."));form.scrollIntoView({behavior:'smooth',block:'center'});
  }
  async function remove(record,control){
   const full=suppliers().find(g=>g.key===select.value);if(full)record=paymentGroups(full).find(r=>r.id===record.id)||record;
@@ -59,14 +104,14 @@ export function createPaymentLedger({getClient,refresh,getSaving,setSaving,onEdi
  }
  function metrics(parent,values){const row=el('div',undefined,'ledger-amounts');values.forEach(([label,value])=>{const item=el('div');item.append(el('span',label),el('b',value));row.append(item);});parent.append(row);}
  function render(){
-  const supplierList=$('#supplier-balances'),list=$('#purchase-ledger');supplierList.replaceChildren();list.replaceChildren();
+  renderPlans();const supplierList=$('#supplier-balances'),list=$('#purchase-ledger');supplierList.replaceChildren();list.replaceChildren();
   const groups=suppliers(seasonPurchases(purchases,seasonYear)),group=groups.find(g=>g.key===select.value),entryGroup=selected();
   $('#supplier-title').textContent=group?group.name+__avt(" · Bayi Hesabı"):__avt("Bayi Hesapları");
   $('#dealer-detail-title').textContent=group?group.name+__avt(" · Masraflar ve Ödemeler"):__avt("Bayi Masrafları ve Ödemeleri");
   $('#payment-dealer-hint').textContent=entryGroup?'Tüm sezonlardaki kalan borç: '+money((entryGroup.total-entryGroup.paid)/100)+'. Ödeme en eski açık masraftan başlayarak dağıtılır. Sağdaki kayıtlar '+seasonYear+' sezonunun masraflarına aittir.':__avt("Bayi/firma seçtiğinde masrafları sağ tarafta görünür.");
   if(!available){$('#supplier-empty').hidden=false;$('#ledger-empty').hidden=false;return;}
   (group?[group]:groups).forEach(g=>{
-   const row=button('',()=>{if(editing)return;select.value=g.key;render();});row.classList.add('dealer-balance-row');row.setAttribute('aria-label',g.name+__avt(" bayi detayları"));row.setAttribute('aria-pressed',String(group?.key===g.key));
+   const row=button('',()=>{if(editing||planned||planEditing)return;select.value=g.key;render();});row.classList.add('dealer-balance-row');row.setAttribute('aria-label',g.name+__avt(" bayi detayları"));row.setAttribute('aria-pressed',String(group?.key===g.key));
    const label=el('span',undefined,'dealer-name');label.append(el('small',__avt("Bayi Adı")),el('strong',g.name));row.append(label);
    [[__avt("Toplam Alışveriş"),g.total],[__avt("Toplam Ödenen"),g.paid],[__avt("Kalan"),g.total-g.paid]].forEach(([caption,value])=>{const cell=el('span');cell.append(el('small',caption),el('b',money(value/100)));row.append(cell);});supplierList.append(row);
   });
@@ -103,23 +148,29 @@ export function createPaymentLedger({getClient,refresh,getSaving,setSaving,onEdi
   let max=eligible.reduce((n,p)=>n+cents(debt(p))+oldRows.filter(r=>r.purchase_id===p.id).reduce((n,r)=>n+cents(r.amount),0),0);
   if(editing?.legacy){const p=purchases.find(p=>p.id===editing.purchase_id);max=cents(debt(p))+editing.amount;}
   if(!paymentDate||!Number.isFinite(amount)||amount<=0||cents(amount)>max){message(__avt("Ödeme tutarı sıfırdan büyük ve ödeme tarihine kadar olan kalan borçtan fazla olmamalı."),true);return;}
-  const key=group.key,payload={id:editing?.id||requestId,supplier:group.name,amount:Number(amount.toFixed(2)),payment_date:paymentDate,notes:$('#payment-note').value.trim(),editing:Boolean(editing)};
+  const deferred=$('#payment-method').value==='deferred',uid=session.user.id,key=group.key;
+  if(deferred&&!schedulesReady){message('Vadeli ödeme kayıtları yüklenemedi. Yenile düğmesiyle tekrar dene.',true);return;}
+  if(!validDueDate(paymentDate)||(!deferred&&paymentDate>today())||(deferred&&!planEditing&&paymentDate<=today())){message(deferred?'İleri vade için bugünden sonraki bir tarih gir.':'Nakit ödeme için bugün veya geçmiş bir tarih gir.',true);return;}
+  if(planned&&cents(amount)!==cents(planned.amount)){message('Bu vadeyi öderken kayıtlı tutarı kullan. Tutarı değiştirmek için önce vadeli kaydı düzenle.',true);return;}
+  const payload={id:editing?.id||planned?.id||requestId,supplier:group.name,amount:Number(amount.toFixed(2)),payment_date:paymentDate,notes:$('#payment-note').value.trim(),editing:Boolean(editing)};
   if(editing?.legacy)payload.purchase_id=editing.purchase_id;
-  setSaving(true);$('#payment-save').disabled=true;message(__avt("Bayi ödemesi kaydediliyor…"));
+  setSaving(true);$('#payment-save').disabled=true;message(deferred?'İleri vadeli ödeme kaydediliyor…':__avt("Bayi ödemesi kaydediliyor…"));
   try{
-   const {error}=await getClient().rpc(editing?.legacy?'agroverix_save_inventory_payment':'agroverix_save_dealer_payment',{p_payment:payload});if(error)throw error;
-   reset(key);await refresh();message(__avt("Ödeme kaydedildi. Bayinin kalan borcu güncellendi."));
-  }catch(error){message(stockError(error),true);}finally{setSaving(false);$('#payment-save').disabled=false;}
+   const result=deferred?await getClient().from('farmer_scheduled_payments').upsert({id:planEditing?.id||requestId,user_id:uid,supplier:group.name,season_year:Number(planEditing?.season_year||seasonYear),amount:payload.amount,due_date:paymentDate,notes:payload.notes,updated_at:new Date().toISOString()},{onConflict:'id'}).select('id').single():await getClient().rpc(editing?.legacy?'agroverix_save_inventory_payment':'agroverix_save_dealer_payment',{p_payment:payload});
+   if(result.error)throw result.error;if(session?.user.id!==uid)return;
+   reset(key);await refresh();message(deferred?'İleri vade kaydedildi. Henüz ödeme yapılmadığı için kalan borç değişmedi.':__avt("Ödeme kaydedildi. Bayinin kalan borcu güncellendi."));
+  }catch(error){if(session?.user.id===uid)message(stockError(error),true);}finally{setSaving(false);$('#payment-save').disabled=false;}
  });
  return {
   update(data){
-   const changed=session?.user.id!==data.session?.user.id;session=data.session;seasonYear=data.seasonYear;purchases=data.purchases||[];items=data.items||[];payments=data.payments||[];available=Boolean(session&&data.available);
+   const changed=session?.user.id!==data.session?.user.id;session=data.session;seasonYear=data.seasonYear;purchases=data.purchases||[];items=data.items||[];payments=data.payments||[];scheduledPayments=data.scheduledPayments||[];schedulesReady=Boolean(data.schedulesReady);available=Boolean(session&&data.available);
    if(changed){reset();message('');}
+   if((planned||planEditing)&&schedulesReady){const id=(planned||planEditing).id;if(!scheduledPayments.some(p=>p.id===id)||payments.some(p=>p.payment_group_id===id)){reset(select.value);message('Vadeli kayıt başka bir işlemle güncellendi. Liste yenilendi.');}}
    if(editing&&!payments.some(p=>(p.payment_group_id||p.id)===editing.id)){reset(select.value);message(__avt("Düzenlenen ödeme artık bulunmuyor. Liste güncellendi."));}
    $('#payment-fields').disabled=!available;$('#payment-availability').textContent=!session?__avt("Ödeme ve bayi hesaplarını görmek için giriş yap."):available?__avt("Bayi/firma seçerek ödemeni kaydet. Sağ tarafta seçtiğin bayinin masrafları ve ödemeleri görünür."):__avt("Ödeme bilgileri yüklenemedi. Sayfayı yenileyerek tekrar dene.");
-   options();render();
+   options();paymentMethod();render();
   },
-  selectPurchase(id){const p=purchases.find(p=>p.id===id);if(p){if(editing)reset();options(normalizeSupplier(p.supplier));render();}},
+  selectPurchase(id){const p=purchases.find(p=>p.id===id);if(p){if(editing||planned||planEditing)reset();options(normalizeSupplier(p.supplier));render();}},
   notify(text){message(text,true);}
  };
 }
