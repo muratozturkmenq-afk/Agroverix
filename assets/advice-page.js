@@ -4,11 +4,11 @@ import {areaDisplay,perAreaDisplay} from './regional-format.js?v=international-v
 import {today} from './inventory-data.js?v=international-v1';
 import {currentReportYear} from './report-seasons.js?v=season-export-v1';
 import {loadAdviceData} from './advice-data.js?v=advice-v1';
-import {buildAdviceReport} from './advice-model.js?v=advice-v1';
+import {buildAdviceReport} from './advice-model.js?v=profit-v1';
 await regionalReady;
 const I=window.AgroIntl,$=id=>document.getElementById(id),params=new URLSearchParams(location.search),cfg=window.AGROVERIX_SUPABASE||{};
 const number=n=>Number(n).toLocaleString(I.locale,{maximumFractionDigits:2}),money=n=>Number(n).toLocaleString(I.locale,{minimumFractionDigits:0,maximumFractionDigits:0})+' '+I.t('TL'),percent=n=>number(n)+' %';
-const format={number,money,percent,area:n=>number(areaDisplay(n))+' '+I.t('da'),perArea:perAreaDisplay,areaUnit:I.t('da')};
+const format={number,money,percent,area:n=>number(areaDisplay(n))+' '+I.t('da'),perArea:perAreaDisplay,areaUnit:I.t('da'),priceUnit:I.t('TL/kg'),currencyUnit:I.t('TL')};
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
 let client=null,session=null,data=null,loading=false,queued=false,generation=0,lastLoad=0,first=true,poll=null;
 function say(text,error=false){$('advice-status').textContent=text;$('advice-status').classList.toggle('is-error',error);}
@@ -21,13 +21,13 @@ function selections(){
 }
 function value(metric){
  if(metric.value===null||metric.value===undefined||typeof metric.value==='number'&&!Number.isFinite(metric.value))return '—';
- const n=metric.value;switch(metric.type){case 'money':return money(n);case 'percent':return percent(n);case 'perArea':return money(perAreaDisplay(n))+'/'+I.t('da');case 'price':return number(n)+' '+I.t('TL/kg');case 'kg':return number(n)+' kg';default:return number(n);}
+ const n=metric.value;switch(metric.type){case 'money':return money(n);case 'percent':return percent(n);case 'perArea':return money(perAreaDisplay(n))+'/'+I.t('da');case 'yield':return number(perAreaDisplay(n))+' kg/'+I.t('da');case 'price':return number(n)+' '+I.t('TL/kg');case 'kg':return number(n)+' kg';default:return number(n);}
 }
 function list(parent,title,rows){if(!rows.length)return;parent.append(el('h4',title));const ul=el('ul');rows.forEach(text=>ul.append(el('li',text)));parent.append(ul);}
 function renderCard(c){
  const host=el('article',undefined,'advice-card'+(c.warning?' is-warning':''));host.append(el('h3',c.title));
  if(c.metrics.length){const dl=el('dl',undefined,'advice-metrics');for(const metric of c.metrics){const cell=el('div');cell.append(el('dt',metric.label),el('dd',value(metric)));dl.append(cell);}host.append(dl);}
- list(host,'Analiz',c.analysis);list(host,'Yorum',c.comments);list(host,'Öneriler',c.suggestions);
+ list(host,'Analiz',c.analysis);list(host,'Kârlılık Yorumu',c.comments);list(host,'Kârını Artırmak İçin Öneriler',c.suggestions);
  if(c.href){const link=el('a',c.label,'advice-record-link');link.href=c.href;host.append(link);}return host;
 }
 function render(){
