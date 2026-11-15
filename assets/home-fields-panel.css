@@ -85,3 +85,7 @@
 .home-fields-page .home-report-controls>.btn,.home-fields-page .home-report-controls .home-report-season,.home-fields-page .home-report-controls .home-report-season select{height:auto}
 
 .home-fields-page .home-summary-season>span{font-size:20px;font-weight:800;color:var(--gold-2);line-height:1.3}
+
+/* Give both home season boxes more horizontal room within the summary column. */
+.home-fields-page .home-summary-season>.season-choice-caption{flex:1;min-width:0;justify-content:center}
+.home-fields-page .home-summary-season select{width:140px;max-width:50%;flex:0 0 auto}
