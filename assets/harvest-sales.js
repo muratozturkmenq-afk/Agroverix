@@ -1,3 +1,4 @@
+import {createDueDateTracker} from './account-due-dates.js?v=account-due-v1';
 import {t,locale,areaDisplay,areaStored,perAreaDisplay,perAreaStored} from './regional-format.js?v=international-v1';
 import {ready as regionalReady,client as regionalClient} from './regional-context.js?v=stable-tr-v1';
 await regionalReady;
@@ -10,6 +11,8 @@ import {currentReportYear,seasonYears,allocateReceiptSeasons} from './season-sco
 let selectedYear=currentReportYear(),receiptAllocation={allocated:[],unallocated:[]};
 const $=id=>document.getElementById(id),cfg=window.AGROVERIX_SUPABASE||{},params=new URLSearchParams(location.search);
 let client=null,session=null,farms=[],sales=[],receipts=[],ready=false,loading=false,queued=false,saving=false,generation=0,channel=null,view='sale',historyMode='company',saleId=crypto.randomUUID(),receiptId=crypto.randomUUID(),editingSale=false,editingReceipt=false,requestedOpened=false;
+const dueDates=createDueDateTracker({root:$('harvest-due-dates'),kind:'receivable',getClient:()=>client});
+function updateDueDates(){dueDates.update({session,year:selectedYear,parties:groups().map(g=>({key:g.key,name:g.name,balance:Math.max(0,g.total-g.paid)/100})),available:ready});}
 const num=id=>parseNumberInput($(id).value),day=value=>new Date(value+'T12:00:00').toLocaleDateString(I.locale),cents=value=>Math.round(Number(value||0)*100),key=(farm,year)=>farm+'|'+year;
 const averagePrice=value=>Number(value).toLocaleString(I.locale,{minimumFractionDigits:2,maximumFractionDigits:2});
 function node(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;}
@@ -143,7 +146,7 @@ function renderCompanies(){
  if(!history.length)details.append(node('p',__avt("Bu firmadan henüz tahsilat kaydı yok."),'payment-help'));
 }
 function render(){
- options();renderFarms();renderSales();renderCompanies();
+ options();renderFarms();renderSales();renderCompanies();updateDueDates();
  const total=activeSales().reduce((n,s)=>n+cents(s.total_amount),0),paid=activeReceipts().reduce((n,r)=>n+cents(r.amount),0);
  $('harvest-total').textContent=money(total/100);$('harvest-collected').textContent=money(paid/100);$('harvest-due').textContent=money((total-paid)/100);
  $('harvest-season-note').textContent=selectedYear+' sezonunun satışları ve bu satışlara düşen tahsilatlar gösteriliyor. Tahsilatlar firmanın en eski açık satışından başlayarak sezonlara dağıtılır.'+(receiptAllocation.unallocated.length?' Bazı tahsilatlar açık satışla eşleştirilemedi; sezon toplamlarına eklenmedi.':'');
@@ -181,12 +184,12 @@ async function refresh(){
   const [f,s,r]=await Promise.all([readAll(client,'farmer_farms',uid,'*,farmer_seasons(*)'),readAll(client,'farmer_harvest_sales',uid),readAll(client,'farmer_harvest_receipts',uid)]);
   if(run!==generation||session?.user.id!==uid)return;farms=f;sales=s;receipts=r;receiptAllocation=allocateReceiptSeasons(sales,receipts);ready=true;render();say('harvest-status',__avt("Güncel hasat, satış ve tahsilat kayıtları · ")+new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}));
   if(!requestedOpened){requestedOpened=true;const row=seasonRows().find(r=>r.farm.id===params.get('farm')&&(params.get('year')?Number(params.get('year'))===Number(r.season.season_year):String(r.season.season_year)===selectedYear));if(row){selectedYear=String(row.season.season_year);render();$('sale-farm').value=row.key;$('sale-filter').value=row.key;setSalesMode('farm');$('harvest-year').value=row.season.season_year;renderFarms();renderSales();}}
- }catch(error){if(run===generation){ready=false;say('harvest-status',errorText(error),true);}}
+ }catch(error){if(run===generation){ready=false;updateDueDates();say('harvest-status',errorText(error),true);}}
  finally{loading=false;fieldsState();if(queued){queued=false;refresh();}}
 }
 function account(next){
  generation++;session=next;selectedYear=currentReportYear();receiptAllocation={allocated:[],unallocated:[]};ready=false;farms=[];sales=[];receipts=[];requestedOpened=false;if(channel){client.removeChannel(channel);channel=null;}
- options();$('receipt-detail-buyer').value='';$('sale-filter').value='';$('sale-company-filter').value='';resetSale('');resetReceipt('');renderFarms();setSalesMode('company');['harvest-total','harvest-collected','harvest-due'].forEach(id=>$(id).textContent='—');$('harvest-auth').hidden=!!next;fieldsState();say('sale-status','');say('receipt-status','');
+ updateDueDates();options();$('receipt-detail-buyer').value='';$('sale-filter').value='';$('sale-company-filter').value='';resetSale('');resetReceipt('');renderFarms();setSalesMode('company');['harvest-total','harvest-collected','harvest-due'].forEach(id=>$(id).textContent='—');$('harvest-auth').hidden=!!next;fieldsState();say('sale-status','');say('receipt-status','');
  if(next){refresh();channel=client.channel('harvest-'+next.user.id);['farmer_harvest_sales','farmer_harvest_receipts','farmer_farms','farmer_seasons'].forEach(table=>channel.on('postgres_changes',{event:'*',schema:'public',table,filter:'user_id=eq.'+next.user.id},()=>{if(!saving)refresh();}));channel.subscribe();}
  else say('harvest-status',__avt("Hasat, satış ve tahsilatlarını kaydetmek için giriş yap."));
 }

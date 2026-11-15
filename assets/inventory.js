@@ -1,3 +1,5 @@
+import {createDueDateTracker} from './account-due-dates.js?v=account-due-v1';
+import {payableParties} from './due-date-model.js?v=account-due-v1';
 import {t,locale,areaDisplay,areaStored,perAreaDisplay,perAreaStored} from './regional-format.js?v=international-v1';
 import {ready as regionalReady,client as regionalClient} from './regional-context.js?v=stable-tr-v1';
 await regionalReady;
@@ -16,6 +18,8 @@ const $=s=>document.querySelector(s),form=$('#purchase-form'),cfg=window.AGROVER
 let client=null,session=null,items=[],purchases=[],loading=false,refreshQueued=false,generation=0,ready=false,saving=false,channel=null;
 let payments=[],paymentsReady=false,purchaseRequestId=crypto.randomUUID(),requestedEditOpened=false;
 const requestedEdit=new URLSearchParams(location.search).get('edit');
+const dueDates=createDueDateTracker({root:$('#expense-due-dates'),kind:'payable',getClient:()=>client});
+function updateDueDates(){dueDates.update({session,year:selectedSeason,parties:payableParties(scopedPurchases(),normalizeSupplier),available:paymentsReady});}
 const ledger=createPaymentLedger({getClient:()=>client,refresh,getSaving:()=>saving,setSaving:value=>saving=value,onEditPurchase:editPurchase});
 ['purchase-quantity','purchase-package'].forEach(id=>bindNumberInput($('#'+id),{maximumFractionDigits:6}));
 bindNumberInput($('#purchase-price'),{maximumFractionDigits:2});
@@ -125,7 +129,7 @@ function renderSeason(){
  $('#inventory-total').textContent=money(rows.reduce((n,p)=>n+Math.round(Number(p.total_cost)*100),0)/100);
  $('#inventory-paid').textContent=paymentsReady?money(rows.reduce((n,p)=>n+Math.round(Number(p.paid_total)*100),0)/100):'—';
  $('#inventory-debt').textContent=paymentsReady?money(rows.reduce((n,p)=>n+Math.round(Number(p.total_cost)*100)-Math.round(Number(p.paid_total)*100),0)/100):'—';
- ledger.update({session,purchases,items,payments,available:paymentsReady,seasonYear:selectedSeason});
+ ledger.update({session,purchases,items,payments,available:paymentsReady,seasonYear:selectedSeason});updateDueDates();
 }
 $('#purchase-season').addEventListener('change',()=>{selectedSeason=$('#purchase-season').value;renderSeason();});
 function fillPurchaseFilters(){
@@ -161,14 +165,14 @@ async function refresh(){
   items=stock.items;purchases=stock.purchases;payments=paymentRows||[];paymentsReady=paymentRows!==null&&purchases.every(p=>'paid_total' in p);ready=true;$('#purchase-fields').disabled=false;
   populateItems();renderSeason();  message(__avt("Güncel masraf ve ödeme kayıtları · ")+new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}));
   if(requestedEdit&&!requestedEditOpened){requestedEditOpened=true;const row=purchases.find(p=>p.id===requestedEdit);if(row)editPurchase(row);else message(__avt("Düzenlenecek masraf bulunamadı veya hesabına ait değil."),true);}
- }catch(error){if(run===generation){ready=false;paymentsReady=false;$('#purchase-fields').disabled=true;updateForm();ledger.update({session,purchases,items,payments,available:false,seasonYear:selectedSeason});message(stockError(error),true);}}
+ }catch(error){if(run===generation){ready=false;paymentsReady=false;$('#purchase-fields').disabled=true;updateForm();ledger.update({session,purchases,items,payments,available:false,seasonYear:selectedSeason});updateDueDates();message(stockError(error),true);}}
  finally{loading=false;$('#inventory-refresh').disabled=false;if(refreshQueued){refreshQueued=false;refresh();}}
 }
 ['purchase-product-filter','purchase-supplier-filter'].forEach(id=>$('#'+id).addEventListener('change',renderPurchases));$('#inventory-refresh').addEventListener('click',refresh);
 window.addEventListener('focus',()=>{if(session&&!saving)refresh();});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&session&&!saving)refresh();});
 setInterval(()=>{if(!document.hidden&&session&&!saving)refresh();},30000);
-function account(next){generation++;if(channel){client.removeChannel(channel);channel=null;}session=next;selectedSeason=currentReportYear();ready=false;paymentsReady=false;items=[];purchases=[];payments=[];fillSeasonOptions();fillPurchaseFilters();requestedEditOpened=false;resetForm();ledger.update({session,purchases,items,payments,available:false,seasonYear:selectedSeason});$('#purchase-fields').disabled=true;$('#purchase-history-list').replaceChildren();$('#purchase-history-empty').hidden=false;$('#purchase-history-empty').textContent=__avt("Masrafların giriş yaptıktan sonra burada görünür.");['inventory-total','inventory-paid','inventory-debt'].forEach(id=>$('#'+id).textContent='—');$('#inventory-auth').hidden=Boolean(session);message('',false,$('#purchase-status'));if(session){
+function account(next){generation++;if(channel){client.removeChannel(channel);channel=null;}session=next;selectedSeason=currentReportYear();ready=false;paymentsReady=false;items=[];purchases=[];payments=[];fillSeasonOptions();fillPurchaseFilters();requestedEditOpened=false;resetForm();ledger.update({session,purchases,items,payments,available:false,seasonYear:selectedSeason});updateDueDates();$('#purchase-fields').disabled=true;$('#purchase-history-list').replaceChildren();$('#purchase-history-empty').hidden=false;$('#purchase-history-empty').textContent=__avt("Masrafların giriş yaptıktan sonra burada görünür.");['inventory-total','inventory-paid','inventory-debt'].forEach(id=>$('#'+id).textContent='—');$('#inventory-auth').hidden=Boolean(session);message('',false,$('#purchase-status'));if(session){
  refresh();channel=client.channel('inventory-'+session.user.id);['farmer_inventory_items','farmer_inventory_purchases','farmer_inventory_payments'].forEach(table=>channel.on('postgres_changes',{event:'*',schema:'public',table,filter:'user_id=eq.'+session.user.id},()=>{if(!saving)refresh();}));channel.subscribe();
  }else message(__avt("Giriş yaptıktan sonra masraf ve ödemelerini kaydedebilirsin."));}
 if(cfg.url&&cfg.publishableKey){client=(regionalClient||createClient(cfg.url,cfg.publishableKey));const {data,error}=await client.auth.getSession();if(error){message(__avt("Oturum alınamadı. Lütfen tekrar giriş yap."),true);$('#inventory-auth').hidden=false;}else account(data.session);client.auth.onAuthStateChange((event,next)=>{if(['SIGNED_IN','SIGNED_OUT'].includes(event)&&next?.user.id!==session?.user.id)setTimeout(()=>account(next),0);});}

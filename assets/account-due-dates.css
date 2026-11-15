@@ -1,0 +1,32 @@
+:root{--due-surface:#fffdf5;--due-border:#cecdbf;--due-text:#202c21;--due-muted:#4f5e51;--due-badge:#e6eddf;--due-overdue:#8f291f;--due-overdue-bg:#fbe8df;--due-today:#725000;--due-today-bg:#fff0bd;}
+.due-date-panel{margin:22px 0;padding:22px;border:1px solid var(--due-border);border-radius:16px;background:var(--due-surface);color:var(--due-text);min-width:0;}
+.due-date-panel-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px;}
+.due-date-panel-head>div{flex:1 1 300px;min-width:0;}
+.due-date-panel h2{margin:0 0 7px;font-size:24px;color:var(--due-text);}
+.due-date-panel-head p{margin:0;color:var(--due-muted);font-size:15px;line-height:1.5;}
+.due-date-panel [data-due-scope]{font-weight:700;white-space:nowrap;color:var(--due-text);}
+.due-date-form{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) auto;gap:14px;align-items:end;}
+.due-date-panel .profile-field{min-width:0;margin:0;}
+.due-date-panel label{display:block;margin-bottom:8px;color:var(--due-text);font-size:14px;font-weight:700;}
+.due-date-panel input,.due-date-panel select{box-sizing:border-box;width:100%;min-width:0;max-width:100%;height:46px;padding:10px 12px;border:1px solid var(--due-border);border-radius:7px;background:var(--due-surface);color:var(--due-text);font:inherit;}
+.due-date-panel .inventory-button{width:auto;max-width:100%;padding:10px 14px;min-height:42px;white-space:normal;}
+.due-date-panel .due-date-save{background:var(--gold);color:var(--due-text);min-height:46px;}
+.due-date-status{min-height:20px;margin:12px 0;font-size:14px;color:var(--due-muted);}
+.due-date-status.is-error{color:var(--due-overdue);}
+.due-date-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+.due-date-card{min-width:0;padding:16px;border:1px solid var(--due-border);border-radius:10px;}
+.due-date-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.due-date-heading h3{margin:0;font-size:18px;color:var(--due-text);overflow-wrap:anywhere;}
+.due-date-badge{padding:5px 9px;border-radius:7px;background:var(--due-badge);color:var(--due-muted);font-size:13px;font-weight:700;}
+.is-overdue .due-date-badge{background:var(--due-overdue-bg);color:var(--due-overdue);}
+.is-today .due-date-badge{background:var(--due-today-bg);color:var(--due-today);}
+.due-date-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:16px 0;}
+.due-date-facts dt{font-size:13px;color:var(--due-muted);line-height:1.5;}
+.due-date-facts dd{margin:4px 0 0;font-size:17px;font-weight:700;overflow-wrap:anywhere;}
+.due-date-panel .stock-row-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.due-date-note,.due-date-empty{margin:12px 0 0;font-size:13px;line-height:1.6;color:var(--due-muted);}
+.due-date-empty{grid-column:1/-1;}
+.due-date-panel button:disabled,.due-date-panel input:disabled,.due-date-panel select:disabled{opacity:.6;cursor:not-allowed;}
+.due-date-panel :focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
+@media(max-width:760px){.due-date-form{grid-template-columns:repeat(2,minmax(0,1fr));}.due-date-save{grid-column:1/-1;justify-self:start;}.due-date-list{grid-template-columns:minmax(0,1fr);}}
+@media(max-width:480px){.due-date-panel{padding:16px;margin:16px 0;}.due-date-form{grid-template-columns:minmax(0,1fr);}.due-date-panel-head{gap:10px;}.due-date-panel h2{font-size:22px;}.due-date-facts{gap:10px;}.due-date-facts dd{font-size:16px;}}

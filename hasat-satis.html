@@ -4,7 +4,8 @@
 <title data-i18n="Hasat &amp; Satış · AgroVerix">Hasat &amp; Satış · AgroVerix</title><meta name="theme-color" content="#0D100B">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Sans:ital,wght@0,400..700;1,400&family=Martian+Mono:wght@400..600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/styles.css"><link rel="stylesheet" href="assets/profile.css?v=compact-record-actions-v1"><link rel="stylesheet" href="assets/mobile-reports.css?v=page-reorg-v1"><link rel="stylesheet" href="assets/inventory.css?v=season-scope-v1"><link rel="stylesheet" href="assets/stock.css?v=views-v2"><link rel="stylesheet" href="assets/harvest-sales.css?v=season-scope-v1">
+<link rel="stylesheet" href="assets/styles.css"><link rel="stylesheet" href="assets/profile.css?v=compact-record-actions-v1"><link rel="stylesheet" href="assets/mobile-reports.css?v=page-reorg-v1"><link rel="stylesheet" href="assets/inventory.css?v=season-scope-v1">
+<link rel="stylesheet" href="assets/account-due-dates.css?v=account-due-v1"><link rel="stylesheet" href="assets/stock.css?v=views-v2"><link rel="stylesheet" href="assets/harvest-sales.css?v=season-scope-v1">
 <link rel="icon" href="/favicon.svg?v=logo-20261028" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png?v=logo-20261028"><link rel="manifest" href="/site.webmanifest?v=logo-20261028"><meta name="apple-mobile-web-app-title" content="AgroVerix">
 <link rel="stylesheet" href="assets/regional.css?v=season-badges-v1">
 <script src="assets/i18n.js?v=stable-tr-v1"></script>
@@ -18,6 +19,18 @@
 <p class="inventory-status" id="harvest-status" role="status" aria-live="polite" data-i18n="Kayıtların yükleniyor…">Kayıtların yükleniyor…</p>
 <div class="season-scope-toolbar"><label for="harvest-year"><span class="season-choice-caption">Sezon</span> <select id="harvest-year"></select></label></div>
 <section class="inventory-summary inventory-summary-payments" aria-label="Satış ve tahsilat özeti" data-i18n-label="Satış ve tahsilat özeti"><article><span data-i18n="Toplam Satış Tutarı">Toplam Satış Tutarı</span><b id="harvest-total">—</b><small data-i18n="Seçilen sezonun satışları">Seçilen sezonun satışları</small></article><article><span data-i18n="Toplam Tahsilat">Toplam Tahsilat</span><b id="harvest-collected">—</b><small data-i18n="Seçilen sezonun satışlarına ait tahsilatlar">Seçilen sezonun satışlarına ait tahsilatlar</small></article><article><span data-i18n="Kalan Alacak">Kalan Alacak</span><b id="harvest-due">—</b><small data-i18n="Satış tutarı − tahsilatlar">Satış tutarı − tahsilatlar</small></article></section>
+<section id="harvest-due-dates" class="due-date-panel" aria-labelledby="harvest-due-title">
+ <div class="due-date-panel-head"><div><h2 id="harvest-due-title">Tahsilat Takvimi</h2><p>Seçilen sezon için her firmanın tahsilat tarihini kaydet; kalan tutarı ve vadeyi burada gör.</p></div><span data-due-scope></span><button type="button" class="inventory-button" data-due-refresh disabled>Yenile</button></div>
+ <form class="due-date-form">
+  <div class="profile-field"><label for="harvest-due-party">Firma *</label><select id="harvest-due-party" data-due-party required disabled><option value="">Firma seç</option></select></div>
+  <div class="profile-field"><label for="harvest-due-date">Beklenen Tahsilat Tarihi *</label><input id="harvest-due-date" data-due-date type="date" min="2000-01-01" max="2200-12-31" required disabled></div>
+  <button type="submit" class="inventory-button due-date-save" data-due-save disabled>Tahsilat Tarihini Kaydet</button>
+ </form>
+ <p class="due-date-status" data-due-status role="status" aria-live="polite">Tarihlerin hazırlanıyor…</p>
+ <div class="due-date-list" data-due-list></div>
+ <p class="due-date-note">Her firma için bir tarih kaydedilir; yeniden kaydettiğinde tarih güncellenir. Tarih gelecek yılda da olabilir. Bu kayıt tahsilat yapıldığı anlamına gelmez; aldığın veya ödediğin parayı Tahsilat Girişi bölümünden ayrıca kaydet.</p>
+</section>
+
 <section class="harvest-farm-section" aria-labelledby="harvest-farms-title"><div class="harvest-section-heading"><h2 id="harvest-farms-title" data-i18n="Tarla Bazında Hasat">Tarla Bazında Hasat</h2></div><div id="harvest-farm-summaries" class="harvest-farm-grid"></div><p id="harvest-farms-empty" class="payment-help" data-i18n="Tarla özetlerin giriş yaptıktan sonra burada görünür.">Tarla özetlerin giriş yaptıktan sonra burada görünür.</p></section>
 <div class="inventory-view-tabs" role="tablist" aria-label="Hasat ve tahsilat işlemleri" data-i18n-label="Hasat ve tahsilat işlemleri"><button type="button" id="harvest-tab-sale" role="tab" aria-selected="true" aria-controls="harvest-sales-panel" data-i18n="Hasat &amp; Satış Girişi">Hasat &amp; Satış Girişi</button><button type="button" id="harvest-tab-receipt" role="tab" aria-selected="false" aria-controls="harvest-receipts-panel" tabindex="-1" data-i18n="Tahsilat Girişi">Tahsilat Girişi</button></div>
 <div class="inventory-columns" id="harvest-sales-panel" role="tabpanel" aria-labelledby="harvest-tab-sale">
@@ -50,7 +63,7 @@
 <div id="harvest-company-detail"></div><div id="harvest-company-list" class="dealer-balance-list"></div><p id="harvest-companies-empty" class="payment-help" data-i18n="Satış yaptığın firmalar burada görünür.">Satış yaptığın firmalar burada görünür.</p></section></div></section>
 <p class="inventory-footnote" id="harvest-season-note">Seçilen sezonun satışları ve bu satışlara ait tahsilatlar gösterilir. Tahsilat yeni bir satış geliri değildir; kalan alacağı azaltır.</p>
 <a class="profile-back inventory-home" href="index.html" data-i18n="Ana Sayfaya Dön →">Ana Sayfaya Dön →</a></main>
-<script src="assets/supabase-config.js?v=international-v1"></script><script type="module" src="assets/harvest-sales.js?v=season-scope-v1"></script><script type="module" src="assets/regional-boot.js?v=stable-tr-v1"></script>
+<script src="assets/supabase-config.js?v=international-v1"></script><script type="module" src="assets/harvest-sales.js?v=account-due-v1"></script><script type="module" src="assets/regional-boot.js?v=stable-tr-v1"></script>
 <footer class="site-contact-footer"><p class="site-contact-line"><span>İletişim:</span> <a href="mailto:agroverixinfo@gmail.com">agroverixinfo@gmail.com</a></p></footer>
 <script defer src="assets/agri-support.js?v=greeting-v1"></script>
 </body></html>
