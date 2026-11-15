@@ -98,3 +98,11 @@
  .home-fields-page .hero .hero-field-actions .btn,
  .home-fields-page .hero .home-report-footer #admin-link{font-size:16px;line-height:1.35}
 }
+
+/* Separate the report actions and keep both gold controls a little narrower. */
+.home-fields-page .hero-field-actions>.home-report-controls{width:258px;grid-template-columns:minmax(0,150px) minmax(72px,98px)}
+.home-fields-page .hero-field-actions>.home-advice-link{width:150px;margin-top:14px}
+@media(max-width:600px){
+ .home-fields-page .hero-field-actions>.home-report-controls{width:230px;grid-template-columns:minmax(0,148px) 72px}
+ .home-fields-page .hero-field-actions>.home-advice-link{width:148px}
+}
