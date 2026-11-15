@@ -8,3 +8,9 @@
 /* Visible season captions contrast with their own page surface. */
 .season-choice-caption,.profile-page .profile-field>label.season-choice-caption{font-size:20px;font-weight:800;line-height:1.35;color:var(--season-label-color,var(--ink,#12160e));opacity:1;letter-spacing:0}
 .home-summary-season,.season-scope-toolbar,.personnel-toolbar{--season-label-color:var(--gold-2,#f7d27a)}
+
+/* A filled frame makes the season caption distinct from the year control. */
+:root{--season-caption-surface:#f0eddb;--season-caption-border:#818a65;--season-caption-dark-surface:#34422a}
+.season-choice-caption,.profile-page .profile-field>label.season-choice-caption{display:inline-flex;align-items:center;box-sizing:border-box;min-height:40px;padding:6px 10px;border:1px solid var(--season-label-border,var(--season-caption-border));border-radius:8px;background:var(--season-label-surface,var(--season-caption-surface));max-width:100%}
+.home-summary-season,.season-scope-toolbar,.personnel-toolbar{--season-label-surface:var(--season-caption-dark-surface);--season-label-border:var(--gold-2,#f7d27a)}
+@media(max-width:480px){.season-choice-caption,.profile-page .profile-field>label.season-choice-caption{padding-inline:8px}}
