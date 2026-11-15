@@ -89,3 +89,12 @@
 /* Give both home season boxes more horizontal room within the summary column. */
 .home-fields-page .home-summary-season>.season-choice-caption{flex:1;min-width:0;justify-content:center}
 .home-fields-page .home-summary-season select{width:140px;max-width:50%;flex:0 0 auto}
+
+/* Make the home action labels easier to read without widening the controls. */
+.home-fields-page .hero .hero-field-actions .btn,
+.home-fields-page .hero .home-report-footer #admin-link{font-size:18px;line-height:1.35}
+.home-fields-page .home-report-controls .home-report-season select{flex:1}
+@media(max-width:600px){
+ .home-fields-page .hero .hero-field-actions .btn,
+ .home-fields-page .hero .home-report-footer #admin-link{font-size:16px;line-height:1.35}
+}
