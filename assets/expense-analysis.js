@@ -1,3 +1,5 @@
+import {fieldProfitAdvice} from './field-profit-advice.js?v=field-profit-v1';
+import {loadFieldAnalysisData} from './field-analysis-data.js?v=field-profit-v1';
 import {ready as regionalReady,client} from './regional-context.js?v=stable-tr-v1';
 import {areaDisplay,perAreaDisplay} from './regional-format.js?v=international-v1';
 import {farmFinance,appendMetric,operationLabels} from './farm-finance.js?v=international-v1';
@@ -8,7 +10,7 @@ const format=v=>Number(v).toLocaleString(I.locale,{minimumFractionDigits:2,maxim
 const money=v=>format(v)+' '+I.t('TL'),label=key=>key==='personnel'?'Personel Gideri':operationLabels[key]||'Diğer Uygulama';
 const colors=['var(--analysis-gold)','var(--analysis-blue)','var(--analysis-green)','var(--analysis-orange)','var(--analysis-purple)','var(--analysis-teal)','var(--analysis-rose)','var(--analysis-gray)'];
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
-let farm=null,records=[],session=null,busy=false,channel=null,refreshTimer=null,revision=0;
+let farm=null,records=[],session=null,busy=false,queued=false,channel=null,refreshTimer=null,revision=0;
 function status(text){$('analysis-status').textContent=text;}
 function pie(model){
  const host=$('analysis-chart');host.replaceChildren();
@@ -47,29 +49,45 @@ function render(){
  if(model.first&&model.last){const date=s=>new Date(s+'T12:00:00').toLocaleDateString(I.locale);add('Hesaplanan kayıtlar '+date(model.first)+' – '+date(model.last)+' tarihleri arasındaki uygulamaları kapsıyor.');}
  if(model.missing)add(model.missing+' kaydın maliyet bilgisi eksik. Grafik yalnızca hesaplanabilen giderleri gösterir; eksikler tamamlanmadan toplam maliyet kesinleştirilemez.');
  if(!model.count)add('Uygulama Girişi sayfasından tarla ve sezon seçerek kullanım kaydettiğinde masraf dağılımı burada oluşur.');
+
+ const advice=fieldProfitAdvice(farm,records,year,{money,number:format,perArea:perAreaDisplay,areaUnit:I.t('da'),currencyUnit:I.t('TL')});
+ $('analysis-profit-basis').textContent=advice.basis;
+ const profitMetrics=$('analysis-profit-metrics');profitMetrics.replaceChildren();
+ advice.metrics.forEach(m=>appendMetric(profitMetrics,m.label,m.value,I.t(m.unit),'finance-metric',format));
+ const comments=$('analysis-profit-comments'),suggestions=$('analysis-profit-suggestions');comments.replaceChildren();suggestions.replaceChildren();
+ advice.comments.forEach(text=>comments.append(el('li',text)));advice.suggestions.forEach(text=>suggestions.append(el('li',text)));
+ $('analysis-full-report').href='rapor-oneriler.html?farm='+encodeURIComponent(farm.id)+'&year='+year;
  status(model.missing?'Eksik maliyetli kayıtlar var. Tarla ve Sezon Detayı üzerinden kontrol edebilirsin.':'Kayıtlı verilere göre güncellendi.');
  const u=new URL(location.href);u.searchParams.set('year',year);history.replaceState(null,'',u);
 }
 async function load(){
- if(busy||!session)return;busy=true;$('analysis-refresh').disabled=true;const request=++revision;
+ if(!session)return;if(busy){queued=true;return;}busy=true;$('analysis-refresh').disabled=true;const request=++revision,uid=session.user.id;
  try{
-  const [f,r]=await Promise.all([client.from('farmer_farms').select('*,farmer_seasons(*)').eq('id',farmId).eq('user_id',session.user.id).maybeSingle(),client.from('farmer_operations').select('*').eq('farm_id',farmId).eq('user_id',session.user.id)]);
-  if(request!==revision)return;if(f.error||r.error||!f.data)throw new Error('load');
-  const previous=farm?$('analysis-year').value:params.get('year');farm=f.data;records=r.data||[];
+  const data=await loadFieldAnalysisData(client,farmId,uid);
+  if(request!==revision||session?.user.id!==uid)return;
+  const previous=farm?$('analysis-year').value:params.get('year');farm=data.farm;records=data.records;
   const years=[...new Set((farm.farmer_seasons||[]).map(s=>String(s.season_year)))].sort((a,b)=>b-a);
   $('analysis-year').replaceChildren(...years.map(y=>new Option(y,y)));$('analysis-year').value=years.includes(previous)?previous:String(farm.season_year);if(!$('analysis-year').value&&years.length)$('analysis-year').value=years[0];
   $('analysis-year').disabled=!years.length;render();
- }catch{status(farm?'Güncelleme alınamadı. Aşağıdaki grafik son yüklenen kayıtlara aittir; Yenile ile tekrar dene.':'Tarla bulunamadı veya bilgiler yüklenemedi. Yalnızca kendi tarlalarını görebilirsin.');}
- finally{busy=false;$('analysis-refresh').disabled=false;}
+ }catch{if(request===revision)status(farm?'Güncelleme alınamadı. Aşağıdaki grafik son yüklenen kayıtlara aittir; Yenile ile tekrar dene.':'Tarla bulunamadı veya bilgiler yüklenemedi. Yalnızca kendi tarlalarını görebilirsin.');}
+ finally{busy=false;$('analysis-refresh').disabled=!session;if(queued){queued=false;load();}}
 }
 $('analysis-year').addEventListener('change',render);$('analysis-refresh').addEventListener('click',load);
 window.addEventListener('focus',()=>{if(!document.hidden)load();});document.addEventListener('visibilitychange',()=>{if(!document.hidden)load();});
+function account(next){
+ revision++;session=next;farm=null;records=[];['analysis-metrics','analysis-chart','analysis-rows','analysis-insights','analysis-profit-metrics','analysis-profit-comments','analysis-profit-suggestions'].forEach(id=>$(id).replaceChildren());$('analysis-profit-basis').textContent='';$('analysis-chart-caption').textContent='';$('analysis-full-report').href='';if(channel){client.removeChannel(channel);channel=null;}clearTimeout(refreshTimer);
+ $('analysis-content').hidden=true;$('analysis-title').textContent='Tarla Masraf Analizi';$('analysis-detail').hidden=true;$('analysis-year').replaceChildren();$('analysis-year').disabled=true;$('analysis-refresh').disabled=!next;
+ $('analysis-login').href='ciftci-bilgi.html?next='+encodeURIComponent(location.pathname+location.search);$('analysis-login').hidden=!!next;
+ if(!next){status('Masraf analizini görmek için hesabına giriş yap.');return;}
+ status('Tarlanın masrafları ve kârlılık önerileri hazırlanıyor…');load();
+ channel=client.channel('expense-analysis-'+farmId);for(const table of ['farmer_operations','farmer_seasons','farmer_farms'])channel.on('postgres_changes',{event:'*',schema:'public',table,filter:'user_id=eq.'+next.user.id},()=>{clearTimeout(refreshTimer);refreshTimer=setTimeout(load,350);});channel.subscribe();
+}
 if(!farmId||!client){status('Tarla bağlantısı geçersiz. Ana sayfadaki tarla özetinden Tarla Masraf Analizi bağlantısını aç.');}
 else{
- const {data}=await client.auth.getSession();session=data.session;
- if(!session){status('Masraf analizini görmek için hesabına giriş yap.');$('analysis-login').href='ciftci-bilgi.html?next='+encodeURIComponent(location.pathname+location.search);$('analysis-login').hidden=false;}
- else{await load();channel=client.channel('expense-analysis-'+farmId);for(const table of ['farmer_operations','farmer_seasons','farmer_farms'])channel.on('postgres_changes',{event:'*',schema:'public',table,filter:'user_id=eq.'+session.user.id},()=>{clearTimeout(refreshTimer);refreshTimer=setTimeout(load,350);});channel.subscribe();}
- client.auth.onAuthStateChange((event)=>{if(event==='SIGNED_OUT'){revision++;session=null;farm=null;records=[];$('analysis-content').hidden=true;$('analysis-title').textContent='Tarla Masraf Analizi';$('analysis-detail').hidden=true;$('analysis-year').replaceChildren();$('analysis-year').disabled=true;$('analysis-refresh').disabled=true;status('Oturum kapatıldı. Analizi görmek için tekrar giriş yap.');}});
+ const {data,error}=await client.auth.getSession();account(error?null:data.session);
+ if(error)status('Oturum alınamadı. Yeniden giriş yap.');
+ client.auth.onAuthStateChange((event,next)=>{if(['SIGNED_IN','SIGNED_OUT'].includes(event)&&session?.user.id!==next?.user.id)setTimeout(()=>account(next),0);});
 }
+
 window.addEventListener('pagehide',()=>{clearTimeout(refreshTimer);if(channel)client.removeChannel(channel);});
 window.addEventListener('pageshow',event=>{if(event.persisted)location.reload();});

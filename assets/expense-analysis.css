@@ -28,3 +28,10 @@
 .expense-analysis-page .finance-metric{min-width:0}
 .expense-analysis-page .finance-metric strong{overflow-wrap:anywhere}
 @media(max-width:600px){.analysis-chart-layout{grid-template-columns:1fr;gap:20px}.expense-analysis-page .farm-detail-layout{padding-inline:12px}.expense-analysis-page .farm-detail-card{padding:18px 14px}.analysis-table{font-size:13px}.analysis-table th,.analysis-table td{padding:10px 3px}.analysis-table th:first-child{width:37%}.expense-analysis-page .finance-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.analysis-toolbar{gap:8px}.analysis-toolbar .auth-back{font-size:13px}}
+
+.analysis-profit-section h3{font-size:17px;margin:22px 0 10px}
+.analysis-profit-basis{font-size:15px;line-height:1.65;margin:0 0 18px}
+.analysis-profit-metrics{margin-bottom:20px}
+.analysis-profit-suggestions li{padding-left:3px}
+.analysis-profit-suggestions li::marker{font-weight:750}
+.analysis-full-report{display:inline-flex;margin-top:18px;min-height:38px;align-items:center}
