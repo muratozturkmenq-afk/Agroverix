@@ -1,3 +1,4 @@
+import {seasonCostChart} from './season-cost-chart.js?v=summary-chart-v1';
 import {farmSeasonTotals} from './farm-season-totals.js?v=farm-totals-v1';
 import {renderFarmTotals,clearFarmTotals} from './farm-totals-view.js?v=farm-totals-v1';
 import {readAll} from './inventory-data.js?v=international-v1';
@@ -10,10 +11,12 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 import { renderSimulators } from './season-simulator.js?v=farm-totals-v1';
 import {currentReportYear,seasonFarms} from './season-scope.js?v=season-scope-v1';
 const cfg=window.AGROVERIX_SUPABASE||{},container=document.querySelector('#farm-simulators'),message=document.querySelector('#sim-message'),login=document.querySelector('.nav-in > a.btn');
-const totalsRoot=document.querySelector('#forecast-season-totals');
+const totalsRoot=document.querySelector('#forecast-season-totals'),chartHost=document.querySelector('#forecast-cost-chart');
+let costChart=null;
+function clearCostChart(){costChart?.dispose();costChart=null;chartHost.replaceChildren();}
 let totalFarms=[],totalRecords=[],totalYear='',previewOverrides=new Map(),building=false;
 function updateTotals(){if(!building)renderFarmTotals(totalsRoot,farmSeasonTotals(totalFarms,totalRecords,totalYear,{forecast:true,overrides:previewOverrides}),{forecast:true,draft:Boolean(container.querySelector('.sim-forecast-form[data-dirty="true"]'))});}
-function clearSimulators(){clearFarmTotals(totalsRoot);totalFarms=[];totalRecords=[];previewOverrides.clear();container.querySelectorAll('.crop-timeline-visual').forEach(v=>v.dispose?.());container.replaceChildren();}
+function clearSimulators(){clearCostChart();clearFarmTotals(totalsRoot);totalFarms=[];totalRecords=[];previewOverrides.clear();container.querySelectorAll('.crop-timeline-visual').forEach(v=>v.dispose?.());container.replaceChildren();}
 function guest(){clearSimulators();message.textContent=__avt("Kendi tarlaların için sezon sonu tahmini yapmak ve tahminlerini saklamak için hesabına giriş yap.");}
 if(!cfg.url||!cfg.publishableKey){message.textContent=__avt("Kayıt servisine bağlanılamadı. Sayfayı yenileyerek tekrar dene.");}
 else{
@@ -31,7 +34,7 @@ else{
   if(quiet&&signature===nextSignature)return;signature=nextSignature;
   totalFarms=farms;totalRecords=records;totalYear=year;previewOverrides=new Map();building=true;
   try{renderSimulators(farms,records,client,session.user,updateTotals,(id,values)=>{previewOverrides.set(id,values);updateTotals();});}finally{building=false;}
-  updateTotals();
+  updateTotals();clearCostChart();if(farms.length){costChart=seasonCostChart(farms,records,year);chartHost.append(costChart);}
   message.textContent=farms.length?year+' sezonunun ekili tarlaları gösteriliyor.':year+' sezonunda kayıtlı ekili tarla yok.';
  }
  async function refresh(){if(!activeSession||document.hidden||pendingLoad)return;pendingLoad=load(activeSession,{quiet:true});try{await pendingLoad;}finally{pendingLoad=null;}}
