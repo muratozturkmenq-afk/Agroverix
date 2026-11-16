@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex">
+<title>Şifre Sıfırlama · AgroVerix</title>
+<meta name="theme-color" content="#0D100B">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800&family=Instrument+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/styles.css">
+<link rel="stylesheet" href="assets/profile.css?v=profile-email-v1">
+<link rel="stylesheet" href="assets/password-reset.css?v=password-reset-v1">
+<link rel="icon" href="/favicon.svg?v=logo-20261028" type="image/svg+xml">
+</head>
+<body class="profile-page password-reset-page">
+<header class="profile-top"><a class="brand" href="index.html" aria-label="AgroVerix ana sayfa"><img class="home-logo" src="assets/images/agroverix-logo-horizontal-light.svg?v=logo-transparent-20261028" width="1024" height="360" alt="AgroVerix — Cebimdeki Tarlam"></a><span class="profile-step">HESAP GÜVENLİĞİ</span><a class="profile-back" href="ciftci-bilgi.html">← Girişe Dön</a></header>
+<main class="profile-layout">
+ <section class="profile-intro"><p class="eyebrow">Hesabına yeniden ulaş</p><h1>Şifreni<br><em>yenile.</em></h1><p>Üyelikte kullandığın e-posta adresine gelen bağlantıyla yeni şifreni belirle. Tarlaların ve kayıtların aynı hesabında kalır.</p></section>
+ <section class="profile-card auth-card" aria-labelledby="reset-title">
+  <div class="profile-card-head"><div><span class="profile-kicker">GÜVENLİ ÇİFTÇİ HESABI</span><h2 id="reset-title">Şifre Sıfırlama</h2></div></div>
+  <div id="reset-request"><p class="reset-help">Üyeliğini açtığın e-posta adresini gir. Sana yeni şifre belirleyebileceğin bir bağlantı gönderelim.</p><form id="reset-request-form"><div class="profile-field"><label for="reset-email">E-posta Adresi <b>*</b></label><input id="reset-email" type="email" inputmode="email" autocomplete="email" maxlength="254" placeholder="ornek@posta.com" required></div><button id="reset-send" class="profile-submit" type="submit">Şifre Sıfırlama Bağlantısı Gönder</button></form></div>
+  <div id="reset-change" hidden><p class="reset-help">En az 8 karakterden oluşan yeni bir şifre belirle.</p><form id="reset-change-form"><div class="profile-field"><label for="reset-password">Yeni Şifre <b>*</b></label><input id="reset-password" type="password" autocomplete="new-password" minlength="8" required></div><div class="profile-field"><label for="reset-password-confirm">Yeni Şifre Tekrarı <b>*</b></label><input id="reset-password-confirm" type="password" autocomplete="new-password" minlength="8" required></div><button id="reset-save" class="profile-submit" type="submit" disabled>Yeni Şifreyi Kaydet</button></form><div class="reset-links"><button id="reset-new-link" class="auth-back" type="button">Yeni Bağlantı İste</button></div></div>
+  <p id="reset-status" class="profile-result auth-status" role="status" aria-live="polite"></p>
+  <div id="reset-success" hidden><a class="profile-submit" href="ciftci-bilgi.html">Giriş Yap →</a></div>
+  <div class="reset-links"><a class="auth-forgot-link" href="ciftci-bilgi.html">← Girişe Dön</a></div>
+ </section>
+</main>
+<script src="assets/supabase-config.js?v=international-v1"></script>
+<script type="module" src="assets/password-reset.js?v=password-reset-v1"></script>
+</body>
+</html>
