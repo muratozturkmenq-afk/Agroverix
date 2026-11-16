@@ -1,0 +1,19 @@
+:root{--totals-loss:#9c3327;--totals-gain:#366528;--totals-loss-dark:#ffb5a5;--totals-gain-dark:#b5df8c;}
+.season-total-card{min-width:0;padding:20px;border:1px solid var(--line-l);border-radius:13px;background:var(--cotton);color:var(--ink);margin:0 0 24px;}
+.season-total-card h2,.season-total-card h3{font:750 22px/1.3 Archivo,sans-serif;margin:0 0 15px;}
+.season-total-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0;}
+.season-total-grid>div{min-width:0;padding:14px;background:var(--cotton-2);border-radius:8px;}
+.season-total-grid dt{font-size:14px;line-height:1.4;font-weight:600;}
+.season-total-grid dd{margin:7px 0 0;font:750 27px/1.25 Archivo,sans-serif;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;}
+.season-total-grid .is-loss dd{color:var(--totals-loss);}.season-total-grid .is-gain dd{color:var(--totals-gain);}
+.season-total-note{font-size:13px;line-height:1.5;margin:12px 0 0;}
+.home-season-totals{flex:none;padding:12px;margin:0;border-color:var(--line-d);background:var(--ink);color:var(--cotton);}
+.home-season-totals h3{font-size:16px;margin-bottom:10px;color:var(--gold-2);}
+.home-season-totals .season-total-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+.home-season-totals .season-total-grid>div{padding:0;background:transparent;}
+.home-season-totals .season-total-grid>div:first-child{grid-column:1/-1;}
+.home-season-totals .season-total-grid dt{font-size:12px;}.home-season-totals .season-total-grid dd{font-size:20px;margin-top:4px;}
+.home-season-totals .season-total-note{font-size:12px;margin-top:9px;}
+.home-season-totals .is-loss dd{color:var(--totals-loss-dark);}.home-season-totals .is-gain dd{color:var(--totals-gain-dark);}
+.season-total-card[hidden]{display:none!important;}
+@media(max-width:600px){.forecast-season-totals{padding:16px;}.forecast-season-totals .season-total-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}.forecast-season-totals .season-total-grid>div:first-child{grid-column:1/-1;}.forecast-season-totals .season-total-grid dd{font-size:23px;}.forecast-season-totals .season-total-grid>div{padding:12px;}}

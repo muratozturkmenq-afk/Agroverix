@@ -42,6 +42,7 @@
 </style>
 <link rel="stylesheet" href="assets/site-contact.css?v=contact-v1">
 <link rel="stylesheet" href="assets/agri-support.css?v=agri-v2">
+<link rel="stylesheet" href="assets/farm-season-totals.css?v=farm-totals-v1">
 </head>
 <body class="home-fields-page">
 
@@ -91,7 +92,11 @@
   <aside class="hero-farm-summary" id="ciftci-ozet" aria-labelledby="hero-fields-title" data-lenis-prevent>
     <h2 class="hero-fields-title" id="hero-fields-title" data-i18n="Tarlalarım ve Maliyetlerim">Tarlalarım ve Maliyetlerim</h2>
     <label class="home-summary-season" for="home-season"><span class="season-choice-caption">Sezon</span><select id="home-season" aria-label="Tarla özet sezonu" disabled></select></label>
-    <div class="hero-farm-cards" id="hero-farm-cards" aria-live="polite"><div class="hero-farm-card"><b class="hero-farm-name" data-i18n="Tarla maliyet özetin">Tarla maliyet özetin</b><p class="hero-farm-note" data-i18n="Kişisel maliyet özetin yükleniyor…">Kişisel maliyet özetin yükleniyor…</p></div></div>
+    <section id="home-season-totals" class="season-total-card home-season-totals" aria-labelledby="home-totals-title" hidden>
+ <h3 id="home-totals-title">Tüm Tarlalarının Toplamı</h3>
+ <dl class="season-total-grid"><div><dt>Toplam Maliyet</dt><dd data-total="cost">—</dd></div><div><dt data-profit-label>Toplam Kâr / Zarar</dt><dd data-total="profit">—</dd></div><div><dt>Kârlılık Oranı</dt><dd data-total="percent">—</dd></div></dl>
+ <p class="season-total-note" data-total-note></p></section>
+<div class="hero-farm-cards" id="hero-farm-cards" aria-live="polite"><div class="hero-farm-card"><b class="hero-farm-name" data-i18n="Tarla maliyet özetin">Tarla maliyet özetin</b><p class="hero-farm-note" data-i18n="Kişisel maliyet özetin yükleniyor…">Kişisel maliyet özetin yükleniyor…</p></div></div>
   </aside>
 
   <div class="wrap hero-inner">
@@ -158,7 +163,7 @@
 <script defer src="assets/home-shell.js?v=home-startup-v1"></script>
 <script type="module" src="assets/mobile-navigation.js?v=page-reorg-v1" defer></script>
 <script src="assets/supabase-config.js?v=international-v1"></script>
-<script type="module" src="assets/home-finance-dashboard.js?v=home-actions-v2"></script>
+<script type="module" src="assets/home-finance-dashboard.js?v=farm-totals-v1"></script>
 <script type="module" src="assets/regional-boot.js?v=stable-tr-v1"></script>
 <script defer src="assets/agri-support.js?v=greeting-v1"></script>
 </body>

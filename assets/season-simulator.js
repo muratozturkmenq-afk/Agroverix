@@ -6,7 +6,7 @@ import { parseNumberInput as decimal, bindNumberInput, setNumberInputValue } fro
 import { farmFinance, seasonFor, fmt, appendMetric, appendSupportMetrics } from './farm-finance.js?v=international-v1';
 import { cropVisual } from './crop-visual.js?v=international-v1';
 const node=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text)n.textContent=text;return n;};
-export function renderSimulators(farms,records,client,user,onSaved){
+export function renderSimulators(farms,records,client,user,onSaved,onPreview=()=>{}){
  const container=document.querySelector('#farm-simulators');const drafts=new Map([...container.querySelectorAll('.sim-forecast-form[data-dirty="true"] input')].map(i=>[i.id,i.value]));container.querySelectorAll('.crop-timeline-visual').forEach(v=>v.dispose?.());container.replaceChildren();
  document.querySelector('#sim-message').textContent=farms.length?'':__avt("Sezon sonu tahmini için önce bir tarla ekle.");
  farms.forEach(farm=>{
@@ -22,6 +22,7 @@ export function renderSimulators(farms,records,client,user,onSaved){
    const vy=perAreaStored(decimal(y.value)),vp=decimal(p.value),validY=vy!==null&&Number.isFinite(vy)&&vy>0,validP=vp!==null&&Number.isFinite(vp)&&vp>=0,c=farmFinance(farm,records,year,{expected_yield:validY?vy:null,expected_price:validP?vp:null,expected_support:decimal(support.value)});metrics.replaceChildren();
    appendMetric(metrics,__avt("Bugüne Kadarki Toplam Maliyet"),c.total,__avt("TL"));appendMetric(metrics,__avt("Dekara Maliyet"),c.perDecare,__avt("TL/da"));appendMetric(metrics,__avt("Tahmini Kg Başına Maliyet"),c.expected.costKg,__avt("TL/kg"));appendMetric(metrics,__avt("Kg Başına Kâr / Zarar"),c.expected.unitProfit,__avt("TL/kg"));appendMetric(metrics,__avt("Tahmini Toplam Ürün"),c.expected.kg,'kg');appendMetric(metrics,__avt("Tahmini Satış Geliri"),c.expected.revenue,__avt("TL"));appendMetric(metrics,__avt("Tahmini Kâr / Zarar"),c.expected.profit,__avt("TL"));appendMetric(metrics,__avt("Kâr / Zarar Oranı"),c.expected.percent,'%');
    appendSupportMetrics(metrics,c.expected);
+   onPreview(farm.id,{expected_yield:validY?vy:null,expected_price:validP?vp:null,expected_support:decimal(support.value)});
    metrics.querySelectorAll('article').forEach((el,i)=>{if(i===3||i===6||i===7)el.classList.toggle('is-loss',c.expected.profit!==null&&c.expected.profit<0);});
    foot.textContent=c.missing?__avt("Eski kayıtlarda hesaplama bilgisi eksik. Tarla detayından masrafları düzelt."):__avt("Kira dahil, bugüne kadar kaydettiğin masraflarla hesaplanır. Gelecekteki masraflar dahil değildir. Kâr = satış geliri + girilen destekleme − toplam maliyet. Destek boşsa veya 0 ise eklenmez. Yüzde toplam maliyete göre hesaplanır; sıfır maliyette gösterilmez.");
   }

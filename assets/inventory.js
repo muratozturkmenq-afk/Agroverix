@@ -1,4 +1,3 @@
-import {purchaseSeasonResults} from './purchase-income-model.js?v=purchase-income-v1';
 import {t,locale,areaDisplay,areaStored,perAreaDisplay,perAreaStored} from './regional-format.js?v=international-v1';
 import {ready as regionalReady,client as regionalClient} from './regional-context.js?v=stable-tr-v1';
 await regionalReady;
@@ -15,7 +14,6 @@ import {currentReportYear,seasonYears,seasonPurchases,purchaseYear} from './seas
 let selectedSeason=currentReportYear();
 const $=s=>document.querySelector(s),form=$('#purchase-form'),cfg=window.AGROVERIX_SUPABASE||{};
 let client=null,session=null,items=[],purchases=[],loading=false,refreshQueued=false,generation=0,ready=false,saving=false,channel=null;
-let incomeFarms=null;
 let payments=[],scheduledPayments=[],schedulesReady=false,paymentsReady=false,purchaseRequestId=crypto.randomUUID(),requestedEditOpened=false;
 const requestedEdit=new URLSearchParams(location.search).get('edit');
 const ledger=createPaymentLedger({getClient:()=>client,refresh,getSaving:()=>saving,setSaving:value=>saving=value,onEditPurchase:editPurchase});
@@ -121,27 +119,13 @@ async function removePurchase(p,button){
  catch(error){message(stockError(error),true);}finally{saving=false;button.disabled=false;}
 }
 function scopedPurchases(){return seasonPurchases(purchases,selectedSeason);}
-function fillSeasonOptions(){const select=$('#purchase-season'),years=seasonYears({purchases,farms:incomeFarms||[]});if(!years.includes(selectedSeason))years.push(selectedSeason);years.sort((a,b)=>b-a);select.replaceChildren(...years.map(y=>new Option(y,y)));select.value=selectedSeason;select.disabled=!session;}
+function fillSeasonOptions(){const select=$('#purchase-season'),years=seasonYears({purchases});if(!years.includes(selectedSeason))years.push(selectedSeason);years.sort((a,b)=>b-a);select.replaceChildren(...years.map(y=>new Option(y,y)));select.value=selectedSeason;select.disabled=!session;}
 const summaryNumber=value=>Number(Math.abs(Number(value))<.5?0:value).toLocaleString(I.locale,{minimumFractionDigits:0,maximumFractionDigits:0});
 const summaryMoney=value=>summaryNumber(value)+__avt(" TL");
-function renderIncomeSummary(total){
- const available=Boolean(session&&ready&&incomeFarms!==null),result=available?purchaseSeasonResults(incomeFarms,selectedSeason,total):null;
- for(const kind of ['expected','actual']){
-  const row=result?.[kind],prefix='#inventory-'+kind;
-  for(const [metric,value] of [['income',row?.income],['profit',row?.profit],['percent',row?.percent]]){
-   const node=$(prefix+'-'+metric),valid=value!==null&&value!==undefined&&Number.isFinite(value);
-   node.textContent=!valid?'—':metric==='percent'?summaryNumber(value)+' %':summaryMoney(value);
-   node.closest('article').classList.toggle('is-loss',valid&&metric!=='income'&&value<0);
-   node.closest('article').classList.toggle('is-gain',valid&&metric!=='income'&&value>0);
-  }
-  let note=!session?'Sonuçlarını görmek için giriş yap.':!available?'Sezon bilgileri yüklenemedi. Yenile düğmesiyle tekrar dene.':!result.count?'Seçilen sezonda kayıtlı tarla yok.':row.missing?result.count+' tarlanın '+row.missing+' tanesinde '+(kind==='expected'?'tahmini':'gerçekleşen')+' verim, fiyat veya alan bilgisi eksik; toplam sonuç henüz hesaplanamıyor.':result.count+' tarlanın '+selectedSeason+' sezonu kayıtları. Destekleme gelire dahildir.'+(total===0?' Toplam alışveriş sıfır olduğu için yüzde hesaplanmaz.':'');
-  $(prefix+'-note').textContent=note;
- }
-}
 function renderSeason(){
  fillSeasonOptions();fillPurchaseFilters();renderPurchases();const rows=scopedPurchases();
  const purchaseTotal=rows.reduce((n,p)=>n+Math.round(Number(p.total_cost)*100),0)/100;
- $('#inventory-total').textContent=summaryMoney(purchaseTotal);renderIncomeSummary(purchaseTotal);
+ $('#inventory-total').textContent=summaryMoney(purchaseTotal);
  $('#inventory-paid').textContent=paymentsReady?summaryMoney(rows.reduce((n,p)=>n+Math.round(Number(p.paid_total)*100),0)/100):'—';
  $('#inventory-debt').textContent=paymentsReady?summaryMoney(rows.reduce((n,p)=>n+Math.round(Number(p.total_cost)*100)-Math.round(Number(p.paid_total)*100),0)/100):'—';
  ledger.update({session,purchases,items,payments,scheduledPayments,schedulesReady,available:paymentsReady,seasonYear:selectedSeason});
@@ -175,20 +159,20 @@ function renderPurchases(){
 async function refresh(){
  if(!session||!client)return;if(loading){refreshQueued=true;return;}loading=true;const run=generation,uid=session.user.id;$('#inventory-refresh').disabled=true;
  try{
-  const [stock,paymentRows,scheduleRows,farmRows]=await Promise.all([loadInventory(client,uid),readAll(client,'farmer_inventory_payments',uid).catch(()=>null),readAll(client,'farmer_scheduled_payments',uid).catch(()=>null),readAll(client,'farmer_farms',uid,'*,farmer_seasons(*)').catch(()=>null)]);
+  const [stock,paymentRows,scheduleRows]=await Promise.all([loadInventory(client,uid),readAll(client,'farmer_inventory_payments',uid).catch(()=>null),readAll(client,'farmer_scheduled_payments',uid).catch(()=>null)]);
   if(run!==generation||session?.user.id!==uid)return;
-  incomeFarms=farmRows;items=stock.items;purchases=stock.purchases;payments=paymentRows||[];scheduledPayments=scheduleRows||[];schedulesReady=scheduleRows!==null;paymentsReady=paymentRows!==null&&purchases.every(p=>'paid_total' in p);ready=true;$('#purchase-fields').disabled=false;
+  items=stock.items;purchases=stock.purchases;payments=paymentRows||[];scheduledPayments=scheduleRows||[];schedulesReady=scheduleRows!==null;paymentsReady=paymentRows!==null&&purchases.every(p=>'paid_total' in p);ready=true;$('#purchase-fields').disabled=false;
   populateItems();renderSeason();  message(__avt("Güncel masraf ve ödeme kayıtları · ")+new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'}));
   if(requestedEdit&&!requestedEditOpened){requestedEditOpened=true;const row=purchases.find(p=>p.id===requestedEdit);if(row)editPurchase(row);else message(__avt("Düzenlenecek masraf bulunamadı veya hesabına ait değil."),true);}
- }catch(error){if(run===generation){ready=false;paymentsReady=false;incomeFarms=null;renderIncomeSummary(0);$('#purchase-fields').disabled=true;updateForm();ledger.update({session,purchases,items,payments,scheduledPayments,schedulesReady:false,available:false,seasonYear:selectedSeason});message(stockError(error),true);}}
+ }catch(error){if(run===generation){ready=false;paymentsReady=false;$('#purchase-fields').disabled=true;updateForm();ledger.update({session,purchases,items,payments,scheduledPayments,schedulesReady:false,available:false,seasonYear:selectedSeason});message(stockError(error),true);}}
  finally{loading=false;$('#inventory-refresh').disabled=false;if(refreshQueued){refreshQueued=false;refresh();}}
 }
 ['purchase-product-filter','purchase-supplier-filter'].forEach(id=>$('#'+id).addEventListener('change',renderPurchases));$('#inventory-refresh').addEventListener('click',refresh);
 window.addEventListener('focus',()=>{if(session&&!saving)refresh();});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&session&&!saving)refresh();});
 setInterval(()=>{if(!document.hidden&&session&&!saving)refresh();},30000);
-function account(next){generation++;if(channel){client.removeChannel(channel);channel=null;}session=next;selectedSeason=currentReportYear();ready=false;paymentsReady=false;incomeFarms=null;items=[];purchases=[];payments=[];scheduledPayments=[];schedulesReady=false;fillSeasonOptions();fillPurchaseFilters();requestedEditOpened=false;resetForm();ledger.update({session,purchases,items,payments,scheduledPayments,schedulesReady:false,available:false,seasonYear:selectedSeason});$('#purchase-fields').disabled=true;$('#purchase-history-list').replaceChildren();$('#purchase-history-empty').hidden=false;$('#purchase-history-empty').textContent=__avt("Masrafların giriş yaptıktan sonra burada görünür.");['inventory-total','inventory-paid','inventory-debt'].forEach(id=>$('#'+id).textContent='—');renderIncomeSummary(0);$('#inventory-auth').hidden=Boolean(session);message('',false,$('#purchase-status'));if(session){
- refresh();channel=client.channel('inventory-'+session.user.id);['farmer_inventory_items','farmer_inventory_purchases','farmer_inventory_payments','farmer_farms','farmer_seasons','farmer_harvest_sales'].forEach(table=>channel.on('postgres_changes',{event:'*',schema:'public',table,filter:'user_id=eq.'+session.user.id},()=>{if(!saving)refresh();}));channel.subscribe();
+function account(next){generation++;if(channel){client.removeChannel(channel);channel=null;}session=next;selectedSeason=currentReportYear();ready=false;paymentsReady=false;items=[];purchases=[];payments=[];scheduledPayments=[];schedulesReady=false;fillSeasonOptions();fillPurchaseFilters();requestedEditOpened=false;resetForm();ledger.update({session,purchases,items,payments,scheduledPayments,schedulesReady:false,available:false,seasonYear:selectedSeason});$('#purchase-fields').disabled=true;$('#purchase-history-list').replaceChildren();$('#purchase-history-empty').hidden=false;$('#purchase-history-empty').textContent=__avt("Masrafların giriş yaptıktan sonra burada görünür.");['inventory-total','inventory-paid','inventory-debt'].forEach(id=>$('#'+id).textContent='—');$('#inventory-auth').hidden=Boolean(session);message('',false,$('#purchase-status'));if(session){
+ refresh();channel=client.channel('inventory-'+session.user.id);['farmer_inventory_items','farmer_inventory_purchases','farmer_inventory_payments'].forEach(table=>channel.on('postgres_changes',{event:'*',schema:'public',table,filter:'user_id=eq.'+session.user.id},()=>{if(!saving)refresh();}));channel.subscribe();
  }else message(__avt("Giriş yaptıktan sonra masraf ve ödemelerini kaydedebilirsin."));}
 if(cfg.url&&cfg.publishableKey){client=(regionalClient||createClient(cfg.url,cfg.publishableKey));const {data,error}=await client.auth.getSession();if(error){message(__avt("Oturum alınamadı. Lütfen tekrar giriş yap."),true);$('#inventory-auth').hidden=false;}else account(data.session);client.auth.onAuthStateChange((event,next)=>{if(['SIGNED_IN','SIGNED_OUT'].includes(event)&&next?.user.id!==session?.user.id)setTimeout(()=>account(next),0);});}
 else message(__avt("Kayıt servisi henüz yapılandırılmadı."),true);

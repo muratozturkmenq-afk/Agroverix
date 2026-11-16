@@ -1,3 +1,6 @@
+import {farmSeasonTotals} from './farm-season-totals.js?v=farm-totals-v1';
+import {renderFarmTotals,clearFarmTotals} from './farm-totals-view.js?v=farm-totals-v1';
+import {readAll} from './inventory-data.js?v=international-v1';
 import {t,locale,areaDisplay,areaStored,perAreaDisplay,perAreaStored} from './regional-format.js?v=international-v1';
 import {ready as regionalReady,client as regionalClient} from './regional-context.js?v=stable-tr-v1';
 await regionalReady;
@@ -18,14 +21,15 @@ function updateSeason(farms,records,owner){
 }
 function renderSelectedSeason(){const year=Number(seasonSelect.value);renderHero(farmsForSeason(cachedFarms,year),cachedRecords,year);const u=new URL(location.href);if(String(year)===currentReportYear())u.searchParams.delete('season');else u.searchParams.set('season',year);history.replaceState(null,'',u);}
 seasonSelect.addEventListener('change',renderSelectedSeason);
-const cfg=window.AGROVERIX_SUPABASE||{},hero=document.querySelector('#hero-farm-cards');
+const cfg=window.AGROVERIX_SUPABASE||{},hero=document.querySelector('#hero-farm-cards'),totalsRoot=document.querySelector('#home-season-totals');
 const homeNav=document.querySelector('#nav');
 function updateNavSpace(){if(homeNav)document.documentElement.style.setProperty('--home-nav-height',homeNav.offsetHeight+'px');}
 updateNavSpace();if(homeNav&&'ResizeObserver' in window)new ResizeObserver(updateNavSpace).observe(homeNav);else window.addEventListener('resize',updateNavSpace);
 const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text)n.textContent=text;return n;};
-function notice(copy){const card=el('div','hero-farm-card');card.append(el('b','hero-farm-name',__avt("Tarla Maliyet Özeti")),el('p','hero-farm-note',copy));hero.replaceChildren(card);}
+function notice(copy){clearFarmTotals(totalsRoot);const card=el('div','hero-farm-card');card.append(el('b','hero-farm-name',__avt("Tarla Maliyet Özeti")),el('p','hero-farm-note',copy));hero.replaceChildren(card);}
 function renderHero(farms,records,year){
  hero.replaceChildren();if(!farms.length){notice(year+" sezonunda kayıtlı tarla yok. Ana ekrandaki Tarla Ekle ile bu sezon için kayıt açabilirsin.");return;}
+ renderFarmTotals(totalsRoot,farmSeasonTotals(farms,records,year));
  farms.forEach(farm=>{const c=farmFinance(farm,records,year),wrap=el('article','hero-farm-card'),card=el('a','hero-farm-open');card.href='tarla-detay.html?rev=personnel-v1&farm='+encodeURIComponent(farm.id)+'&year='+year;card.append(el('b','hero-farm-name hero-farm-title',farm.name+' - '+(c.season.crop||farm.crop)+' ('+fmt(areaDisplay(c.area))+' '+I.t(__avt("da"))+')'),el('small','hero-farm-note',String(year)+__avt(" sezonu")));
  const actual=c.actual.revenue!==null,result=actual?c.actual:c.expected,metrics=el('div','hero-farm-values');
  appendMetric(metrics,__avt("Toplam Maliyet"),c.total,__avt("TL"),'hero-farm-metric');appendMetric(metrics,__avt("Dekara Maliyet"),c.perDecare,__avt("TL/da"),'hero-farm-metric');appendMetric(metrics,__avt("Kg Başına Maliyet"),c.costKg,__avt("TL/kg"),'hero-farm-metric');
@@ -36,10 +40,11 @@ function renderHero(farms,records,year){
 function guest(){cachedFarms=[];cachedRecords=[];seasonOwner=null;seasonSelect.replaceChildren(new Option(currentReportYear(),currentReportYear()));seasonSelect.disabled=true;notice(__avt("Kendi tarlalarını ve maliyetlerini görmek için giriş yap."));}
 if(!cfg.url||!cfg.publishableKey)guest();else{
  const client=(regionalClient||createClient(cfg.url,cfg.publishableKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}));let generation=0,activeSession=null,signature=null,channel=null,refreshTimer=0,pendingLoad=null;
- async function load(session,{quiet=false}={}){activeSession=session;if(!quiet)bindReportButtons(client,session);const request=++generation;if(!session){signature=null;guest();return;}
-  const [f,r]=await Promise.all([client.from('farmer_farms').select('*,farmer_seasons(*)').eq('user_id',session.user.id).order('created_at'),client.from('farmer_operations').select('*').eq('user_id',session.user.id)]);
-  if(request!==generation)return;if(f.error||r.error){notice(__avt("Tarla özeti yüklenemedi. Sayfayı yenileyerek tekrar dene."));return;}
-  const farms=f.data||[],records=r.data||[],nextSignature=JSON.stringify([session.user.id,farms,records]);if(quiet&&nextSignature===signature)return;signature=nextSignature;updateSeason(farms,records,session.user.id);bindReportButtons(client,session,{farms});
+ async function load(session,{quiet=false}={}){if(activeSession?.user.id!==session?.user.id){guest();signature=null;}activeSession=session;if(!quiet)bindReportButtons(client,session);const request=++generation;if(!session){signature=null;guest();return;}
+  let farms,records;try{[farms,records]=await Promise.all([readAll(client,'farmer_farms',session.user.id,'*,farmer_seasons(*)'),readAll(client,'farmer_operations',session.user.id)]);}
+  catch(error){if(request===generation){signature=null;cachedFarms=[];cachedRecords=[];notice(__avt("Tarla özeti yüklenemedi. Sayfayı yenileyerek tekrar dene."));}return;}
+  if(request!==generation)return;farms.sort((a,b)=>String(a.created_at).localeCompare(String(b.created_at)));
+  const nextSignature=JSON.stringify([session.user.id,farms,records]);if(quiet&&nextSignature===signature)return;signature=nextSignature;updateSeason(farms,records,session.user.id);bindReportButtons(client,session,{farms});
   const navLogin=document.querySelector('.nav-in > a.btn');if(navLogin){navLogin.textContent=__avt("Çıkış yap");navLogin.onclick=async e=>{e.preventDefault();await client.auth.signOut();location.assign('index.html');};}
  }
  async function refresh(){if(!activeSession||document.hidden||pendingLoad)return;pendingLoad=load(activeSession,{quiet:true});try{await pendingLoad;}finally{pendingLoad=null;}}
