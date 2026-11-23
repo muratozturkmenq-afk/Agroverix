@@ -135,6 +135,7 @@ function renderSeasons(selected){
  select.replaceChildren(...[...years].sort((a,b)=>b-a).map(year=>new Option(String(year),String(year))));
  select.value=String(years.has(previous)?previous:currentYear);
 }
+renderSeasons();
 function recordArea(record){const f=farms.find(f=>f.id===record.farm_id);return seasonFor(f||{},record.season_year)?.area_decare||f?.area_decare;}
 const requestedEdit = new URLSearchParams(location.search).get("edit");
 const icons = { tillage:"⌁", seed:"✳",planting:"✳", fertilizing:"＋", irrigation:"⌖", spraying:"✧", weeding:"⌁", harvest:"↟", other:"•" };
@@ -180,7 +181,7 @@ function renderFarmOptions() {
  filter.disabled=seasonFarms.length===0;
  const nextFarm=seasonFarms.some(farm=>farm.id===selectedFarm)?selectedFarm:(seasonFarms[0]?.id||"");
  input.value=nextFarm;
- filter.value=seasonFarms.some(farm=>farm.id===selectedFilter)?selectedFilter:nextFarm;
+ filter.value=nextFarm;
  if($("#operation-date")&&!$("#operation-date").value)$("#operation-date").value=localToday();
  updateCostPreview();
 }
