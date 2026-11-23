@@ -1,10 +1,12 @@
 :root{--season-chart-line:#678947;--season-chart-fill:rgba(103,137,71,.14);--season-chart-grid:rgba(30,46,22,.12);--season-chart-cursor:#c38c1b;}
-.forecast-season-totals{display:grid;grid-template-columns:minmax(220px,.65fr) minmax(0,1.35fr);gap:0;align-items:stretch;width:100%;max-width:none;margin:0;box-sizing:border-box;padding:0;border:0;background:transparent;}
+.forecast-season-totals{display:grid;grid-template-columns:minmax(0,371fr) minmax(0,427fr);gap:49px;align-items:center;width:100%;max-width:847px;margin:0 auto;box-sizing:border-box;padding:0;border:0;background:transparent;}
 .forecast-total-overview{min-width:0;width:100%;max-width:100%;justify-self:stretch;padding:clamp(18px,3vw,30px);box-sizing:border-box;}
-.forecast-season-totals .season-total-grid{display:grid;grid-template-columns:minmax(0,1fr);justify-content:end;gap:10px;width:100%;max-width:100%;}
-.forecast-season-totals .season-total-grid>div{width:max-content;max-width:100%;justify-self:end;box-sizing:border-box;}
-.forecast-season-totals .season-total-grid>div:last-child{grid-column:1;justify-self:end;}
-.forecast-season-totals .season-total-grid dd{font-size:clamp(21px,2vw,27px);}\n.forecast-total-overview h2{width:max-content;max-width:100%;margin-left:auto;text-align:right;}\n.forecast-total-overview .season-total-note{max-width:min(100%,540px);margin-left:auto;margin-right:0;text-align:left;}
+.forecast-season-totals .season-total-grid{display:grid;grid-template-columns:minmax(0,1fr);justify-content:stretch;gap:10px;width:100%;max-width:100%;}
+.forecast-season-totals .season-total-grid>div{width:100%;max-width:100%;justify-self:stretch;box-sizing:border-box;}
+.forecast-season-totals .season-total-grid>div:last-child{grid-column:1;justify-self:stretch;}
+.forecast-season-totals .season-total-grid dd{font-size:clamp(21px,2vw,27px);}
+.forecast-total-overview h2{width:100%;max-width:100%;margin-left:0;text-align:left;}
+.forecast-total-overview .season-total-note{max-width:100%;margin-left:0;margin-right:0;text-align:left;}
 .season-cost-chart{margin:0;min-width:0;padding:16px;background:var(--cotton-2);border-radius:10px;}
 .season-cost-chart-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
 .season-cost-chart figcaption{font-weight:750;font-size:16px;line-height:1.3;}
