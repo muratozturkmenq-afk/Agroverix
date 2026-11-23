@@ -116,3 +116,7 @@
 .home-fields-page .home-summary-season>.season-choice-caption{min-height:38px;padding-top:5px;padding-bottom:5px;box-sizing:border-box}
 .home-fields-page #nav-toggle{min-height:38px;padding-top:5px;padding-bottom:5px;line-height:1.2}
 \n/* Keep the homepage action labels compact. */\n.home-fields-page .hero-field-actions>.home-add-field,.home-fields-page .home-report-controls>.btn,.home-fields-page .hero-field-actions>.home-advice-link{font-size:13px}\n@media(max-width:600px){.home-fields-page .hero-field-actions>.home-add-field,.home-fields-page .home-report-controls>.btn,.home-fields-page .hero-field-actions>.home-advice-link{font-size:12px}}\n
+/* Match the Tarla Ekle control to the report buttons and make the season year equally legible. */
+.home-fields-page .hero-field-actions>.home-add-field{width:150px}
+.home-fields-page .hero-field-actions .home-report-controls .home-report-season select{font-size:18px}
+@media(max-width:600px){.home-fields-page .hero-field-actions>.home-add-field{width:148px}.home-fields-page .hero-field-actions .home-report-controls .home-report-season select{font-size:16px}}
