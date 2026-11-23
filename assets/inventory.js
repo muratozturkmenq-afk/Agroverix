@@ -6,8 +6,8 @@ const __avt=s=>I.t(s);
 import {expenseCategories,categoryKind,categoryLabel,normalizeSupplier} from './expense-categories.js?v=international-v1';
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
 import {bindNumberInput,parseNumberInput,setNumberInputValue} from './number-input.js?v=international-v1';
-import {units,fmt,money,converted,loadInventory,readAll,today,stockError} from './inventory-data.js?v=international-v1';
-import {createPaymentLedger} from './inventory-payments.js?v=payment-method-v2';
+import {units,fmt,money,converted,loadInventory,readAll,today,stockError} from './inventory-data.js?v=conditional-decimals-v2';
+import {createPaymentLedger} from './inventory-payments.js?v=payment-method-v3';
 import {showInventoryView} from './inventory-views.js?v=page-reorg-v2';
 
 import {currentReportYear,seasonYears,seasonPurchases,purchaseYear} from './season-scope.js?v=season-scope-v1';
@@ -120,7 +120,7 @@ async function removePurchase(p,button){
 }
 function scopedPurchases(){return seasonPurchases(purchases,selectedSeason);}
 function fillSeasonOptions(){const select=$('#purchase-season'),years=seasonYears({purchases});if(!years.includes(selectedSeason))years.push(selectedSeason);years.sort((a,b)=>b-a);select.replaceChildren(...years.map(y=>new Option(y,y)));select.value=selectedSeason;select.disabled=!session;}
-const summaryNumber=value=>Number(Math.abs(Number(value))<.5?0:value).toLocaleString(I.locale,{minimumFractionDigits:0,maximumFractionDigits:0});
+const summaryNumber=value=>Number(value||0).toLocaleString(I.locale,{minimumFractionDigits:0,maximumFractionDigits:2});
 const summaryMoney=value=>summaryNumber(value)+__avt(" TL");
 function renderSeason(){
  fillSeasonOptions();fillPurchaseFilters();renderPurchases();const rows=scopedPurchases();
