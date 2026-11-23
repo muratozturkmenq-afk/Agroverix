@@ -186,7 +186,7 @@ function renderFarmOptions() {
  updateCostPreview();
 }
 function formatMoney(value) {
-  return Number(value || 0).toLocaleString(I.locale, { maximumFractionDigits: 2 });
+  return Number(value || 0).toLocaleString(I.locale, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 }
 function calculateCostPerDecare(record) {
   const farm = farms.find(item => item.id === record.farm_id);
