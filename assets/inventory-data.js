@@ -4,7 +4,7 @@ const __avt=s=>I.t(s);
 // Stock is held in a canonical unit; bags and bottles are converted at purchase.
 export const units = {kg:['kg',1],ton:['kg',1000],g:['kg',.001],L:['L',1],ml:['L',.001],adet:['adet',1],m:['m',1],'m³':['L',1000],saat:['saat',1]};
 export const fmt = value => Number(value || 0).toLocaleString(I.locale,{maximumFractionDigits:6});
-export const money = value => Number(value || 0).toLocaleString(I.locale,{minimumFractionDigits:2,maximumFractionDigits:2})+__avt(" TL");
+export const money = value => Number(value || 0).toLocaleString(I.locale,{minimumFractionDigits:0,maximumFractionDigits:2})+__avt(" TL");
 export function converted(quantity,unit){const u=units[unit];return u&&Number.isFinite(Number(quantity))?Number(quantity)*u[1]:null;}
 export function usedQuantity(quantity,unit,packageQuantity,packageUnit){
  if(['torba','şişe'].includes(unit)){
