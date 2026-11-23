@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title data-i18n="Uygulama Girişi · AgroVerix">Uygulama Girişi · AgroVerix</title>
+<title data-i18n="Uygulama Girişi &amp; Stoklarım · AgroVerix">Uygulama Girişi &amp; Stoklarım · AgroVerix</title>
 <meta name="theme-color" content="#0D100B">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -37,7 +37,7 @@
 <div class="production-page-switch inventory-view-tabs" role="tablist" aria-label="Uygulama ve stok"><button id="application-tab" type="button" role="tab" aria-selected="true" aria-controls="application-panel">Uygulama Girişi</button><button id="stock-tab" type="button" role="tab" aria-selected="false" aria-controls="stock-panel">Stoklarım</button></div><main class="production-layout" id="application-panel" role="tabpanel" aria-labelledby="application-tab">
   <section class="production-intro">
     <p class="eyebrow" data-i18n="Sezon boyunca yanında">Sezon boyunca yanında</p>
-    <h1><span data-i18n="Uygulama">Uygulama</span><br><em data-i18n="girişin.">girişin.</em></h1>
+    <h1><span data-i18n="Uygulama Girişi">Uygulama Girişi</span><br><em data-i18n="&amp; Stoklarım">&amp; Stoklarım</em></h1>
     <p data-i18n="Tarlana yaptığın uygulamayı kaydet. Kullandığın ürünü seçip toplam miktarı gir; uygulama maliyeti ürünün kayıtlı fiyatından otomatik hesaplansın. Mazot, bakım/tamir, elektrik ve nakliye giderlerini de kayıtlarından seçerek tarlana aktar.">Tarlana yaptığın uygulamayı kaydet. Kullandığın ürünü seçip toplam miktarı gir; uygulama maliyeti ürünün kayıtlı fiyatından otomatik hesaplansın. Mazot, bakım/tamir, elektrik ve nakliye giderlerini de kayıtlarından seçerek tarlana aktar.</p>
     
     <nav class="profile-progress production-progress" aria-label="Kayıt aşamaları" data-i18n-label="Kayıt aşamaları">
@@ -46,10 +46,11 @@
     <div class="profile-side-note"><span class="profile-lock">⌑</span><div><b data-i18n="Hesabına özel kayıt">Hesabına özel kayıt</b><small data-i18n="İşlem ve maliyet bilgilerin kişisel alanında saklanır.">İşlem ve maliyet bilgilerin kişisel alanında saklanır.</small></div></div>
   </section>
   <section class="profile-card production-card" aria-labelledby="production-title">
-    <div class="profile-card-head production-card-head"><div><span class="profile-kicker" data-i18n="AŞAMA 03 · SEZON TAKİBİ">AŞAMA 03 · SEZON TAKİBİ</span><h2 id="production-title" data-i18n="Uygulama Girişi">Uygulama Girişi</h2></div><span class="profile-required" data-i18n="* Zorunlu alanlar">* Zorunlu alanlar</span></div>
+    <div class="profile-card-head production-card-head"><div><span class="profile-kicker" data-i18n="AŞAMA 03 · SEZON TAKİBİ">AŞAMA 03 · SEZON TAKİBİ</span><h2 id="production-title" data-i18n="Uygulama Girişi &amp; Stoklarım">Uygulama Girişi &amp; Stoklarım</h2></div><span class="profile-required" data-i18n="* Zorunlu alanlar">* Zorunlu alanlar</span></div>
     <div class="production-auth-banner" id="production-auth-banner" role="status">
       <span aria-hidden="true">⌑</span><p><b data-i18n="Bu ekranı inceleyebilirsin.">Bu ekranı inceleyebilirsin.</b><span data-i18n="Tarlalarını ve kayıtlarını görmek için"> Tarlalarını ve kayıtlarını görmek için </span><a href="ciftci-bilgi.html?next=uretim-kayitlari.html" data-i18n="hesabına giriş yap">hesabına giriş yap</a><span data-i18n=". Yeni hesap açtıktan sonra da bu sayfaya dönersin.">. Yeni hesap açtıktan sonra da bu sayfaya dönersin.</span></p>
     </div>
+    <div class="production-season-picker"><label for="operation-season" data-i18n="Sezon Yılı">Sezon Yılı</label><select id="operation-season" aria-label="Sezon Yılı" data-i18n-label="Sezon Yılı" required><option value="">Yükleniyor…</option></select></div>
     <div class="production-summary" id="production-summary" aria-label="Sezon özeti" data-i18n-label="Sezon özeti">
       <article><span data-i18n="Kayıt">Kayıt</span><b id="summary-count">—</b></article>
       <article><span id="summary-area-label" data-i18n="Hesaplanan maliyet / da">Hesaplanan maliyet / da</span><b><span id="summary-total">—</span><small data-i18n="TL/da"> TL/da</small></b><small id="summary-cost-note" data-i18n="Tarla maliyeti ve alanıyla hesaplanır">Tarla maliyeti ve alanıyla hesaplanır</small></article>
@@ -61,7 +62,6 @@
         <legend><span>01</span><span data-i18n="İşlem bilgileri"> İşlem bilgileri</span></legend>
         <div class="production-form-grid">
           <div class="profile-field wide"><label for="operation-farm"><span data-i18n="Tarla Adı">Tarla Adı </span><b>*</b></label><select id="operation-farm" required><option value="" data-i18n="Giriş yaptığında tarlaların yüklenecek">Giriş yaptığında tarlaların yüklenecek</option></select></div>
-          <div class="profile-field"><label for="operation-season"><span class="season-choice-caption" data-i18n="Sezon Yılı">Sezon Yılı </span><b>*</b></label><select id="operation-season" required><option value="" data-i18n="Önce tarla seç">Önce tarla seç</option></select></div>
           <div class="profile-field wide"><label for="expense-category"><span data-i18n="Masraf Türünü Seç">Masraf Türünü Seç </span><b>*</b></label><select id="expense-category" required><option value="input" data-i18n="Ürün Uygulamaları · Tohum, Gübre, İlaçlama, Mazot">Ürün Uygulamaları · Tohum, Gübre, İlaçlama, Mazot</option><option value="service" data-i18n="Diğer Uygulamalar · Analiz, Bakım, Elektrik, Nakliye, İşçilik">Diğer Uygulamalar · Analiz, Bakım, Elektrik, Nakliye, İşçilik</option></select></div>
           <div class="profile-field"><label for="operation-date"><span data-i18n="İşlem tarihi">İşlem tarihi </span><b>*</b></label><input id="operation-date" type="date" required></div>
           <div class="profile-field"><label for="operation-type"><span data-i18n="Yapılan İşlem">Yapılan İşlem </span><b>*</b></label><select id="operation-type" required><option value="" data-i18n="İşlem seç">İşlem seç</option></select></div>
