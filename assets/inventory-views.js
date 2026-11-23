@@ -5,7 +5,7 @@ let personnelLoad=null;
 const views={personnel:{button:document.querySelector('#inventory-tab-personnel'),panel:document.querySelector('#personel-giderleri')},purchase:{button:document.querySelector('#inventory-tab-purchase'),panel:document.querySelector('#alisveris-ekle')},payment:{button:document.querySelector('#inventory-tab-payment'),panel:document.querySelector('#odeme-borc')}};
 export function showInventoryView(mode,{focus=false,scroll=false,writeHash=true}={}){
  if(!views[mode]?.button||!views[mode]?.panel)return;
- if(mode==='personnel'&&!personnelLoad)personnelLoad=import('./personnel.js?v=page-reorg-v1').catch(error=>{personnelLoad=null;document.querySelector('#personnel-status').textContent='Personel ekranı yüklenemedi. Tekrar seçerek dene.';});
+ if(mode==='personnel'&&!personnelLoad)personnelLoad=import('./personnel.js?v=conditional-decimals-v2').catch(error=>{personnelLoad=null;document.querySelector('#personnel-status').textContent='Personel ekranı yüklenemedi. Tekrar seçerek dene.';});
  Object.entries(views).forEach(([key,{button,panel}])=>{const selected=key===mode;button.setAttribute('aria-selected',String(selected));button.tabIndex=selected?0:-1;panel.hidden=!selected;});
  const footnote=document.querySelector('.inventory-footnote');if(footnote)footnote.hidden=mode==='personnel';
  if(writeHash){const url=new URL(location.href);url.hash=views[mode].panel.id;history.replaceState(null,'',url);}
