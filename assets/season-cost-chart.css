@@ -1,5 +1,5 @@
 :root{--season-chart-line:#678947;--season-chart-fill:rgba(103,137,71,.14);--season-chart-grid:rgba(30,46,22,.12);--season-chart-cursor:#c38c1b;}
-.forecast-season-totals{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:24px;align-items:center;}
+.forecast-season-totals{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:24px;align-items:center;width:100%;max-width:940px;box-sizing:border-box;padding:0;border:0;background:transparent;}
  .forecast-total-overview{min-width:0;width:max-content;max-width:100%;justify-self:end;}
 .forecast-season-totals .season-total-grid{display:grid;grid-template-columns:max-content max-content;justify-content:start;gap:10px;width:max-content;max-width:100%;}
 .forecast-season-totals .season-total-grid>div{width:max-content;max-width:100%;box-sizing:border-box;}
@@ -20,5 +20,5 @@
 .season-cost-replay:disabled{opacity:.5;cursor:default;}
 .season-cost-detail{font-size:12px;font-weight:600;line-height:1.5;margin:9px 0 5px;}
 .season-cost-note{display:block;font-size:11px;line-height:1.5;}
-@media(max-width:1000px){.forecast-season-totals{grid-template-columns:minmax(0,1fr);gap:18px;}.forecast-season-totals .season-total-grid dd{font-size:27px;}}
+@media(max-width:760px){.forecast-season-totals{grid-template-columns:minmax(0,1fr);gap:18px;}.forecast-season-totals .season-total-grid dd{font-size:27px;}}
 @media(max-width:600px){.forecast-season-totals .season-total-grid{grid-template-columns:minmax(0,1fr);width:100%;}.forecast-season-totals .season-total-grid>div:first-child,.forecast-season-totals .season-total-grid>div:last-child{grid-column:auto;justify-self:start;}.forecast-season-totals .season-total-grid>div{max-width:100%;}.forecast-season-totals .season-total-grid dd{font-size:23px;}.season-cost-chart{padding:12px;}.season-cost-chart figcaption{font-size:15px;}}
