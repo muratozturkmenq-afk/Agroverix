@@ -3,7 +3,7 @@ import {t,locale,areaDisplay,areaStored,perAreaDisplay,perAreaStored} from './re
 const I=window.AgroIntl;
 const __avt=s=>I.t(s);
 import {bindNumberInput,parseNumberInput,setNumberInputValue} from './number-input.js?v=international-v1';
-import {money,today,stockError,fmt} from './inventory-data.js?v=international-v1';
+import {money,today,stockError,fmt} from './inventory-data.js?v=conditional-decimals-v2';
 import {normalizeSupplier,categoryLabel} from './expense-categories.js?v=international-v1';
 import {showInventoryView} from './inventory-views.js?v=page-reorg-v2';
 
