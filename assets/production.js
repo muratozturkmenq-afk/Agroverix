@@ -126,9 +126,14 @@ $('#operation-type').addEventListener('change',()=>{
  else updateCostPreview();
 });
 function renderSeasons(selected){
- const farm=activeFarm(),select=$('#operation-season');select.replaceChildren();
- (farm?.farmer_seasons||[]).slice().sort((a,b)=>b.season_year-a.season_year).forEach(s=>select.add(new Option(s.season_year+' · '+s.crop,s.season_year)));
- if(farm)select.value=String(selected||farm.season_year);
+ const select=$('#operation-season'),currentYear=new Date().getFullYear(),previous=Number(selected)||Number(select.value)||currentYear;
+ const years=new Set([currentYear]);
+ farms.forEach(farm=>{
+  (farm.farmer_seasons||[]).forEach(season=>{const year=Number(season.season_year);if(Number.isInteger(year))years.add(year);});
+  const year=Number(farm.season_year);if(Number.isInteger(year))years.add(year);
+ });
+ select.replaceChildren(...[...years].sort((a,b)=>b-a).map(year=>new Option(String(year),String(year))));
+ select.value=String(years.has(previous)?previous:currentYear);
 }
 function recordArea(record){const f=farms.find(f=>f.id===record.farm_id);return seasonFor(f||{},record.season_year)?.area_decare||f?.area_decare;}
 const requestedEdit = new URLSearchParams(location.search).get("edit");
@@ -146,33 +151,38 @@ function activeFarm() {
 function selectedFilterFarm() {
   return $("#records-filter").value;
 }
+function selectedYear() {
+  return Number($("#operation-season").value) || new Date().getFullYear();
+}
+function farmsForSelectedSeason() {
+  const year=selectedYear();
+  return farms.filter(farm=>Boolean(seasonFor(farm,year))||Number(farm.season_year)===year);
+}
 function localToday() {
   const now = new Date();
   return new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 }
 function farmOptionLabel(farm) {
-  return farm.name + " · " + farm.crop + " · " + areaDisplay(seasonFor(farm,Number($("#operation-season").value))?.area_decare||farm.area_decare).toLocaleString(I.locale) + __avt(" da");
+ const season=seasonFor(farm,selectedYear());
+ return farm.name + " · " + (season?.crop||farm.crop) + " · " + areaDisplay(season?.area_decare||farm.area_decare).toLocaleString(I.locale) + __avt(" da");
 }
 function renderFarmOptions() {
-  const input = $("#operation-farm");
-  const filter = $("#records-filter");
-  const selectedFarm = input.value;
-  const selectedFilter = filter.value;
-  input.replaceChildren(new Option(farms.length ? __avt("Tarla seç") : __avt("Önce tarla eklemelisin"), ""));
-  filter.replaceChildren(new Option(__avt("Tüm tarlalar"), ""));
-  farms.forEach((farm) => {
-    input.add(new Option(farmOptionLabel(farm), farm.id));
-    filter.add(new Option(farm.name + " · " + farm.crop, farm.id));
-  });
-  if (!farms.length) input.add(new Option(__avt("Tarla ekleme sayfasına git →"), "__add_farm__"));
-  input.disabled = farms.length === 0;
-  filter.disabled = farms.length === 0;
-  if (farms.some((farm) => farm.id === selectedFarm)) input.value = selectedFarm;
-  else if (farms.length === 1) input.value = farms[0].id;
-  if (farms.some((farm) => farm.id === selectedFilter)) filter.value = selectedFilter;
-  if ($("#operation-date") && !$("#operation-date").value) $("#operation-date").value = localToday();
-  renderSeasons();
-  updateCostPreview();
+ const input=$("#operation-farm"),filter=$("#records-filter");
+ const selectedFarm=input.value,selectedFilter=filter.value,seasonFarms=farmsForSelectedSeason();
+ input.replaceChildren(new Option(seasonFarms.length?__avt("Tarla seç"):farms.length?__avt("Seçilen sezonda tarla yok"):__avt("Önce tarla eklemelisin"),""));
+ filter.replaceChildren(new Option(__avt("Tarla seç"),""));
+ seasonFarms.forEach(farm=>{
+  input.add(new Option(farmOptionLabel(farm),farm.id));
+  filter.add(new Option(farm.name+" · "+(seasonFor(farm,selectedYear())?.crop||farm.crop),farm.id));
+ });
+ if(!seasonFarms.length&&farms.length)input.add(new Option(__avt("Bu sezonda ekili tarla bulunmuyor"),""));
+ input.disabled=seasonFarms.length===0;
+ filter.disabled=seasonFarms.length===0;
+ const nextFarm=seasonFarms.some(farm=>farm.id===selectedFarm)?selectedFarm:(seasonFarms[0]?.id||"");
+ input.value=nextFarm;
+ filter.value=seasonFarms.some(farm=>farm.id===selectedFilter)?selectedFilter:nextFarm;
+ if($("#operation-date")&&!$("#operation-date").value)$("#operation-date").value=localToday();
+ updateCostPreview();
 }
 function formatMoney(value) {
   return Number(value || 0).toLocaleString(I.locale, { maximumFractionDigits: 2 });
@@ -184,8 +194,8 @@ function calculateCostPerDecare(record) {
 function updateSummary() {
   const farmId = selectedFilterFarm();
   const year=Number($('#operation-season').value);
-  const chosen=farms.filter(f=>(!farmId||f.id===farmId)&&(!year||seasonFor(f,year)));
-  const filtered=records.filter(r=>(!farmId||r.farm_id===farmId)&&Number(r.season_year)===(year||Number(farms.find(f=>f.id===r.farm_id)?.season_year)));
+  const chosen=farmsForSelectedSeason().filter(f=>!farmId||f.id===farmId);
+  const filtered=records.filter(r=>(!farmId||r.farm_id===farmId)&&Number(r.season_year)===year);
   const totals=chosen.map(f=>farmFinance(f,filtered,year||f.season_year));
   const valid=totals.filter(c=>c.total!==null),knownTotal=valid.reduce((n,c)=>n+c.total,0),knownArea=valid.reduce((n,c)=>n+c.area,0);
   $('#summary-count').textContent=filtered.length;$('#summary-total').textContent=knownArea?formatMoney(perAreaDisplay(knownTotal/knownArea)):'—';$('#summary-per-decare').textContent=knownArea?formatMoney(knownTotal):'—';
@@ -246,13 +256,14 @@ async function loadFarms() {
   const { data, error } = await client.from("farmer_farms").select("*,farmer_seasons(*)").eq("user_id", session.user.id).order("created_at", { ascending: true });
   if (error) { message(__avt("Tarla listesi yüklenemedi. Supabase kurulumunu kontrol et."), true); return; }
   farms = data || [];
+  const params=new URLSearchParams(location.search),requestedFarm=params.get("farm");
+  const requestedFarmData=farms.find(farm=>farm.id===requestedFarm);
+  renderSeasons(Number(params.get("year"))||Number(requestedFarmData?.season_year)||new Date().getFullYear());
   renderFarmOptions();
-  const requestedFarm = new URLSearchParams(location.search).get("farm");
-  if (requestedFarm && farms.some((farm) => farm.id === requestedFarm)) {
-    $("#operation-farm").value = requestedFarm;
-    $("#records-filter").value = requestedFarm;
-    renderSeasons(Number(new URLSearchParams(location.search).get('year')));
-    updateCostPreview();
+  if(requestedFarm&&farmsForSelectedSeason().some(farm=>farm.id===requestedFarm)){
+   $("#operation-farm").value=requestedFarm;
+   $("#records-filter").value=requestedFarm;
+   updateCostPreview();
   }
   if (!farms.length) {
     message(__avt("Önce Aşama 02'de en az bir tarla eklemelisin."));
@@ -278,9 +289,10 @@ async function loadRecords() {
 function editRecord(record) {
   if(record.personnel_expense_id){location.assign('personel.html?edit='+encodeURIComponent(record.personnel_expense_id));return;}
   $("#operation-id").value = record.id;
+  renderSeasons(record.season_year);
+  renderFarmOptions();
   $("#operation-farm").value = record.farm_id;
   $("#records-filter").value = record.farm_id;
-  renderSeasons(record.season_year);
   $('#expense-category').value=serviceTypes.has(record.operation_type)?'service':'input';selectCategory(record.operation_type);
   $("#operation-date").value = record.operation_date;
   const farm = activeFarm();
@@ -339,7 +351,7 @@ function updateCostPreview() {
  }
  const raw=field.value.trim(),total=parseNumberInput(raw),area=Number(farm?(seasonFor(farm,Number($('#operation-season').value))?.area_decare||farm.area_decare):0);
  preview.textContent=farm&&raw&&Number.isFinite(total)&&total>=0&&area>0?__avt("Dekara maliyet: ")+formatMoney(perAreaDisplay(total/area))+__avt(" TL/da · ")+farm.name+__avt(" için toplam ")+formatMoney(total)+__avt(" TL"):__avt("Dekara maliyeti görmek için tarla seç ve uygulama miktarını/tutarını gir.");
-}$("#operation-farm").addEventListener("change", () => { renderSeasons(); $("#records-filter").value=$("#operation-farm").value; updateCostPreview(); updateSummary(); });
+}$("#operation-farm").addEventListener("change", () => { $("#records-filter").value=$("#operation-farm").value; updateCostPreview(); updateSummary(); });
 function currentAutomaticCost(){if(amountExpense())return amountAllocationCost();const purchase=selectedPurchase();if(purchase)return lotAutomaticCost({purchase,quantity:parseNumberInput($('#operation-quantity').value),unit:$('#operation-unit').value,date:$('#operation-date').value,packageQuantity:parseNumberInput($('#operation-package-quantity').value),packageUnit:$('#operation-package-unit').value,oldRecord:editingRecord()});return automaticOperationCost({itemId:selectedProduct()?.id,quantity:parseNumberInput($('#operation-quantity').value),unit:$('#operation-unit').value,date:$('#operation-date').value,purchases:inventoryPurchases,oldRecord:records.find(r=>r.id===$('#operation-id').value),packageQuantity:parseNumberInput($('#operation-package-quantity').value),packageUnit:$('#operation-package-unit').value,itemBaseUnit:selectedProduct()?.base_unit});}
 
 function amountAllocationCost(){
@@ -356,7 +368,7 @@ function amountAllocationCost(){
 
 $('#operation-date').addEventListener('change',()=>{updatePackageFields(!$('#operation-package-quantity').value);updateCostPreview();});
 $('#operation-date').addEventListener('input',updateCostPreview);
-$("#operation-season").addEventListener("change",()=>{updateCostPreview();updateSummary();});
+$("#operation-season").addEventListener("change",()=>{renderFarmOptions();updateSummary();});
 $("#operation-farm").addEventListener("change", () => { if ($("#operation-farm").value === "__add_farm__") location.href = "tarla-bilgileri.html"; });
 $("#records-filter").addEventListener("change", ()=>{if($("#records-filter").value){$("#operation-farm").value=$("#records-filter").value;renderSeasons();}updateSummary();updateCostPreview();});
 $("#records-edit-toggle").addEventListener("click", () => {
