@@ -195,8 +195,9 @@ function calculateCostPerDecare(record) {
 function updateSummary() {
   const farmId = selectedFilterFarm();
   const year=Number($('#operation-season').value);
-  const chosen=farmsForSelectedSeason().filter(f=>!farmId||f.id===farmId);
-  const filtered=records.filter(r=>(!farmId||r.farm_id===farmId)&&Number(r.season_year)===year);
+  const seasonFarms=farmsForSelectedSeason(),seasonFarmIds=new Set(seasonFarms.map(f=>f.id));
+  const chosen=seasonFarms.filter(f=>!farmId||f.id===farmId);
+  const filtered=records.filter(r=>seasonFarmIds.has(r.farm_id)&&(!farmId||r.farm_id===farmId)&&Number(r.season_year)===year);
   const totals=chosen.map(f=>farmFinance(f,filtered,year||f.season_year));
   const valid=totals.filter(c=>c.total!==null),knownTotal=valid.reduce((n,c)=>n+c.total,0),knownArea=valid.reduce((n,c)=>n+c.area,0);
   $('#summary-count').textContent=filtered.length;$('#summary-total').textContent=knownArea?formatMoney(perAreaDisplay(knownTotal/knownArea)):'—';$('#summary-per-decare').textContent=knownArea?formatMoney(knownTotal):'—';
