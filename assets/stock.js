@@ -5,7 +5,7 @@ const I=window.AgroIntl;
 const __avt=s=>I.t(s);
 import {expenseCategories,categoryLabel,categoryKind} from './expense-categories.js?v=international-v1';
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
-import {units,fmt,money,loadInventory,readAll,totalsFor,stockError} from './inventory-data.js?v=international-v1';
+import {units,fmt,money,loadInventory,readAll,totalsFor,stockError} from './inventory-data.js?v=conditional-decimals-v2';
 import {serviceTypes,operationLabels,seasonFor} from './farm-finance.js?v=international-v1';
 import {costPerDecare} from './operation-cost.js?v=international-v1';
 
@@ -78,7 +78,7 @@ function lotList(lots,item){
   if(lots.length===1){values.push(['Kalan Miktar',originalQuantity(lot,lot.remaining)]);summary.className='stock-single-purchase';}
   values.push(['Toplam Tutar',money(lot.total_cost)]);
   summary.append(quantityRow(values),el('p','Bayi: '+(lot.supplier||'Belirtilmemiş'),'stock-lot-supplier'));
-  detail.append(summary,quantityRow([['Kullanılan Miktar',originalQuantity(lot,lot.used)],['Kalan Miktar',originalQuantity(lot,lot.remaining)]]));
+  detail.append(summary,quantityRow([['Kullanılan Miktar',originalQuantity(lot,lot.used)],['Stok Miktarı',originalQuantity(lot,lot.remaining)]]));
   if(lot.legacyUsed>0)detail.append(el('p','Eski kayıtlarda alım seçimi tutulmadığından '+originalQuantity(lot,lot.legacyUsed)+' kullanım ilk alımdan başlayarak dağıtılmıştır.','stock-lot-note'));
   const uses=lot.uses.map(x=>({...x.record,lot_quantity:x.quantity}));
   detail.append(applicationRows({uses},item,lot));const edit=el('a','Masraf Kaydını Aç →','inventory-button');edit.href='alisveris-stok.html?edit='+encodeURIComponent(lot.id);detail.append(edit);list.append(detail);
@@ -86,7 +86,8 @@ function lotList(lots,item){
 }
 function purchaseTotalsRow(lots){
  const totals=productPurchaseSummary(lots),section=el('section',undefined,'stock-purchase-totals');
- section.append(el('h4','Ürün Toplamı'),quantityRow([['Toplam Miktar',totals.quantities],['Kalan Miktar',unitTotals(lots,'remaining')],['Ortalama Fiyat',totals.prices],['Toplam Tutar',money(totals.cost)]]));
+ const remainingValue=lots.reduce((sum,lot)=>sum+(lot.quantity>0?Number(lot.total_cost)*Math.max(0,Number(lot.remaining))/Number(lot.quantity):0),0);
+  section.append(el('h4','Ürün Toplamı'),quantityRow([['Toplam Miktar',totals.quantities],['Stok Miktarı',unitTotals(lots,'remaining')],['Ortalama Fiyat',totals.prices],['Toplam Tutar',money(totals.cost)],['Stok Tutarı',money(remainingValue)]]));
  if(totals.mixed)section.append(el('p','Farklı birim ve ambalajların miktarları ve ortalama fiyatları ayrı hesaplanır.','stock-lot-note'));
  return section;
 }
