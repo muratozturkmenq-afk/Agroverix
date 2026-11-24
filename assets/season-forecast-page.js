@@ -8,7 +8,7 @@ await regionalReady;
 const I=window.AgroIntl;
 const __avt=s=>I.t(s);
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
-import { renderSimulators } from './season-simulator.js?v=farm-totals-v1';
+import { renderSimulators } from './season-simulator.js?v=compact-input-layout-v1';
 import {currentReportYear,seasonFarms} from './season-scope.js?v=season-scope-v1';
 const cfg=window.AGROVERIX_SUPABASE||{},container=document.querySelector('#farm-simulators'),message=document.querySelector('#sim-message'),login=document.querySelector('.nav-in > a.btn');
 const totalsRoot=document.querySelector('#forecast-season-totals'),chartHost=document.querySelector('#forecast-cost-chart');
