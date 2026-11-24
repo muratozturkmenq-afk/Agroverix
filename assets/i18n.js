@@ -4,7 +4,7 @@ const store={get(k){try{return localStorage.getItem(k);}catch{return null;}},set
 const lang='tr';
 const I=window.AgroIntl={lang:'tr',currency:'TRY',accountId:null,country:'TR',dict:{},locale:'tr-TR'};
 I.factor=()=>I.lang==='en'?10:1;
-I.currencyLabel=code=>(code||I.currency)==='EUR'?'EUR':I.lang==='en'?'TRY':'TL';
+I.currencyLabel=code=>(code||I.currency)==='EUR'?'EUR':'₺';
 I.unit=unit=>String(unit||'').replace(/\bTL\b/g,I.currencyLabel()).replace(I.lang==='en'?/\bda\b/g:/$^/g,'ha');
 I.t=function(value){const raw=String(value??''),key=raw.trim().replace(/\s+/g,' '),translated=I.lang==='en'?(I.dict[key]??key):key;return raw.slice(0,raw.length-raw.trimStart().length)+I.unit(translated)+raw.slice(raw.trimEnd().length);};
 I.num=(n,options={maximumFractionDigits:2})=>Number(n).toLocaleString(I.locale,options);
