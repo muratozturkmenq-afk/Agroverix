@@ -74,11 +74,12 @@ function lotList(lots,item){
  const list=el('div',undefined,'stock-lots');
  lots.slice().sort((a,b)=>a.purchase_date.localeCompare(b.purchase_date)||a.id.localeCompare(b.id)).forEach(lot=>{
   const detail=el('details',undefined,'stock-lot'),summary=el('summary');
-  const values=[['Alım Tarihi',date(lot.purchase_date)],['Alış Fiyatı',purchaseUnitPrice(lot)],['Alım Miktarı',originalQuantity(lot,lot.quantity)]];
-  if(lots.length===1){values.push(['Kalan Miktar',originalQuantity(lot,lot.remaining)]);summary.className='stock-single-purchase';}
-  values.push(['Toplam Tutar',money(lot.total_cost)]);
+  const values=[['Alım Tarihi',date(lot.purchase_date)],['Alış Fiyatı',purchaseUnitPrice(lot)],['Alım Miktarı',originalQuantity(lot,lot.quantity)],['Toplam Tutar',money(lot.total_cost)],['Kullanılan Miktar',originalQuantity(lot,lot.used)],['Stok Miktarı',originalQuantity(lot,lot.remaining)]];
+  const remainingValue=lot.quantity>0?Number(lot.total_cost)*Math.max(0,Number(lot.remaining))/Number(lot.quantity):0;
+  values.push(['Stok Tutarı',money(remainingValue)]);
+  if(lots.length===1)summary.className='stock-single-purchase';
   summary.append(quantityRow(values),el('p','Bayi: '+(lot.supplier||'Belirtilmemiş'),'stock-lot-supplier'));
-  detail.append(summary,quantityRow([['Kullanılan Miktar',originalQuantity(lot,lot.used)],['Stok Miktarı',originalQuantity(lot,lot.remaining)]]));
+  detail.append(summary);
   if(lot.legacyUsed>0)detail.append(el('p','Eski kayıtlarda alım seçimi tutulmadığından '+originalQuantity(lot,lot.legacyUsed)+' kullanım ilk alımdan başlayarak dağıtılmıştır.','stock-lot-note'));
   const uses=lot.uses.map(x=>({...x.record,lot_quantity:x.quantity}));
   detail.append(applicationRows({uses},item,lot));const edit=el('a','Masraf Kaydını Aç →','inventory-button');edit.href='alisveris-stok.html?edit='+encodeURIComponent(lot.id);detail.append(edit);list.append(detail);
