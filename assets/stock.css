@@ -14,7 +14,7 @@
 @media(max-width:600px){.stock-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:12px;align-items:start}.stock-head h2{font-size:22px}.stock-total-value{width:100%;margin:0;padding:8px;box-sizing:border-box}.stock-total-value>strong{font-size:18px;overflow-wrap:anywhere}.stock-head>#inventory-refresh{grid-column:1/-1;justify-self:end}.stock-total-value>small{font-size:10px}}
 
 /* Purchase rows stay compact, with totals only for repeated purchases. */
-.stock-lot>summary>.stock-quantity-grid{grid-template-columns:repeat(3,minmax(0,1fr));margin-top:0;gap:14px}
+.stock-lot>summary>.stock-quantity-grid{grid-template-columns:repeat(3,minmax(0,1fr));margin-top:0;gap:9px 8px}
 .stock-lot>summary>.stock-quantity-grid dd{font-size:16px;color:var(--ink)}
 .stock-lot-supplier{font-size:13px;color:var(--muted-l);margin:10px 0 0}
 .stock-purchase-totals{margin-top:14px;padding:14px;border-top:2px solid var(--line-l);background:var(--cotton);border-radius:8px}
@@ -23,7 +23,7 @@
 .stock-purchase-totals .stock-quantity-grid dd{font-size:18px}
 .stock-total-value{transform:translate(-20px,16px)}
 .stock-head{padding-bottom:10px}
-@media(max-width:600px){.stock-lot>summary>.stock-quantity-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 10px}.stock-lot>summary>.stock-quantity-grid>div:nth-child(odd){border-left:0;padding-left:0}.stock-lot>summary>.stock-quantity-grid dd{font-size:14px}.stock-purchase-totals{padding:12px}.stock-purchase-totals .stock-quantity-grid{grid-template-columns:1fr;gap:12px}.stock-purchase-totals .stock-quantity-grid>div{border-left:0;padding-left:0}.stock-purchase-totals .stock-quantity-grid dd{font-size:16px}.stock-total-value{transform:translate(-6px,12px)}}
+@media(max-width:600px){.stock-lot>summary>.stock-quantity-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px 8px}.stock-lot>summary>.stock-quantity-grid>div:nth-child(odd){border-left:0;padding-left:0}.stock-lot>summary>.stock-quantity-grid dd{font-size:14px}.stock-purchase-totals{padding:12px}.stock-purchase-totals .stock-quantity-grid{grid-template-columns:1fr;gap:12px}.stock-purchase-totals .stock-quantity-grid>div{border-left:0;padding-left:0}.stock-purchase-totals .stock-quantity-grid dd{font-size:16px}.stock-total-value{transform:translate(-6px,12px)}}
 
 .stock-lot>.stock-single-purchase>.stock-quantity-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
 .stock-purchase-totals>.stock-quantity-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
