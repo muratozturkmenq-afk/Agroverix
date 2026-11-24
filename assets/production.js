@@ -179,9 +179,10 @@ function renderFarmOptions() {
  if(!seasonFarms.length&&farms.length)input.add(new Option(__avt("Bu sezonda ekili tarla bulunmuyor"),""));
  input.disabled=seasonFarms.length===0;
  filter.disabled=seasonFarms.length===0;
- const nextFarm=seasonFarms.some(farm=>farm.id===selectedFarm)?selectedFarm:(seasonFarms[0]?.id||"");
+ const nextFarm=seasonFarms.some(farm=>farm.id===selectedFarm)?selectedFarm:"";
+ const nextFilter=seasonFarms.some(farm=>farm.id===selectedFilter)?selectedFilter:"";
  input.value=nextFarm;
- filter.value=nextFarm;
+ filter.value=nextFilter;
  if($("#operation-date")&&!$("#operation-date").value)$("#operation-date").value=localToday();
  updateCostPreview();
 }
@@ -258,15 +259,9 @@ async function loadFarms() {
   const { data, error } = await client.from("farmer_farms").select("*,farmer_seasons(*)").eq("user_id", session.user.id).order("created_at", { ascending: true });
   if (error) { message(__avt("Tarla listesi yüklenemedi. Supabase kurulumunu kontrol et."), true); return; }
   farms = data || [];
-  const params=new URLSearchParams(location.search),requestedFarm=params.get("farm");
-  const requestedFarmData=farms.find(farm=>farm.id===requestedFarm);
-  renderSeasons(Number(params.get("year"))||Number(requestedFarmData?.season_year)||new Date().getFullYear());
+  const params=new URLSearchParams(location.search);
+  renderSeasons(Number(params.get("year"))||new Date().getFullYear());
   renderFarmOptions();
-  if(requestedFarm&&farmsForSelectedSeason().some(farm=>farm.id===requestedFarm)){
-   $("#operation-farm").value=requestedFarm;
-   $("#records-filter").value=requestedFarm;
-   updateCostPreview();
-  }
   if (!farms.length) {
     message(__avt("Önce Aşama 02'de en az bir tarla eklemelisin."));
     updateSummary();
@@ -372,7 +367,7 @@ $('#operation-date').addEventListener('change',()=>{updatePackageFields(!$('#ope
 $('#operation-date').addEventListener('input',updateCostPreview);
 $("#operation-season").addEventListener("change",()=>{renderFarmOptions();updateSummary();});
 $("#operation-farm").addEventListener("change", () => { if ($("#operation-farm").value === "__add_farm__") location.href = "tarla-bilgileri.html"; });
-$("#records-filter").addEventListener("change", ()=>{if($("#records-filter").value){$("#operation-farm").value=$("#records-filter").value;renderSeasons();}updateSummary();updateCostPreview();});
+$("#records-filter").addEventListener("change", ()=>{updateSummary();updateCostPreview();});
 $("#records-edit-toggle").addEventListener("click", () => {
   editingRecords = !editingRecords;
   $("#records-edit-toggle").setAttribute("aria-pressed", String(editingRecords));
