@@ -5,7 +5,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Sans:ital,wght@0,400..700;1,400&family=Martian+Mono:wght@400..600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/styles.css"><link rel="stylesheet" href="assets/profile.css?v=compact-record-actions-v1"><link rel="stylesheet" href="assets/mobile-reports.css?v=page-reorg-v1"><link rel="stylesheet" href="assets/inventory.css?v=season-scope-v1">
-<link rel="stylesheet" href="assets/account-due-dates.css?v=receipt-method-v1"><link rel="stylesheet" href="assets/stock.css?v=conditional-decimals-v2"><link rel="stylesheet" href="assets/harvest-sales.css?v=season-scope-v1">
+<link rel="stylesheet" href="assets/account-due-dates.css?v=receipt-method-v1"><link rel="stylesheet" href="assets/stock.css?v=inline-usage-stock-v1"><link rel="stylesheet" href="assets/harvest-sales.css?v=season-scope-v1">
 <link rel="icon" href="/favicon.svg?v=logo-20261028" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png?v=logo-20261028"><link rel="manifest" href="/site.webmanifest?v=logo-20261028"><meta name="apple-mobile-web-app-title" content="AgroVerix">
 <link rel="stylesheet" href="assets/regional.css?v=season-badges-v1">
 <script src="assets/i18n.js?v=stable-tr-v1"></script>
@@ -24,7 +24,7 @@
 <section class="harvest-farm-section" aria-labelledby="harvest-farms-title"><div class="harvest-section-heading"><h2 id="harvest-farms-title" data-i18n="Tarla Bazında Hasat">Tarla Bazında Hasat</h2></div><div id="harvest-farm-summaries" class="harvest-farm-grid"></div><p id="harvest-farms-empty" class="payment-help" data-i18n="Tarla özetlerin giriş yaptıktan sonra burada görünür.">Tarla özetlerin giriş yaptıktan sonra burada görünür.</p></section>
 <div class="inventory-view-tabs" role="tablist" aria-label="Hasat ve tahsilat işlemleri" data-i18n-label="Hasat ve tahsilat işlemleri"><button type="button" id="harvest-tab-sale" role="tab" aria-selected="true" aria-controls="harvest-sales-panel" data-i18n="Hasat &amp; Satış Girişi">Hasat &amp; Satış Girişi</button><button type="button" id="harvest-tab-receipt" role="tab" aria-selected="false" aria-controls="harvest-receipts-panel" tabindex="-1" data-i18n="Tahsilat Girişi">Tahsilat Girişi</button></div>
 <div class="inventory-columns" id="harvest-sales-panel" role="tabpanel" aria-labelledby="harvest-tab-sale">
-<section class="inventory-entry"><div class="inventory-section-head"><span class="profile-kicker" data-i18n="HER ARAÇ İÇİN AYRI KAYIT">HER ARAÇ İÇİN AYRI KAYIT</span><h2 id="harvest-sale-title" data-i18n="Hasat &amp; Satış Ekle">Hasat &amp; Satış Ekle</h2><p data-i18n="Aynı tarlaya farklı tarih, araç ve alıcı firma ile birden fazla satış ekleyebilirsin.">Aynı tarlaya farklı tarih, araç ve alıcı firma ile birden fazla satış ekleyebilirsin.</p></div>
+<section class="inventory-entry"><div class="season-scope-toolbar harvest-entry-season"><label for="harvest-entry-year"><span class="season-choice-caption">Sezon</span> <select id="harvest-entry-year"></select></label></div><div class="inventory-section-head"><span class="profile-kicker" data-i18n="HER ARAÇ İÇİN AYRI KAYIT">HER ARAÇ İÇİN AYRI KAYIT</span><h2 id="harvest-sale-title" data-i18n="Hasat &amp; Satış Ekle">Hasat &amp; Satış Ekle</h2><p data-i18n="Aynı tarlaya farklı tarih, araç ve alıcı firma ile birden fazla satış ekleyebilirsin.">Aynı tarlaya farklı tarih, araç ve alıcı firma ile birden fazla satış ekleyebilirsin.</p></div>
 <form id="harvest-sale-form"><fieldset id="harvest-sale-fields" disabled><div class="inventory-form-grid">
 <div class="profile-field wide"><label for="sale-date"><span data-i18n="Hasat / Satış Tarihi">Hasat / Satış Tarihi </span><b>*</b></label><input id="sale-date" type="date" min="2000-01-01" max="2200-12-31" required></div>
 <div class="profile-field wide"><label for="sale-farm"><span data-i18n="Tarla – Bitki – Sezon">Tarla – Bitki – Sezon </span><b>*</b></label><select id="sale-farm" required><option value="" data-i18n="Tarla seç">Tarla seç</option></select></div>
@@ -56,7 +56,7 @@
 </section>
 <p class="inventory-footnote" id="harvest-season-note">Seçilen sezonun satışları ve bu satışlara ait tahsilatlar gösterilir. Tahsilat yeni bir satış geliri değildir; kalan alacağı azaltır.</p>
 <a class="profile-back inventory-home" href="index.html" data-i18n="Ana Sayfaya Dön →">Ana Sayfaya Dön →</a></main>
-<script src="assets/supabase-config.js?v=international-v1"></script><script type="module" src="assets/harvest-sales.js?v=conditional-decimals-v2"></script><script type="module" src="assets/regional-boot.js?v=stable-tr-v1"></script>
+<script src="assets/supabase-config.js?v=international-v1"></script><script type="module" src="assets/harvest-sales.js?v=entry-season-v1"></script><script type="module" src="assets/regional-boot.js?v=stable-tr-v1"></script>
 <footer class="site-contact-footer"><p class="site-contact-line"><span>İletişim:</span> <a href="mailto:agroverixinfo@gmail.com">agroverixinfo@gmail.com</a></p></footer>
 <script defer src="assets/agri-support.js?v=greeting-v1"></script>
 </body></html>
