@@ -31,9 +31,9 @@ function renderHeroFarms(farms, records) {
     card.href = 'tarla-detay.html?farm=' + encodeURIComponent(farm.id);
     card.append(text('b', 'hero-farm-name', farm.name));
     const per = text('div', 'hero-farm-metric', '');
-    per.append(text('span', '', 'Dekara Maliyet'), text('strong', '', cost.perDecare === null ? '— TL/da' : money(cost.perDecare) + ' TL/da'));
+    per.append(text('span', '', 'Dekara Maliyet'), text('strong', '', cost.perDecare === null ? '— ₺/da' : money(cost.perDecare) + ' ₺/da'));
     const total = text('div', 'hero-farm-metric hero-farm-total', '');
-    total.append(text('span', '', 'Toplam Maliyet'), text('strong', '', cost.total === null ? '— TL' : money(cost.total) + ' TL'));
+    total.append(text('span', '', 'Toplam Maliyet'), text('strong', '', cost.total === null ? '— ₺' : money(cost.total) + ' ₺'));
     card.append(per);
     if (!cost.rows.length) card.append(text('small', 'hero-farm-note', 'Henüz işlem kaydı yok.'));
     else if (cost.values.length < cost.rows.length) card.append(text('small', 'hero-farm-note', (cost.rows.length - cost.values.length) + ' işlemde hesaplama bilgisi eksik.'));
@@ -53,9 +53,9 @@ function cardCrop(crop, farms, records) {
   top.append(text("b", "farmer-crop-name", crop), text("span", "farmer-crop-arrow", "＋"));
   const metrics = text("span", "farmer-crop-metrics", "");
   const metricA = text("span", "farmer-crop-metric", "");
-  metricA.append(text("small", "", "Hesaplanabilen maliyet"), text("b", "", average === null ? "—" : money(average) + " TL/da"));
+  metricA.append(text("small", "", "Hesaplanabilen maliyet"), text("b", "", average === null ? "—" : money(average) + " ₺/da"));
   const metricB = text("span", "farmer-crop-metric", "");
-  metricB.append(text("small", "", "Hesaplanabilen toplam"), text("b", "", total === null || !priced.length ? "—" : money(total) + " TL"));
+  metricB.append(text("small", "", "Hesaplanabilen toplam"), text("b", "", total === null || !priced.length ? "—" : money(total) + " ₺"));
   const metricC = text("span", "farmer-crop-metric", "");
   const areaTotal = farms.reduce((sum, farm) => sum + Number(farm.area_decare || 0), 0);
   metricC.append(text("small", "", "Toplam alan"), text("b", "", money(areaTotal) + " da"));
@@ -69,7 +69,7 @@ function cardCrop(crop, farms, records) {
     const info = text("span", "farmer-farm-info", "");
     info.append(text("b", "", farm.name), text("small", "", `${farm.crop || crop} · ${money(farm.area_decare)} da · ${cost.values.length}/${cost.rows.length} işlem hesaplandı`));
     const figures = text("span", "farmer-farm-cost", "");
-    figures.append(text("b", "", cost.perDecare === null ? "—" : money(cost.perDecare) + " TL/da"), text("small", "", cost.total === null ? "Toplam maliyet —" : money(cost.total) + " TL toplam"));
+    figures.append(text("b", "", cost.perDecare === null ? "—" : money(cost.perDecare) + " ₺/da"), text("small", "", cost.total === null ? "Toplam maliyet —" : money(cost.total) + " ₺ toplam"));
     link.append(info, figures, text("span", "farmer-farm-arrow", "→"));
     list.append(link);
   });
