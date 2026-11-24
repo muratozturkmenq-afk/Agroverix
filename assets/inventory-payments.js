@@ -39,7 +39,7 @@ export function createPaymentLedger({getClient,refresh,getSaving,setSaving,onEdi
   const deferred=$('#payment-method').value==='deferred';
   $('#payment-method').disabled=Boolean(editing||planned||planEditing);
   $('#payment-amount').readOnly=Boolean(planned);
-  $('#payment-amount-label').textContent=__avt(deferred?'Vadeli Ödeme Tutarı (TL) ':'Ödenen Tutar (TL) ');
+  $('#payment-amount-label').textContent=__avt(deferred?'Vadeli Ödeme Tutarı (₺) ':'Ödenen Tutar (₺) ');
   $('#payment-date-label').textContent=deferred?'Vade Tarihi ':'Ödeme Tarihi ';
   $('#payment-date').min='2000-01-01';$('#payment-date').max=deferred?'2200-12-31':today();
   $('#payment-save').textContent=deferred?(planEditing?'Vadeyi Güncelle →':'Vadeli Ödemeyi Kaydet →'):planned?'Ödemeyi Tamamla →':editing?'Değişiklikleri Kaydet →':'Ödemeyi Kaydet →';
