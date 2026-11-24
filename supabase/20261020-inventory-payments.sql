@@ -68,7 +68,7 @@ begin
   if tg_op='DELETE' then return old;end if;
   raise exception 'Alışveriş kaydı bulunamadı.';
  end if;
- if v_paid+v_delta>v_total then raise exception 'Ödeme tutarı kalan borcu aşıyor. Kalan borç: % TL.',v_total-v_paid;end if;
+ if v_paid+v_delta>v_total then raise exception 'Ödeme tutarı kalan borcu aşıyor. Kalan borç: % ₺.',v_total-v_paid;end if;
  if v_paid+v_delta<0 then raise exception 'Ödeme bakiyesi geçersiz.';end if;
  update public.farmer_inventory_purchases set paid_total=paid_total+v_delta,updated_at=now() where id=v_purchase and user_id=v_owner;
  if tg_op='DELETE' then return old;end if;return new;
