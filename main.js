@@ -83,14 +83,14 @@
   /* ---------- hero live cards ---------- */
   (function heroCards() {
     var ops = [
-      { i: "S", c: "#8B5E3C", t: "Derin sürüm kaydedildi", s: "08 Nisan · 1.450 TL/da", v: 1450 },
-      { i: "E", c: "#3F7D3A", t: "Ekim kaydedildi", s: "Sertifikalı tohum · 1.900 TL/da", v: 1900 },
-      { i: "G", c: "#C08A10", t: "Taban gübresi kaydedildi", s: "DAP 20 kg/da · 2.600 TL/da", v: 2600 },
-      { i: "Su", c: "#2F3CCF", t: "Sulama kaydedildi", s: "Damla sulama · 2.100 TL/da", v: 2100 },
-      { i: "İ", c: "#B4372A", t: "İlaçlama kaydedildi", s: "Beyaz sinek · Flonicamid · 950 TL/da", v: 950 },
-      { i: "G", c: "#C08A10", t: "Üst gübre kaydedildi", s: "Üre 25 kg/da · 1.500 TL/da", v: 1500 },
-      { i: "İ", c: "#B4372A", t: "İlaçlama kaydedildi", s: "Yeşil kurt · Emamektin benzoat · 1.100 TL/da", v: 1100 },
-      { i: "H", c: "#12160E", t: "Hasat kaydedildi", s: "Makineli hasat · 1.200 TL/da", v: 1200 }
+      { i: "S", c: "#8B5E3C", t: "Derin sürüm kaydedildi", s: "08 Nisan · 1.450 ₺/da", v: 1450 },
+      { i: "E", c: "#3F7D3A", t: "Ekim kaydedildi", s: "Sertifikalı tohum · 1.900 ₺/da", v: 1900 },
+      { i: "G", c: "#C08A10", t: "Taban gübresi kaydedildi", s: "DAP 20 kg/da · 2.600 ₺/da", v: 2600 },
+      { i: "Su", c: "#2F3CCF", t: "Sulama kaydedildi", s: "Damla sulama · 2.100 ₺/da", v: 2100 },
+      { i: "İ", c: "#B4372A", t: "İlaçlama kaydedildi", s: "Beyaz sinek · Flonicamid · 950 ₺/da", v: 950 },
+      { i: "G", c: "#C08A10", t: "Üst gübre kaydedildi", s: "Üre 25 kg/da · 1.500 ₺/da", v: 1500 },
+      { i: "İ", c: "#B4372A", t: "İlaçlama kaydedildi", s: "Yeşil kurt · Emamektin benzoat · 1.100 ₺/da", v: 1100 },
+      { i: "H", c: "#12160E", t: "Hasat kaydedildi", s: "Makineli hasat · 1.200 ₺/da", v: 1200 }
     ];
     var idx = 4, cum = 0;
     for (var k = 0; k <= idx; k++) cum += ops[k].v;
@@ -99,7 +99,7 @@
       ico.textContent = o.i; ico.style.background = o.c; ico.style.color = o.c === "#12160E" ? "#F1F3EA" : (o.c === "#C08A10" ? "#1B1403" : "#fff");
       op.innerHTML = o.t + "<small>" + o.s + "</small>";
       countTo(cost, prev, cum / 500, 2, 0.9);
-      delta.textContent = "+" + fmt(o.v / 500, 2) + " TL bu işlemle";
+      delta.textContent = "+" + fmt(o.v / 500, 2) + " ₺ bu işlemle";
     }
     show(ops[idx], (cum - ops[idx].v) / 500);
     if (!reduce) setInterval(function () {
@@ -306,7 +306,7 @@
     OPS.forEach(function (o) {
       var d = new Date(base); d.setDate(d.getDate() + o.day);
       var row = document.createElement("div"); row.className = "lg";
-      row.innerHTML = '<span class="dt">' + d.toLocaleDateString("tr-TR", { day: "2-digit", month: "short" }) + '</span><i class="' + o.cl + '">' + o.ic + "</i><span><b>" + o.t + "</b> <small>" + o.n + '</small></span><span class="c">' + fmt(o.c) + " TL/da</span>";
+      row.innerHTML = '<span class="dt">' + d.toLocaleDateString("tr-TR", { day: "2-digit", month: "short" }) + '</span><i class="' + o.cl + '">' + o.ic + "</i><span><b>" + o.t + "</b> <small>" + o.n + '</small></span><span class="c">' + fmt(o.c) + " ₺/da</span>";
       log.appendChild(row); o.row = row;
     });
 
@@ -388,24 +388,24 @@
         var target = row.offsetTop - log.clientHeight / 2 + row.offsetHeight / 2;
         log.scrollTo ? log.scrollTo({ top: Math.max(0, target), behavior: reduce ? "auto" : "smooth" }) : (log.scrollTop = target);
       }
-      $("#k-cum").innerHTML = fmt(cum) + "<small>TL/da</small>";
-      $("#k-cum-s").textContent = n + " işlem · tarla " + fmt(cum * S.area) + " TL";
+      $("#k-cum").innerHTML = fmt(cum) + "<small>₺/da</small>";
+      $("#k-cum-s").textContent = n + " işlem · tarla " + fmt(cum * S.area) + " ₺";
       var e = cum / S.exp;
-      $("#k-exp").innerHTML = fmt(e, 2) + "<small>TL/kg</small>";
+      $("#k-exp").innerHTML = fmt(e, 2) + "<small>₺/kg</small>";
       $("#k-exp-s").textContent = fmt(S.exp) + " kg/da tahminle";
       var harvested = d >= HARVEST;
       $("#harvest").classList.toggle("locked", !harvested);
       var a = cum / S.act;
       if (harvested) {
         var diff = (a - e) / e * 100;
-        $("#k-act").innerHTML = fmt(a, 2) + "<small>TL/kg</small>";
+        $("#k-act").innerHTML = fmt(a, 2) + "<small>₺/kg</small>";
         $("#k-act-s").textContent = fmt(S.act) + " kg/da · " + (diff >= 0 ? "+%" : "−%") + fmt(Math.abs(diff), 1);
         var pda = S.price * S.act - cum, ptot = pda * S.area;
         var pd = $("#p-da"), pt = $("#p-tot");
-        pd.textContent = (pda < 0 ? "−" : "+") + fmt(Math.abs(pda)) + " TL"; pd.className = pda < 0 ? "neg" : "pos";
-        pt.textContent = (ptot < 0 ? "−" : "+") + fmt(Math.abs(ptot)) + " TL"; pt.className = ptot < 0 ? "neg" : "pos";
+        pd.textContent = (pda < 0 ? "−" : "+") + fmt(Math.abs(pda)) + " ₺"; pd.className = pda < 0 ? "neg" : "pos";
+        pt.textContent = (ptot < 0 ? "−" : "+") + fmt(Math.abs(ptot)) + " ₺"; pt.className = ptot < 0 ? "neg" : "pos";
       } else {
-        $("#k-act").innerHTML = "—<small>TL/kg</small>"; $("#k-act-s").textContent = "hasatta açılır";
+        $("#k-act").innerHTML = "—<small>₺/kg</small>"; $("#k-act-s").textContent = "hasatta açılır";
         $("#p-da").textContent = "hasatta"; $("#p-da").className = ""; $("#p-tot").textContent = "hasatta"; $("#p-tot").className = "";
       }
       $("#out-act").textContent = fmt(S.act) + " kg/da";
@@ -415,9 +415,9 @@
       var pest = OPS.filter(function (o) { return o.t === "İlaç" && d >= o.day; }).reduce(function (s, o) { return s + o.c; }, 0);
       if (d < 60) notes.push("Harran'da bu dönem kayıtlı 38 pamuk tarlasının %71'i taban gübresini Mayıs'ın ilk haftasında attı.");
       else if (d < 88) notes.push("Bölgende beyaz sinek bildirimleri artıyor. Yaprak altlarını kontrol et; ilk uygulamada en çok Flonicamid ve Acetamiprid tercih ediliyor.");
-      if (pest > 0) { var pdv = (pest - REG_PEST) / REG_PEST * 100; notes.push("İlaçlama giderin şimdilik dekar başına " + fmt(pest) + " TL. Bölgede sezon ortalaması " + fmt(REG_PEST) + " TL."); if (d >= 120) notes.push(pdv >= 0 ? "Sezon ilaç giderin ortalamanın %" + fmt(pdv) + " üstünde." : "Sezon ilaç giderin ortalamanın %" + fmt(-pdv) + " altında."); }
-      if (harvested) notes.push("Hasat " + fmt(S.act) + " kg/da geldi; kilo maliyetin " + fmt(e, 2) + " TL'den " + fmt(a, 2) + " TL'ye " + (a >= e ? "çıktı." : "indi."));
-      if (cum > 0) notes.push(fmt(S.price, S.price % 1 ? 1 : 0) + " TL/kg satış fiyatıyla şu ana kadarki giderin için başabaş verim " + fmt(Math.ceil(cum / S.price)) + " kg/da.");
+      if (pest > 0) { var pdv = (pest - REG_PEST) / REG_PEST * 100; notes.push("İlaçlama giderin şimdilik dekar başına " + fmt(pest) + " ₺. Bölgede sezon ortalaması " + fmt(REG_PEST) + " ₺."); if (d >= 120) notes.push(pdv >= 0 ? "Sezon ilaç giderin ortalamanın %" + fmt(pdv) + " üstünde." : "Sezon ilaç giderin ortalamanın %" + fmt(-pdv) + " altında."); }
+      if (harvested) notes.push("Hasat " + fmt(S.act) + " kg/da geldi; kilo maliyetin " + fmt(e, 2) + " ₺'den " + fmt(a, 2) + " ₺'ye " + (a >= e ? "çıktı." : "indi."));
+      if (cum > 0) notes.push(fmt(S.price, S.price % 1 ? 1 : 0) + " ₺/kg satış fiyatıyla şu ana kadarki giderin için başabaş verim " + fmt(Math.ceil(cum / S.price)) + " kg/da.");
       $("#ai-notes").innerHTML = notes.slice(-3).map(function (t) { return "<li>" + t + "</li>"; }).join("");
 
       /* timeline */
@@ -444,7 +444,7 @@
       prog += " L" + X(d) + " " + Y(cp / S.exp);
       s += '<path class="scf" d="' + full + '"/>';
       s += '<path class="sca" d="' + prog + " L" + X(d) + " " + Y(0) + ' Z"/><path class="scl" d="' + prog + '"/>';
-      s += '<line class="scp" x1="' + pl + '" x2="' + (W - pr) + '" y1="' + Y(S.price) + '" y2="' + Y(S.price) + '"/><text class="scpt" x="' + (pl + 6) + '" y="' + (Y(S.price) - 6) + '">Satış fiyatı ' + fmt(S.price, S.price % 1 ? 1 : 0) + " TL/kg</text>";
+      s += '<line class="scp" x1="' + pl + '" x2="' + (W - pr) + '" y1="' + Y(S.price) + '" y2="' + Y(S.price) + '"/><text class="scpt" x="' + (pl + 6) + '" y="' + (Y(S.price) - 6) + '">Satış fiyatı ' + fmt(S.price, S.price % 1 ? 1 : 0) + " ₺/kg</text>";
       s += '<circle class="scn" cx="' + X(d) + '" cy="' + Y(cp / S.exp) + '" r="5"/>';
       if (harvested) { var av = cumNow / S.act; s += '<circle class="sch" cx="' + X(HARVEST) + '" cy="' + Y(av) + '" r="6"/><text class="scht" x="' + (X(HARVEST) - 10) + '" y="' + (Y(av) - 10) + '" text-anchor="end">Gerçek ' + fmt(av, 2) + "</text>"; }
       ["Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki"].forEach(function (m, i) { s += '<text class="sct" x="' + X(i * 30.5) + '" y="' + (Hc - 6) + '" text-anchor="' + (i === 0 ? "start" : "middle") + '">' + m + "</text>"; });
