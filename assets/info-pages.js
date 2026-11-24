@@ -17,7 +17,7 @@ import {bindNumberInput,parseNumberInput,setNumberInputValue} from './number-inp
   var y=parse(yieldInput),p=parse(priceInput),validYield=Number.isFinite(y)&&y>0&&y<=100000*I.factor(),validPrice=Number.isFinite(p)&&p>=0&&p<=1000000;
   yieldInput.setAttribute('aria-invalid',String(!validYield));priceInput.setAttribute('aria-invalid',String(!validPrice));
   if(!validYield||!validPrice){result.textContent='—';revenue.textContent='—';error.textContent=__avt("Pozitif bir verim ve sıfır veya daha büyük bir fiyat gir. Ondalık için virgül kullanabilirsin.");return;}
-  var income=(I.lang==='en'?y/10:y)*p*20,profit=income-40000;error.textContent='';revenue.textContent=formatter.format(income)+__avt(" TL");result.textContent=formatter.format(profit)+__avt(" TL");
+  var income=(I.lang==='en'?y/10:y)*p*20,profit=income-40000;error.textContent='';revenue.textContent=formatter.format(income)+__avt(" ₺");result.textContent=formatter.format(profit)+__avt(" ₺");
   document.getElementById('guide-profit-label').textContent=profit<0?__avt("Tahmini Zarar"):__avt("Tahmini Kâr");
  }
  yieldInput.addEventListener('input',update);priceInput.addEventListener('input',update);update();
