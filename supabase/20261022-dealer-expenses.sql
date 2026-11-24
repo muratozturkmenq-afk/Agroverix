@@ -233,7 +233,7 @@ begin
  delete from public.farmer_inventory_payments where payment_group_id=v_id and user_id=v_owner;
  select coalesce(sum(total_cost-paid_total),0) into v_debt from public.farmer_inventory_purchases
   where user_id=v_owner and public.agroverix_supplier_key(supplier)=public.agroverix_supplier_key(v_supplier) and purchase_date<=v_date;
- if v_amount>v_debt then raise exception 'Ödeme tutarı, ödeme tarihine kadar olan kalan borcu aşıyor. Kalan borç: % TL.',v_debt;end if;
+ if v_amount>v_debt then raise exception 'Ödeme tutarı, ödeme tarihine kadar olan kalan borcu aşıyor. Kalan borç: % ₺.',v_debt;end if;
  insert into public.farmer_dealer_payments(id,user_id,supplier,payment_date,amount,notes) values(v_id,v_owner,v_supplier,v_date,v_amount,v_notes)
  on conflict(id) do update set supplier=excluded.supplier,payment_date=excluded.payment_date,amount=excluded.amount,notes=excluded.notes,updated_at=now()
  where public.farmer_dealer_payments.user_id=v_owner;
