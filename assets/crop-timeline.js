@@ -4,7 +4,7 @@ const __avt=s=>I.t(s);
 import { costPerDecare } from './operation-cost.js?v=international-v1';
 const months=[__avt("Oca"),__avt("Şub"),__avt("Mar"),__avt("Nis"),__avt("May"),__avt("Haz"),__avt("Tem"),__avt("Ağu"),__avt("Eyl"),__avt("Eki"),__avt("Kas"),__avt("Ara")];
 const ns='http://www.w3.org/2000/svg';
-const money=n=>Number(n).toLocaleString(I.locale,{maximumFractionDigits:2})+__avt(" TL");
+const money=n=>Number(n).toLocaleString(I.locale,{maximumFractionDigits:2})+__avt(" ₺");
 
 export function cropTimeline(art,{crop,year,records=[],area=0,rent=0}){
  const wrap=document.createElement('div');wrap.className='crop-timeline-visual';
