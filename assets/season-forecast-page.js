@@ -1,7 +1,7 @@
 import {seasonCostChart} from './season-cost-chart.js?v=summary-chart-v1';
 import {farmSeasonTotals} from './farm-season-totals.js?v=farm-totals-v1';
 import {renderFarmTotals,clearFarmTotals} from './farm-totals-view.js?v=farm-totals-v1';
-import {readAll} from './inventory-data.js?v=international-v1';
+import {readAll} from './inventory-data.js?v=currency-symbol-v1';
 import {t,locale,areaDisplay,areaStored,perAreaDisplay,perAreaStored} from './regional-format.js?v=international-v1';
 import {ready as regionalReady,client as regionalClient} from './regional-context.js?v=stable-tr-v1';
 await regionalReady;

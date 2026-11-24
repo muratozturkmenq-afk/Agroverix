@@ -5,8 +5,8 @@ const I=window.AgroIntl;
 const __avt=s=>I.t(s);
 import {expenseCategories,categoryLabel,categoryKind} from './expense-categories.js?v=international-v1';
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
-import {units,fmt,money,loadInventory,readAll,totalsFor,stockError} from './inventory-data.js?v=conditional-decimals-v2';
-import {serviceTypes,operationLabels,seasonFor} from './farm-finance.js?v=international-v1';
+import {units,fmt,money,loadInventory,readAll,totalsFor,stockError} from './inventory-data.js?v=currency-symbol-v1';
+import {serviceTypes,operationLabels,seasonFor} from './farm-finance.js?v=currency-symbol-v1';
 import {costPerDecare} from './operation-cost.js?v=international-v1';
 
 import {inventoryLots,displayPurchaseQuantity,purchaseFactor,stockValuation} from './inventory-lots.js?v=inventory-lots-v1';

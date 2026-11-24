@@ -6,9 +6,9 @@ const __avt=s=>I.t(s);
 import {categoryLabel,categoryKind} from './expense-categories.js?v=international-v1';
 import { parseNumberInput, bindNumberInput, setNumberInputValue } from './number-input.js?v=international-v1';
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm";
-import { farmFinance, seasonFor, serviceTypes, operationLabels } from "./farm-finance.js?v=international-v1";
+import { farmFinance, seasonFor, serviceTypes, operationLabels } from "./farm-finance.js?v=currency-symbol-v1";
 import { costPerDecare } from "./operation-cost.js?v=international-v1";
-import {loadInventory,readAll,compatibleUnits,converted,usedQuantity,units,fmt,stockError} from './inventory-data.js?v=international-v1';
+import {loadInventory,readAll,compatibleUnits,converted,usedQuantity,units,fmt,stockError} from './inventory-data.js?v=currency-symbol-v1';
 import {automaticOperationCost,acquisitionPrice} from './operation-pricing.js?v=international-v1';
 
 import {inventoryLots,displayPurchaseQuantity,lotAutomaticCost} from './inventory-lots.js?v=inventory-lots-v1';

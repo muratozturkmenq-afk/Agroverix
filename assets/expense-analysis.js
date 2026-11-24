@@ -2,7 +2,7 @@ import {fieldProfitAdvice} from './field-profit-advice.js?v=field-profit-v1';
 import {loadFieldAnalysisData} from './field-analysis-data.js?v=field-profit-v1';
 import {ready as regionalReady,client} from './regional-context.js?v=stable-tr-v1';
 import {areaDisplay,perAreaDisplay} from './regional-format.js?v=international-v1';
-import {farmFinance,appendMetric,operationLabels} from './farm-finance.js?v=international-v1';
+import {farmFinance,appendMetric,operationLabels} from './farm-finance.js?v=currency-symbol-v1';
 import {expenseAnalysis} from './expense-analysis-model.js?v=home-season-v1';
 await regionalReady;
 const I=window.AgroIntl,$=id=>document.getElementById(id),params=new URLSearchParams(location.search),farmId=params.get('farm');

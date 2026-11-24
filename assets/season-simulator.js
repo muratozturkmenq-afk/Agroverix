@@ -1,9 +1,9 @@
 import {t,locale,areaDisplay,areaStored,perAreaDisplay,perAreaStored} from './regional-format.js?v=international-v1';
 const I=window.AgroIntl;
 const __avt=s=>I.t(s);
-import { cropTimeline } from './crop-timeline.js?v=international-v1';
+import { cropTimeline } from './crop-timeline.js?v=currency-symbol-v1';
 import { parseNumberInput as decimal, bindNumberInput, setNumberInputValue } from './number-input.js?v=international-v1';
-import { farmFinance, seasonFor, fmt, appendMetric, appendSupportMetrics } from './farm-finance.js?v=international-v1';
+import { farmFinance, seasonFor, fmt, appendMetric, appendSupportMetrics } from './farm-finance.js?v=currency-symbol-v1';
 import { cropVisual } from './crop-visual.js?v=international-v1';
 const node=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text)n.textContent=text;return n;};
 export function renderSimulators(farms,records,client,user,onSaved,onPreview=()=>{}){

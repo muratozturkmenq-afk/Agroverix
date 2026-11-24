@@ -1,5 +1,5 @@
 import {expenseAnalysis} from './expense-analysis-model.js?v=home-season-v1';
-import {operationLabels} from './farm-finance.js?v=personnel-v1';
+import {operationLabels} from './farm-finance.js?v=currency-symbol-v1';
 import {inventoryLots,stockValuation} from './inventory-lots.js?v=inventory-lots-v1';
 import {categoryLabel,categoryKind,normalizeSupplier} from './expense-categories.js?v=international-v1';
 import {payrollMonths,personnelTotal} from './personnel-math.js?v=payroll-v2';

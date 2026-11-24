@@ -1,5 +1,5 @@
 import {enrichProfitability} from './profitability-advice.js?v=profit-v1';
-import {farmFinance,operationLabels} from './farm-finance.js?v=personnel-v1';
+import {farmFinance,operationLabels} from './farm-finance.js?v=currency-symbol-v1';
 import {expenseAnalysis} from './expense-analysis-model.js?v=home-season-v1';
 import {inventoryLots,displayPurchaseQuantity,stockValuation} from './inventory-lots.js?v=inventory-lots-v1';
 import {categoryKind,categoryLabel,normalizeSupplier} from './expense-categories.js?v=international-v1';

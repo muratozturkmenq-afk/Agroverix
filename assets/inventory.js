@@ -6,8 +6,8 @@ const __avt=s=>I.t(s);
 import {expenseCategories,categoryKind,categoryLabel,normalizeSupplier} from './expense-categories.js?v=international-v1';
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
 import {bindNumberInput,parseNumberInput,setNumberInputValue} from './number-input.js?v=international-v1';
-import {units,fmt,money,converted,loadInventory,readAll,today,stockError} from './inventory-data.js?v=conditional-decimals-v2';
-import {createPaymentLedger} from './inventory-payments.js?v=payment-method-v3';
+import {units,fmt,money,converted,loadInventory,readAll,today,stockError} from './inventory-data.js?v=currency-symbol-v1';
+import {createPaymentLedger} from './inventory-payments.js?v=currency-symbol-v1';
 import {showInventoryView} from './inventory-views.js?v=page-reorg-v2';
 
 import {currentReportYear,seasonYears,seasonPurchases,purchaseYear} from './season-scope.js?v=season-scope-v1';

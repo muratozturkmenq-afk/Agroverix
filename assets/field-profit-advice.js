@@ -1,4 +1,4 @@
-import {farmFinance,operationLabels} from './farm-finance.js?v=international-v1';
+import {farmFinance,operationLabels} from './farm-finance.js?v=currency-symbol-v1';
 import {expenseAnalysis} from './expense-analysis-model.js?v=home-season-v1';
 import {farmProfitScenarios} from './profitability-advice.js?v=profit-v1';
 const valid=n=>n!==null&&n!==undefined&&Number.isFinite(n);

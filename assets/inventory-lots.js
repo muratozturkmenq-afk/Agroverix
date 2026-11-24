@@ -1,5 +1,5 @@
 import {categoryKind} from './expense-categories.js?v=international-v1';
-import {units,usedQuantity} from './inventory-data.js?v=international-v1';
+import {units,usedQuantity} from './inventory-data.js?v=currency-symbol-v1';
 export function purchaseFactor(p){const q=Number(p.purchased_quantity),base=Number(p.quantity);if(q>0&&base>0)return base/q;const pack=['torba','şişe'].includes(p.purchased_unit);return usedQuantity(1,p.purchased_unit,pack?p.package_quantity:null,p.package_unit);}
 export function displayPurchaseQuantity(p,base){const factor=purchaseFactor(p);return factor>0?Number(base)/factor:null;}
 export function inventoryLots(purchases,operations,{excludeOperationId=null,asOfDate=null}={}){

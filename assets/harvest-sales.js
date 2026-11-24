@@ -6,7 +6,7 @@ const I=window.AgroIntl;
 const __avt=s=>I.t(s);
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
 import {bindNumberInput,parseNumberInput,setNumberInputValue} from './number-input.js?v=international-v1';
-import {readAll,fmt,money,today} from './inventory-data.js?v=conditional-decimals-v2';
+import {readAll,fmt,money,today} from './inventory-data.js?v=currency-symbol-v1';
 import {currentReportYear,seasonYears,allocateReceiptSeasons} from './season-scope.js?v=season-scope-v1';
 let selectedYear=currentReportYear(),receiptAllocation={allocated:[],unallocated:[]};
 const $=id=>document.getElementById(id),cfg=window.AGROVERIX_SUPABASE||{},params=new URLSearchParams(location.search);

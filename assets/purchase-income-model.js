@@ -1,4 +1,4 @@
-import {farmFinance} from './farm-finance.js?v=personnel-v1';
+import {farmFinance} from './farm-finance.js?v=currency-symbol-v1';
 // This page compares income with purchased expenses, rather than field-use costs.
 export function purchaseSeasonResults(farms,year,purchaseTotal){
  const rows=farms.filter(f=>(f.farmer_seasons||[]).some(s=>String(s.season_year)===String(year)));

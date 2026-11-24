@@ -1,7 +1,7 @@
 import {t,locale,areaDisplay,areaStored,perAreaDisplay,perAreaStored} from './regional-format.js?v=international-v1';
 const I=window.AgroIntl;
 const __avt=s=>I.t(s);
-import {usedQuantity,units} from './inventory-data.js?v=international-v1';
+import {usedQuantity,units} from './inventory-data.js?v=currency-symbol-v1';
 export function acquisitionPrice(itemId,purchases,operationDate){
  const rows=purchases.filter(p=>p.item_id===itemId&&p.purchase_date<=operationDate);
  const quantity=rows.reduce((n,p)=>n+Number(p.quantity),0),cost=rows.reduce((n,p)=>n+Number(p.total_cost),0);

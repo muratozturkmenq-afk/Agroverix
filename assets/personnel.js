@@ -1,6 +1,6 @@
 import {ready,client} from './regional-context.js?v=stable-tr-v1';
 import {bindNumberInput,parseNumberInput,setNumberInputValue} from './number-input.js?v=international-v1';
-import {today} from './inventory-data.js?v=conditional-decimals-v2';
+import {today} from './inventory-data.js?v=currency-symbol-v1';
 import {allocatePersonnel,personnelTotal,payrollMonths,duePersonnelMonths,remainingPersonnelPay} from './personnel-math.js?v=payroll-v2';
 // Show at most two decimals for personnel amounts, without trailing zeroes.
 const I=window.AgroIntl,$=id=>document.getElementById(id),num=n=>Number(n).toLocaleString(I.locale,{minimumFractionDigits:0,maximumFractionDigits:2}),money=n=>num(n)+' '+I.currencyLabel();

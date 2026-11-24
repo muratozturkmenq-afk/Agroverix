@@ -6,7 +6,7 @@ const __avt=s=>I.t(s);
 import {addressForm} from './international-address.js?v=international-v1';
 import { parseNumberInput as decimal, bindNumberInput, setNumberInputValue } from './number-input.js?v=international-v1';
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm";
-import { seasonFor } from "./farm-finance.js?v=international-v1";
+import { seasonFor } from "./farm-finance.js?v=currency-symbol-v1";
 import { locationLabels } from "./location-labels.js?v=international-v1";
 
 const $ = (selector) => document.querySelector(selector);

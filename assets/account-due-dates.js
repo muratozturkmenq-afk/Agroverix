@@ -1,4 +1,4 @@
-import {money,today} from './inventory-data.js?v=international-v1';
+import {money,today} from './inventory-data.js?v=currency-symbol-v1';
 import {validDueDate,dueDateStatus} from './due-date-model.js?v=account-due-v1';
 const I=window.AgroIntl;
 const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};

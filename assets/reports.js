@@ -2,7 +2,7 @@ import {t,locale,areaDisplay,areaStored,perAreaDisplay,perAreaStored} from './re
 const __avt=s=>I.t(s);
 import { locationLabels } from './location-labels.js?v=international-v1';
 import { downloadWorkbook } from './xlsx-report.js?v=expense-export-v2';
-import { farmFinance, operationLabels } from './farm-finance.js?v=personnel-v1';
+import { farmFinance, operationLabels } from './farm-finance.js?v=currency-symbol-v1';
 import { costPerDecare } from './operation-cost.js?v=international-v1';
 const I=window.AgroIntl;
 import {personnelReportSheets} from './personnel-report.js?v=staff-export-v1';

@@ -1,6 +1,6 @@
 import {farmSeasonTotals} from './farm-season-totals.js?v=farm-totals-v1';
 import {renderFarmTotals,clearFarmTotals} from './farm-totals-view.js?v=farm-totals-v1';
-import {readAll} from './inventory-data.js?v=international-v1';
+import {readAll} from './inventory-data.js?v=currency-symbol-v1';
 import {t,locale,areaDisplay,areaStored,perAreaDisplay,perAreaStored} from './regional-format.js?v=international-v1';
 import {ready as regionalReady,client as regionalClient} from './regional-context.js?v=stable-tr-v1';
 await regionalReady;
@@ -8,7 +8,7 @@ const I=window.AgroIntl;
 const __avt=s=>I.t(s);
 import { bindReportButtons } from './reports.js?v=season-export-v1';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
-import { farmFinance, appendMetric, fmt } from './farm-finance.js?v=international-v1';
+import { farmFinance, appendMetric, fmt } from './farm-finance.js?v=currency-symbol-v1';
 import {currentReportYear,reportSeasonYears} from './report-seasons.js?v=season-export-v1';
 import {farmsForSeason} from './expense-analysis-model.js?v=home-season-v1';
 const seasonSelect=document.querySelector('#home-season');

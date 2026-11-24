@@ -5,7 +5,7 @@ const I=window.AgroIntl;
 const __avt=s=>I.t(s);
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
 import { reportData,saveReport,seasonResults,filterReportData } from './reports.js?v=season-export-v1';
-import { fmt,appendMetric } from './farm-finance.js?v=international-v1';
+import { fmt,appendMetric } from './farm-finance.js?v=currency-symbol-v1';
 import {fillReportSeasons,reportSeasonLabel} from './report-seasons.js?v=season-export-v1';
 const $=id=>document.getElementById(id),cfg=window.AGROVERIX_SUPABASE||{};let client,session,scopeData=null;
 const money=(n,code=I.currency)=>n===null?'—':I.money(n,code);

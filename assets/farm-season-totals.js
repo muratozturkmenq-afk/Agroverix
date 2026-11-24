@@ -1,4 +1,4 @@
-import {farmFinance} from './farm-finance.js?v=international-v1';
+import {farmFinance} from './farm-finance.js?v=currency-symbol-v1';
 // Sum money first; the combined rate is never an average of field percentages.
 export function farmSeasonTotals(farms,records,year,{forecast=false,overrides=new Map()}={}){
  const selected=farms.filter(f=>(f.farmer_seasons||[]).some(s=>String(s.season_year)===String(year))),result={count:selected.length,year:String(year),cost:0,harvestRevenue:0,support:0,income:null,profit:null,percent:null,costMissing:0,incomeMissing:0,actualCount:0,expectedCount:0,basis:'expected'};

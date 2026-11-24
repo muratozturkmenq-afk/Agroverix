@@ -1,7 +1,7 @@
 import {ready as regionalReady,client as regionalClient} from './regional-context.js?v=stable-tr-v1';
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
 import {areaDisplay,perAreaDisplay} from './regional-format.js?v=international-v1';
-import {today} from './inventory-data.js?v=international-v1';
+import {today} from './inventory-data.js?v=currency-symbol-v1';
 import {currentReportYear} from './report-seasons.js?v=season-export-v1';
 import {loadAdviceData} from './advice-data.js?v=advice-v1';
 import {buildAdviceReport} from './advice-model.js?v=profit-v1';

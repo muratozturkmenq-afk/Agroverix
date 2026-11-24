@@ -5,7 +5,7 @@ const I=window.AgroIntl;
 const __avt=s=>I.t(s);
 import {formatDetailNumber as fmt,setDetailInputValue as setNumberInputValue,readDetailInputValue,bindDetailInput} from './detail-number-format.js?v=first-render-v2';
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
-import { farmFinance,seasonFor,appendMetric as sharedMetric,appendSupportMetrics as sharedSupportMetrics,operationLabels,serviceTypes } from './farm-finance.js?v=personnel-v1';
+import { farmFinance,seasonFor,appendMetric as sharedMetric,appendSupportMetrics as sharedSupportMetrics,operationLabels,serviceTypes } from './farm-finance.js?v=currency-symbol-v1';
 import { costPerDecare } from './operation-cost.js?v=international-v1';
 import { locationLabels } from './location-labels.js?v=international-v1';
 const $=id=>document.getElementById(id),params=new URLSearchParams(location.search),farmId=params.get('farm'),cfg=window.AGROVERIX_SUPABASE||{};
