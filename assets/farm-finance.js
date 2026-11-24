@@ -46,7 +46,7 @@ export const serviceTypes=new Set(['soil_analysis','maintenance','electricity','
 
 // Support is an additional income; production costs always remain unchanged.
 export function appendSupportMetrics(parent,result,numberFormat=fmt){
-  appendMetric(parent,__avt("Toplam Destekleme"),result.support,__avt("TL"),'finance-metric',numberFormat);
-  appendMetric(parent,__avt("Dekara Destekleme"),result.supportPerDecare,__avt("TL/da"),'finance-metric',numberFormat);
-  appendMetric(parent,__avt("Kg Başına Destekleme"),result.supportPerKg,__avt("TL/kg"),'finance-metric',numberFormat);
+  appendMetric(parent,__avt("Toplam Destekleme"),result.support,__avt("₺"),'finance-metric',numberFormat);
+  appendMetric(parent,__avt("Dekara Destekleme"),result.supportPerDecare,__avt("₺/da"),'finance-metric',numberFormat);
+  appendMetric(parent,__avt("Kg Başına Destekleme"),result.supportPerKg,__avt("₺/kg"),'finance-metric',numberFormat);
 }
