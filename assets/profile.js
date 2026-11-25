@@ -26,7 +26,7 @@ import { locationLabels } from "./location-labels.js";
     $("#overview-greeting").textContent = name ? "Merhaba, " + name : "Merhaba";
   }
   const requestedStep = new URLSearchParams(window.location.search).get("next");
-  const returnPath = ["tarla-bilgileri.html", "uretim-kayitlari.html"].includes(requestedStep) ? requestedStep : "";
+  const returnPath = ["index.html", "tarla-bilgileri.html", "uretim-kayitlari.html"].includes(requestedStep) ? requestedStep : "";
   function redirectToStep() {
     if (!returnPath) return false;
     window.location.replace(returnPath);
