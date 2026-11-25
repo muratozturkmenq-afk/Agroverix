@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title data-i18n="Çiftçi Profilin · AgroVerix">Çiftçi Profilin · AgroVerix</title>
 <meta name="theme-color" content="#0D100B">
+<meta name="robots" content="noindex,nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Sans:ital,wght@0,400..700;1,400&family=Martian+Mono:wght@400..600&display=swap" rel="stylesheet">
@@ -44,7 +45,6 @@
     <div class="profile-card-head"><div><span class="profile-kicker" data-i18n="GÜVENLİ ÇİFTÇİ HESABI">GÜVENLİ ÇİFTÇİ HESABI</span><h2 id="auth-title" data-i18n="Hesabına giriş yap">Hesabına giriş yap</h2></div></div>
     <div class="auth-modes" id="auth-modes" role="tablist" aria-label="Hesap işlemi" data-i18n-label="Hesap işlemi">
       <button class="auth-mode is-active" type="button" data-auth-mode="login" aria-selected="true" data-i18n="Giriş yap">Giriş yap</button>
-      <button class="auth-mode" type="button" data-auth-mode="signup" aria-selected="false" data-i18n="Yeni hesap oluştur">Yeni hesap oluştur</button>
     </div>
     <form id="auth-form">
       <div class="profile-field"><label for="auth-email"><span data-i18n="E-posta adresi">E-posta adresi </span><b>*</b></label><input id="auth-email" type="email" inputmode="email" autocomplete="email" placeholder="ornek@posta.com" required data-i18n-placeholder="ornek@posta.com"></div>
@@ -52,7 +52,7 @@
       <button class="profile-submit" id="auth-submit" type="submit"><span data-i18n="Giriş yap">Giriş yap </span><span>→</span></button>
     </form>
     <a class="auth-forgot-link" href="sifre-sifirla.html">Şifremi Unuttum</a>
-    <p class="auth-reset-note" data-i18n="Deneme hesabını e-posta ile aç. Girişten önce e-posta adresine gönderilen onay bağlantısına tıkla.">Deneme hesabını e-posta ile aç. Girişten önce e-posta adresine gönderilen onay bağlantısına tıkla.</p>
+    <p class="auth-reset-note">Yeni üyelikler geçici olarak kapalıdır. Mevcut üyeler giriş yapabilir.</p>
     <p class="profile-result auth-status" id="auth-status" role="status" aria-live="polite"></p>
     <p class="auth-setup-note" id="auth-setup-note" hidden><span data-i18n="Hesap servisi henüz yapılandırılmadı. Kurulum için">Hesap servisi henüz yapılandırılmadı. Kurulum için </span><a href="SUPABASE-KURULUM.md" data-i18n="yönetici kurulum adımlarını">yönetici kurulum adımlarını</a><span data-i18n="tamamlayın."> tamamlayın.</span></p>
   </section>
