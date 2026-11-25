@@ -1,9 +1,12 @@
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm';
-const $=s=>document.querySelector(s),cfg=window.AGROVERIX_SUPABASE||{},fragment=new URLSearchParams(location.hash.slice(1));
-const requesting=$('#reset-request'),changing=$('#reset-change'),requestForm=$('#reset-request-form'),changeForm=$('#reset-change-form'),send=$('#reset-send'),save=$('#reset-save'),notice=$('#reset-status');
-let client=null,recoveryOwner=null,verified=false,busy=false,cooldown=0;
+const $=s=>document.querySelector(s),cfg=window.AGROVERIX_SUPABASE||{},params=new URLSearchParams(location.search),fragment=new URLSearchParams(location.hash.slice(1));
+const requesting=$('#reset-request'),verifying=$('#reset-verify'),changing=$('#reset-change'),requestForm=$('#reset-request-form'),changeForm=$('#reset-change-form'),verifyButton=$('#reset-verify-button'),send=$('#reset-send'),save=$('#reset-save'),notice=$('#reset-status');
+let client=null,recoveryOwner=null,verified=false,busy=false,cooldown=0,resolveRecoveryEvent=null;
+const recoveryEvent=new Promise(resolve=>{resolveRecoveryEvent=resolve;});
+const tokenHash=params.get('token_hash'),tokenType=params.get('type'),hasRecovery=fragment.get('type')==='recovery',hasCallbackError=['error','error_code'].some(key=>params.has(key)||fragment.has(key));
 const message=(copy,error=false)=>{notice.textContent=copy;notice.classList.toggle('is-error',error);};
-function requestView(copy='',error=false){verified=false;recoveryOwner=null;changeForm.reset();requesting.hidden=false;changing.hidden=true;save.disabled=true;if(copy)message(copy,error);}
+function requestView(copy='',error=false){verified=false;recoveryOwner=null;changeForm.reset();requesting.hidden=false;verifying.hidden=true;changing.hidden=true;verifyButton.disabled=false;save.disabled=true;if(copy)message(copy,error);}
+function enableChange(owner){if(!owner)return;recoveryOwner=owner;verified=true;requesting.hidden=true;verifying.hidden=true;changing.hidden=false;save.disabled=false;message('Bağlantın doğrulandı. Yeni şifreni iki alana da yaz.');}
 function failure(error){
  if(['over_email_send_rate_limit','over_request_rate_limit'].includes(error?.code)||error?.status===429)return 'Kısa sürede çok fazla bağlantı istendi. Biraz bekleyip tekrar dene.';
  if(error?.code==='email_address_invalid')return 'Geçerli bir e-posta adresi gir.';
@@ -21,6 +24,21 @@ requestForm.addEventListener('submit',async event=>{
   send.textContent='Bir dakika sonra tekrar gönderebilirsin';
   cooldown=setTimeout(()=>{cooldown=0;send.disabled=false;send.textContent='Bağlantıyı Tekrar Gönder';},60000);
  }catch(error){message(failure(error),true);}finally{busy=false;if(!cooldown)send.disabled=false;}
+});
+verifyButton.addEventListener('click',async()=>{
+ if(!client||busy||!tokenHash||tokenType!=='recovery')return;
+ busy=true;verifyButton.disabled=true;message('Şifre sıfırlama bağlantısı doğrulanıyor…');
+ try{
+  const {data,error}=await client.auth.verifyOtp({token_hash:tokenHash,type:'recovery'});
+  if(error)throw error;
+  const owner=data.user?.id||data.session?.user?.id;
+  const checked=await client.auth.getUser();
+  if(!owner||checked.error||checked.data?.user?.id!==owner)throw new Error('recovery-user-mismatch');
+  enableChange(owner);history.replaceState(null,'',location.pathname);
+ }catch(error){
+  const expired=['otp_expired','otp_disabled','invalid_token','token_not_found'].includes(error?.code)||/expired|invalid|not found/i.test(error?.message||'');
+  requestView(expired?'Bağlantının süresi dolmuş veya daha önce kullanılmış. Yeni bir şifre sıfırlama bağlantısı iste.':'Bağlantı doğrulanamadı. İnternet bağlantını kontrol et veya yeni bağlantı iste.',true);
+ }finally{busy=false;verifyButton.disabled=false;}
 });
 changeForm.addEventListener('submit',async event=>{
  event.preventDefault();if(!client||busy||!changeForm.reportValidity())return;
@@ -46,25 +64,29 @@ changeForm.addEventListener('submit',async event=>{
  finally{busy=false;save.disabled=!verified;}
 });
 $('#reset-new-link').addEventListener('click',()=>requestView('Yeni bağlantı için üyelikte kullandığın e-posta adresini gir.'));
-const hasRecovery=fragment.get('type')==='recovery';
-if(hasRecovery){requesting.hidden=true;message('Şifre sıfırlama bağlantın doğrulanıyor…');}
+if(tokenHash&&tokenType==='recovery'){requesting.hidden=true;verifying.hidden=false;message('E-posta bağlantısı açıldı. Güvenli doğrulamayı tamamlamak için aşağıdaki düğmeye bas.');}
+else if(hasRecovery){requesting.hidden=true;message('Şifre sıfırlama bağlantın doğrulanıyor…');}
 if(!cfg.url||!cfg.publishableKey){send.disabled=true;message('Hesap servisine bağlanılamadı. Lütfen daha sonra tekrar dene.',true);}
 else{
  // A separate, in-memory auth client cannot mistake an existing login session
  // for proof of password recovery. No recovery credentials are written to storage.
  client=createClient(cfg.url,cfg.publishableKey,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:true,flowType:'implicit',storageKey:'agroverix-password-reset'}});
  const {data:{subscription}}=client.auth.onAuthStateChange((event,session)=>{
-  if(event==='PASSWORD_RECOVERY'&&session?.user.id)recoveryOwner=session.user.id;
+  if(event==='PASSWORD_RECOVERY'&&session?.user.id){recoveryOwner=session.user.id;resolveRecoveryEvent(session);}
   else if(recoveryOwner&&(event==='SIGNED_OUT'||session?.user.id!==recoveryOwner))requestView('Oturum sona erdi. Yeni bir şifre sıfırlama bağlantısı iste.',true);
  });
- try{
+ if(tokenHash&&tokenType==='recovery'){
+  requesting.hidden=true;verifying.hidden=false;changing.hidden=true;verifyButton.disabled=false;message('E-posta bağlantısı açıldı. Güvenli doğrulamayı tamamlamak için aşağıdaki düğmeye bas.');
+ }else try{
   const {data,error}=await client.auth.getSession();
-  // Only Supabase's verified recovery event can enable the new-password form.
-  if(hasRecovery&&!error&&recoveryOwner&&data.session?.user.id===recoveryOwner){
+  let recoverySession=data.session;
+  if(hasRecovery&&!error&&!recoveryOwner)recoverySession=await Promise.race([recoveryEvent,new Promise(resolve=>setTimeout(()=>resolve(null),2000))])||recoverySession;
+  // Enable password entry only after Supabase emits a verified recovery session.
+  if(hasRecovery&&!error&&recoveryOwner&&recoverySession?.user?.id===recoveryOwner){
    const result=await client.auth.getUser();
    if(result.error||result.data?.user?.id!==recoveryOwner)throw new Error('invalid-recovery');
-   verified=true;requesting.hidden=true;changing.hidden=false;save.disabled=false;message('Bağlantın doğrulandı. Yeni şifreni iki alana da yaz.');
-  }else if(hasRecovery||fragment.has('error'))requestView('Bağlantının süresi dolmuş veya bağlantı daha önce kullanılmış. Yeni bir şifre sıfırlama bağlantısı iste.',true);
+   enableChange(recoveryOwner);
+  }else if(hasRecovery||hasCallbackError)requestView('Bağlantının süresi dolmuş veya bağlantı daha önce kullanılmış. Yeni bir şifre sıfırlama bağlantısı iste.',true);
  }catch{requestView('Bağlantı doğrulanamadı. İnternet bağlantını kontrol et veya yeni bir şifre sıfırlama bağlantısı iste.',true);}
  finally{if(location.hash)history.replaceState(null,'',location.pathname+location.search);}
  window.addEventListener('pagehide',()=>{clearTimeout(cooldown);subscription.unsubscribe();});
