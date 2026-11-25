@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title data-i18n="AgroVerix">AgroVerix</title>
-<meta name="description" content="AgroVerix ile tarlalarını, üretim kayıtlarını ve dekara maliyetlerini tek yerde takip et.">
+<meta name="description" content="AgroVerix geçici olarak yalnızca mevcut üyelere açıktır."><meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#0D100B">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,6 +29,7 @@
 <script src="assets/i18n.js?v=currency-symbol-v1"></script>
 <style>
 /* Keep the farmer and phone in view across screen sizes. */
+.temporary-closed{min-height:100svh;display:grid;place-items:center;padding:32px 20px;background:radial-gradient(ellipse at 50% 42%,#25301b 0%,#10140d 58%,#0b0d09 100%);color:#f6f2e8;text-align:center}.temporary-closed[hidden]{display:none}.temporary-closed-card{width:min(560px,100%);padding:clamp(28px,6vw,56px);border:1px solid rgba(237,180,59,.38);border-radius:24px;background:rgba(17,21,14,.82);box-shadow:0 28px 90px rgba(0,0,0,.35)}.temporary-closed img{width:min(250px,70%);height:auto;margin:0 auto 28px}.temporary-closed .eyebrow{color:#edb43b;letter-spacing:.14em;text-transform:uppercase}.temporary-closed h1{font-size:clamp(2rem,6vw,3.4rem);line-height:1.05;margin:12px 0 18px}.temporary-closed p{color:#d0d4c9;line-height:1.65;margin:0 auto 26px;max-width:440px}.temporary-closed .btn{min-width:210px;justify-content:center}.member-experience[hidden]{display:none}
 .home-fields-page .hero-photo{object-position:72% center}
 @media(max-width:760px){.home-fields-page .hero-photo{object-position:82% center}}
 /* Give the mobile portrait its own window, independent of the farm list height. */
@@ -45,7 +46,16 @@
 <link rel="stylesheet" href="assets/farm-season-totals.css?v=farm-totals-v1">
 </head>
 <body class="home-fields-page">
-
+<main class="temporary-closed" id="temporary-closed">
+  <section class="temporary-closed-card">
+    <img src="assets/images/agroverix-logo-horizontal-light.svg?v=logo-transparent-20261028" alt="AgroVerix" width="1024" height="360">
+    <p class="eyebrow">Geçici erişim</p>
+    <h1>AgroVerix kısa bir ara veriyor.</h1>
+    <p>Sitemiz proje başvuru süreci nedeniyle geçici olarak ziyaretçilere kapalıdır. Mevcut üyeler hesaplarına giriş yapıp kayıtlarını kullanmaya devam edebilir.</p>
+    <a class="btn btn-gold" href="ciftci-bilgi.html?next=index.html">Üye Girişi <span aria-hidden="true">→</span></a>
+  </section>
+</main>
+<div class="member-experience" id="member-experience" hidden>
 <div class="progress" aria-hidden="true"><i></i></div>
 
 <header class="nav" id="nav">
@@ -159,10 +169,24 @@
     <div class="site-footer-contact"><span data-i18n="Kişisel kayıtların hesabına özeldir.">Kişisel kayıtların hesabına özeldir.</span><p class="site-contact-line"><span>İletişim:</span> <a href="mailto:agroverixinfo@gmail.com">agroverixinfo@gmail.com</a></p></div>
   </div>
 </footer>
+</div>
 
 <script defer src="assets/home-shell.js?v=home-startup-v1"></script>
 <script type="module" src="assets/mobile-navigation.js?v=page-reorg-v1" defer></script>
 <script src="assets/supabase-config.js?v=international-v1"></script>
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/+esm";
+const cfg=window.AGROVERIX_SUPABASE||{};
+const hold=document.getElementById("temporary-closed");
+const member=document.getElementById("member-experience");
+const showMember=(session)=>{const active=Boolean(session);member.hidden=!active;hold.hidden=active;};
+if(cfg.url&&cfg.publishableKey){
+  const client=createClient(cfg.url,cfg.publishableKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+  const {data}=await client.auth.getSession();
+  showMember(data.session);
+  client.auth.onAuthStateChange((_event,session)=>showMember(session));
+}
+</script>
 <script type="module" src="assets/home-finance-dashboard.js?v=farm-totals-v1"></script>
 <script type="module" src="assets/regional-boot.js?v=stable-tr-v1"></script>
 <script defer src="assets/agri-support.js?v=greeting-v1"></script>
